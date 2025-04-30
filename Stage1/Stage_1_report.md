@@ -23,9 +23,8 @@
 ### Method Used:
 - Individual brainstorming based on personal interests (AI, gaming, strategy)
 - Feasibility and impact analysis
-- “How Might We…” questions:
-  - How might AI help optimize performance in a card game?
-  - How could machine learning be used in a fun and engaging environment?
+- [Mind Mapping](https://mm.tt/map/3695024987?t=tDBVLK82R3)
+- [SCAMPER Framework](https://mm.tt/map/3695079337?t=D1vzNQwlVK)
 
 ---
 

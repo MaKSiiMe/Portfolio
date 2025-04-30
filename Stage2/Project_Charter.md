@@ -45,7 +45,7 @@ A simple visual dashboard will present results to facilitate the final presentat
 ---
 
 ## Timeline (estimated)
-| Phase | Duration |
+|          Phase          |    Duration    |
 |:----------------------- |:-------------- |
 |     Idea development    |   Week 1 - 2   |
 |     Project charter     |   Week 3 - 4   |

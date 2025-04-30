@@ -2,19 +2,23 @@
 
 ## 0. Team Formation Overview
 
-- **Student Name:** TRUEL Maxime
-- **Team:** Solo project
-- **Role:** Solo Developer (Project Manager, AI Developer, Researcher)
+- **Student Name:** [TRUEL Maxime](https://github.com/MaKSiiMe), [DIDI Badr](https://github.com/saru3450)
+- **Team:**
+- **Role:** 
+  - Badr: Fullstack Developer
+  - Maxime: Project Manager, AI Developer
 - **Personal Objectives:**
   - Learn new technologies related to artificial intelligence and gaming.
   - Build a creative and potentially useful project.
   - Deepen knowledge in reinforcement learning.
+  - Deepen knowledge in web developement
 
 - **Technologies to Explore:**
   - Python (main programming language)
   - PyTorch or TensorFlow
   - OpenAI Gym (to structure the environment)
-  - (Optional) Lightweight frontend for result visualization
+  - Front-End (CSS, Tailwind, JS) for result visualization
+  - Back-End (flask, Python)
 
 ---
 

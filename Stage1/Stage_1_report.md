@@ -2,16 +2,25 @@
 
 ## 0. Team Formation Overview
 
+- **Team Name:** Team Name
+
 - **Student Name:** [TRUEL Maxime](https://github.com/MaKSiiMe), [DIDI Badr](https://github.com/saru3450)
-- **Team:**
-- **Role:** 
-  - Badr: Fullstack Developer
-  - Maxime: Project Manager, AI Developer
+
+- **Role:**
+  - Maxime: Project Manager, Game Logic Developer, AI Developer
+  - Badr: Fullstack Developer, Frontend & Backend Web Developer
+  - Both: Responsible for database design and integration
+
 - **Personal Objectives:**
-  - Learn new technologies related to artificial intelligence and gaming.
-  - Build a creative and potentially useful project.
-  - Deepen knowledge in reinforcement learning.
-  - Deepen knowledge in web developement
+  - Learn and apply reinforcement learning in a real-world context
+  - Develop a simplified game engine from scratch
+  - Explore full-stack web development for visualization and interaction
+  - Build a product that is both innovative and technically challenging
+  - Work effectively as a team in a collaborative software development process
+
+
+- **Communication & Collaboration**
+  - Slack, Discord, Github
 
 - **Technologies to Explore:**
   - Python (main programming language)
@@ -27,8 +36,8 @@
 ### Method Used:
 - Individual brainstorming based on personal interests (AI, gaming, strategy)
 - Feasibility and impact analysis
-- [Mind Mapping](https://mm.tt/map/3695024987?t=tDBVLK82R3)
-- [SCAMPER Framework](https://mm.tt/map/3695079337?t=D1vzNQwlVK)
+- [Mind Mapping - Initial Idea Exploration](https://mm.tt/map/3695024987?t=tDBVLK82R3)
+- [SCAMPER Framework - Idea Refinement](https://mm.tt/map/3695079337?t=D1vzNQwlVK)
 
 ---
 
@@ -45,29 +54,7 @@
 
 ---
 
-### Idea 2: Deck Battle Simulator
-- **Summary:** Develop a simplified engine to simulate automatic battles between decks based on game rules.
-- ✅ Pros:
-  - Easier to implement
-  - Can be used to test AI later
-- ❌ Cons:
-  - No dynamic decision-making
-  - Lacks learning or adaptation
-
----
-
-### Idea 3: Deck Analysis Dashboard
-- **Summary:** Create a web dashboard to compare decks using different metrics (cost, win rate, type efficiency, etc.)
-- ✅ Pros:
-  - Visual, useful for players
-  - Good for learning frontend development
-- ❌ Cons:
-  - Requires clean and reliable external data
-  - No AI or learning component
-
----
-
-### Idea 4: AI-Generated Optimal Decks
+### Idea 2: AI-Generated Optimal Decks
 - **Summary:** Use AI to generate competitive decks based on a specific goal (e.g., countering another deck).
 - ✅ Pros:
   - Very innovative

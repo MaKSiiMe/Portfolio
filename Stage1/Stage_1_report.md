@@ -69,16 +69,85 @@
 ---
 
 ### Idea 3: AI-Powered Fitness Assistant
-- **Summary:** Develop an app that generates personalized workout sessions using AI, based on the user’s goals, equipment, and progress.
-- ✅ Pros:
-  - Applicable to a wide audience
-  - Good use case for machine learning and frontend development
-  - Can include voice or chatbot interaction
-  - <!-- Rajoute ou Enlève ce que tu veux ici -->
-- ❌ Cons:
-  - Competitive space with many existing apps
-  - Complex backend logic for personalization and safety
-  - <!-- Rajoute ou Enlève ce que tu veux ici -->
+
+- 🌟 Idée 1 : Tableau de Bord pour le Classement des Decks
+Description :
+- Créer un tableau de bord web qui affiche les decks Pokémon TCG avec leurs statistiques (taux de victoire, popularité, performances contre des decks spécifiques).
+
+- Fonctionnalité :
+	- Classement des decks par performance.
+	- Filtres pour sélectionner les decks par type, coût énergétique, ou autre c
+	- Graphiques interactifs (barres, radar) pour visualiser les données.
+
+- Conséquence :
+	- Nécessite une intégration backend pour récupérer les données calculées par l’IA.
+	- Ajoute une valeur directe pour les joueurs en fournissant des insights visuels clairs.
+	- L’interface devra être conçue avec une attention particulière à l’ergonomie et à la responsivité (mobile/desktop).
+
+🌟 Idée 2 : Simulateur de Matchs Simplifiés
+Description :
+	- Créer une interface où les utilisateurs peuvent configurer des matchs entre deux decks et voir les résultats simulés, basés sur les calculs de l'IA.
+
+Fonctionnalités :
+
+	- Sélection des decks par l’utilisateur via un menu déroulant.
+	- Résumé des résultats de match (deck gagnant, points forts, cartes clés).
+
+	- Historique des matchs simulés pour comparaison.
+
+Conséquences :
+
+	- Besoin d’une API connectée à la logique de l’IA pour exécuter les simulations.
+	- Peut nécessiter des animations ou des visuels pour rendre les matchs plus engageants.
+	- Outil pratique pour les utilisateurs cherchant à optimiser leurs stratégies.
+
+🌟 Idée 3 : Créateur de Deck Interactif
+Description :
+	- Un outil permettant aux utilisateurs de construire leurs propres decks directement sur le site, avec des recommandations et des analyses fournies par l’IA.
+
+Fonctionnalités :
+
+	- Bibliothèque de cartes avec options de recherche et filtres.
+	- Recommandations automatiques basées sur la compatibilité des cartes.
+	- Feedback en temps réel sur la puissance du deck construit.
+
+Conséquences :
+
+	- Demande une base de données pour stocker et gérer les cartes disponibles.
+	- Améliore l’engagement en permettant aux utilisateurs de personnaliser leur expérience.
+	- Crée un pont direct entre l’IA et les joueurs via des suggestions intelligentes.
+
+🌟 Idée 4 : Visualisation de la Progression de l’IA
+Description :
+	- Développer une page dédiée où les utilisateurs peuvent voir comment l’IA s’améliore au fil du temps (statistiques de victoire, stratégies émergentes, etc.).
+
+Fonctionnalités :
+
+	- Courbes de progression des performances de l’IA (ex. : taux de victoire).
+	- Répartition des stratégies gagnantes et évolution des choix de cartes.
+	- Section "Did You Know?" montrant des faits intéressants sur le processus d’apprentissage de l’IA.
+
+Conséquences :
+
+	- Ajoute une dimension éducative au projet.
+	- Nécessite une connexion constante avec les données générées par l’IA.
+	- Peut inclure des animations et graphiques pour rendre l’information engageante
+
+🌟 Idée 5 : Communauté et Partage
+Description :
+	- Créer une section pour que les utilisateurs partagent leurs decks, leurs idées, et leurs expériences.
+
+Fonctionnalités :
+
+	- Système de partage de decks avec évaluations par la communauté.
+	- Commentaires et discussions sur chaque deck.
+	- Page de profil utilisateur montrant les decks favoris ou partagés.
+
+Conséquences :
+
+	- Renforce l’engagement communautaire.
+	- Nécessite une base de données et une gestion des utilisateurs.
+	- Complément idéal pour un projet axé sur un jeu compétitif.
 
 ---
 

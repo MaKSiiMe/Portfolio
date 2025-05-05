@@ -17,7 +17,6 @@
   - Explore full-stack web development for visualization and interaction
   - Build a product that is both innovative and technically challenging
   - Work effectively as a team in a collaborative software development process
-  - <!-- Rajoute ce que tu veux ici -->
 
 - **Communication & Collaboration**
   - Slack, Discord, Github
@@ -28,7 +27,6 @@
   - OpenAI Gym (to structure the environment)
   - Front-End (CSS, Tailwind, JS) for result visualization
   - Back-End (flask, Python, JS)
-  - <!-- Rajoute ce que tu veux ici -->
 
 ---
 
@@ -230,5 +228,3 @@ A web dashboard will present key insights such as win rates, deck comparisons, a
 2. **Explored ideas** with pros and cons
 3. **Selected** the most ambitious and educational idea
 4. **Outlined** next steps and expected challenges
-
----

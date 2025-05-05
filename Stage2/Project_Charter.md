@@ -1,4 +1,4 @@
-# Project Charter – Portfolio Project (Stage 2)
+# Project Charter – Portfolio Project
 
 ## 0. Project Objectives
 

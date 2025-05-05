@@ -1,70 +1,84 @@
-# Project Charter - "AI Agent for Pokémon TCG Deck Evaluation"
+# Project Charter – Portfolio Project (Stage 2)
 
-## Project Title
-AI Agent for Pokémon TCG Pocket Deck Optimization
+## 0. Project Objectives
 
-## Project Summary
-The goal is to develop an AI agent capable of analyzing, learning, and evaluating Pokémon TCG (Trading Card Game) decks.  
-The agent will use reinforcement learning or similar techniques to gradually identify the most powerful deck combinations.  
-A simple visual dashboard will present results to facilitate the final presentation.
+**Purpose:**
+The goal of this project is to develop an AI-powered system capable of analyzing and optimizing decks for Pokémon TCG Pocket. This project provides a practical application of reinforcement learning within the context of a card game, enhancing understanding of AI training, data management, and game engine development.
 
----
+**SMART Objectives:**
 
-## Objectives
-- Train a basic AI agent capable of simulating matches and evaluating deck performance.
-- Provide a Minimum Viable Product (MVP) showing early-stage learning results.
-- Build a simple visual tool to display AI findings (deck rankings, performance curves, etc.).
+1. Implement a functional game engine that simulates Pokémon TCG Pocket mechanics by Week 6.
+2. Develop and train a reinforcement learning model capable of playing the game and ranking decks by Week 10.
+3. Build a frontend interface that allows users to view AI matches and explore deck rankings by Week 12.
 
 ---
 
-## Scope
-**In Scope:**
-- Data preparation: define simplified decks and rules if needed.
-- Model development: basic AI agent training through self-play or evaluation functions.
-- Visualization: simple CLI interface or minimal web dashboard showing deck scores/rankings.
-- MVP version must show a *working* learning loop (even if imperfect).
+## 1. Stakeholders and Team Roles
 
-**Out of Scope:**
-- Full replication of Pokémon TCG complexity (official exhaustive rules).
-- Production-grade reinforcement learning training (advanced tuning or huge datasets).
+### Stakeholders
 
----
+| Stakeholder Type | Name / Description                              | Role / Interest in the Project                                   |
+| ---------------- | ----------------------------------------------- | ---------------------------------------------------------------- |
+| Internal         | Maxime (Team Member)                            | Responsible for game engine development and AI training          |
+| Internal         | Badr (Team Member)                              | In charge of frontend development and database integration       |
+| Internal         | Holberton Instructors & Reviewers               | Ensure educational alignment and evaluate deliverables           |
+| External         | Target Users (TCG players, game AI enthusiasts) | End-users interested in watching or interacting with AI gameplay |
 
-## Stakeholders
-- **Project Owner:** [Your Name]
-- **Mentors/Tutors:** Holberton tutors
-- **Reviewers:** Project Evaluators (final presentation panel)
+### Team Roles
 
----
-
-## Deliverables
-- Functional prototype of a Pokémon deck evaluator agent.
-- Visualization interface displaying deck evaluations.
-- Project documentation (technical design, code structure, training process).
+| Role                 | Assigned To   | Responsibilities                                                               |
+| -------------------- | ------------- | ------------------------------------------------------------------------------ |
+| Project Manager      | Maxime        | Organizes timeline, ensures coordination and delivery of milestones            |
+| AI/Backend Developer | Maxime        | Designs the game logic, implements and trains the reinforcement learning agent |
+| Frontend Developer   | Badr          | Builds the web interface and manages UI/UX                                     |
+| Database Manager     | Maxime & Badr | Designs and maintains the database used to store decks and game results        |
 
 ---
 
-## Timeline (estimated)
-|          Phase          |    Duration    |
-|:----------------------- |:-------------- |
-|     Idea development    |   Week 1 - 2   |
-|     Project charter     |   Week 3 - 4   |
-| Technical Documentation |   Weeks 5 – 6  |
-|     MVP Development     |  Weeks 7 – 10  |
-|     Project Closure     |   Week 11 –12  |
+## 2. Project Scope
+
+### In-Scope
+
+* Development of a simplified Pokémon TCG Pocket game engine
+* Reinforcement learning agent that plays the game and learns deck performance
+* Web frontend to visualize AI matches and access deck rankings
+* Database for storing cards, decks, and game outcomes
+
+### Out-of-Scope
+
+* Multiplayer online features
+* Integration with official Pokémon TCG APIs or assets
+* Complex card effects outside the simplified ruleset
+* Mobile application development
 
 ---
 
-## Risks and Challenges
-- **Data complexity:** Simplifying Pokémon TCG enough for MVP training.
-- **Model performance:** Achieving meaningful results in a limited time.
-- **Visualization:** Building a simple but clear interface quickly.
-- **Solo work:** Balancing all development tasks alone.
+## 3. Risks and Mitigation Strategies
+
+| Risk                                                        | Likelihood | Impact | Mitigation Strategy                                                                |
+| ----------------------------------------------------------- | ---------- | ------ | ---------------------------------------------------------------------------------- |
+| Lack of experience in reinforcement learning implementation | Medium     | High   | Dedicate time for studying RL concepts and use libraries like Stable Baselines3    |
+| Underestimation of time needed for AI training              | High       | High   | Start with simplified rules and run smaller training iterations early              |
+| Incompatibility or bugs between frontend and backend        | Medium     | Medium | Establish regular integration checkpoints and API contracts                        |
+| Scope creep with advanced game mechanics                    | Medium     | High   | Define and freeze game rules early; track all requested changes                    |
+| Limited dataset for AI evaluation                           | High       | Medium | Use self-play and synthetic data generation to build a sufficient training dataset |
 
 ---
 
-## Success Criteria
-- A working AI model that can rank or evaluate decks.
-- A minimal but functional user interface to present outcomes.
-- Proper documentation of the entire project process.
+## 4. High-Level Plan
 
+| Stage                       | Timeline (Weeks) | Key Deliverables                                              |
+| --------------------------- | ---------------- | ------------------------------------------------------------- |
+| Stage 1: Idea Development   | Week 1–2         | MVP idea, simplified rules, early design choices              |
+| Stage 2: Project Charter    | Week 3–4         | Project Charter document with all sections completed          |
+| Stage 3: Technical Planning | Week 5–6         | Game engine implementation plan, AI strategy, database schema |
+| Stage 4: MVP Development    | Week 7–10        | Game engine, trained AI agent, frontend and backend features  |
+| Stage 5: Project Closure    | Week 11–12       | Final testing, documentation, and presentation                |
+
+---
+
+## 5. Document Sharing
+
+Final document to be submitted via Holberton Intranet with links to code repository and presentation slides once completed.
+
+> This Project Charter was created by Maxime and Badr for the Holberton Portfolio Project – Stage 2.

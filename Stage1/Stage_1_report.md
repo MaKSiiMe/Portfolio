@@ -47,10 +47,12 @@
 ### Idea 1: Train an AI to Play Pokémon TCG
 - **Summary:** Build a reinforcement learning agent that learns to play Pokémon Trading Card Game (TCG) and improves through self-play.
 - ✅ Pros:
+  - Challenging and exciting project to explore RL
+  - Can evolve into a deck recommender or strategy tester
   - Applicable to a wide audience
   - Good use case for machine learning and frontend development
-  - Can include voice or chatbot interaction
 - ❌ Cons:
+  - Full game simulation is complex
   - Competitive space with many existing apps
   - Complex backend logic for personalization and safety
 

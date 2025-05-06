@@ -1,55 +1,55 @@
-# Stage 1 Report – Portfolio Project
+# 🌟 Stage 1 Report – Portfolio Project
 
-## 0. Team Formation Overview
+---
 
-- **Team Name:** Team Name
+## 📋 0. Team Formation Overview
 
-- **Student Name:** [TRUEL Maxime](https://github.com/MaKSiiMe), [DIDI Badr](https://github.com/saru3450)
+- **👥 Team Name:** Team Name
 
-- **Role:**
-  - Maxime: Project Manager, AI Developer, Game Developer
-  - Badr: Fullstack Developer, Frontend & Backend Web Developer
-  - Both: Responsible for database design and integration
+- **👤 Student Names:**
+  - [TRUEL Maxime](https://github.com/MaKSiiMe) – Project Manager, AI Developer, Game Developer
+  - [DIDI Badr](https://github.com/saru3450) – Fullstack Developer, Frontend & Backend Web Developer
+  - **Shared Responsibility:** Database design and integration
 
-- **Personal Objectives:**
-  - Learn and apply reinforcement learning in a real-world context
-  - Develop a simplified game engine from scratch
-  - Explore full-stack web development for visualization and interaction
-  - Build a product that is both innovative and technically challenging
-  - Work effectively as a team in a collaborative software development process
+- **🎯 Personal Objectives:**
+  - 🚀 Learn and apply reinforcement learning in a real-world context
+  - 🕹️ Develop a simplified game engine from scratch
+  - 🌐 Explore full-stack web development for visualization and interaction
+  - 💡 Build a product that is both innovative and technically challenging
+  - 🤝 Work effectively as a team in a collaborative software development process
 
-- **Communication & Collaboration**
-  - Slack, Discord, Github
+- **💬 Communication & Collaboration Tools:**
+  - Slack, Discord, GitHub
 
-- **Technologies to Explore:**
+- **🛠️ Technologies to Explore:**
   - Python (main programming language)
   - PyTorch or TensorFlow
   - OpenAI Gym (to structure the environment)
-  - Front-End (CSS, Tailwind, JS) for result visualization
-  - Back-End (flask, Python, JS)
+  - Front-End: CSS, Tailwind, JS (for result visualization)
+  - Back-End: Flask, Python, JS
 
 ---
 
-## 1. Research and Brainstorming
+## 🔍 1. Research and Brainstorming
 
-### Method Used:
-- Brainstorming based on personal interests (Blockchain, AI, gaming, sport)
-- Feasibility and impact analysis
-- [Mind Mapping - Initial Idea Exploration](https://mm.tt/map/3695024987?t=tDBVLK82R3)
-- [SCAMPER Framework - Idea Refinement](https://mm.tt/map/3695079337?t=D1vzNQwlVK)
+### 🧠 Method Used:
+- 💡 Brainstorming based on personal interests (Blockchain, AI, gaming, sport)
+- 📊 Feasibility and impact analysis
+- 🗺️ [Mind Mapping - Initial Idea Exploration](https://mm.tt/map/3695024987?t=tDBVLK82R3)
+- 🔍 [SCAMPER Framework - Idea Refinement](https://mm.tt/map/3695079337?t=D1vzNQwlVK)
 
 ---
 
-## 2. Ideas Explored
+## 💡 2. Ideas Explored
 
-### Idea 1: Train an AI to Play Pokémon TCG
+### 🃏 Idea 1: Train an AI to Play Pokémon TCG
 - **Summary:** Build a reinforcement learning agent that learns to play Pokémon Trading Card Game (TCG) and improves through self-play.
-- ✅ Pros:
+- ✅ **Pros:**
   - Challenging and exciting project to explore RL
   - Can evolve into a deck recommender or strategy tester
   - Applicable to a wide audience
   - Good use case for machine learning and frontend development
-- ❌ Cons:
+- ❌ **Cons:**
   - Full game simulation is complex
   - Competitive space with many existing apps
   - Complex backend logic for personalization and safety
@@ -183,25 +183,24 @@ Each idea from our mind map was evaluated with these criteria to guide our MVP d
 
 ### 🎯 Selected MVP: Train an AI to Play Pokémon TCG
 
-#### Main Objective:
+#### **Main Objective:**
 > Develop an AI that learns to play the Pokémon Trading Card Game using reinforcement learning to identify winning strategies and discover the most effective decks.
 
-#### MVP Description
-For the MVP, we aim to build a simplified AI-powered tool that helps analyze and rank Pokémon TCG decks. The project includes a custom game engine that simulates basic matches using simplified rules, enabling automated testing between different decks. This allows us to evaluate deck performance over many simulated games.
+#### **MVP Description:**
+For the MVP, we aim to build a simplified AI-powered tool that helps analyze and rank Pokémon TCG decks. The project includes:
+- 🕹️ A custom game engine that simulates basic matches using simplified rules.
+- 📊 A web dashboard presenting key insights such as win rates, deck comparisons, and visual feedback (graphs, match summaries, etc.).
 
-A web dashboard will present key insights such as win rates, deck comparisons, and visual feedback (graphs, match summaries, etc.). The goal is to provide a helpful assistant for players to better understand which decks perform well, and why.
-
-#### Problem It Solves:
+#### **Problem It Solves:**
 - Helps players better understand what makes a deck or strategy strong.
-- Could provide a tool for testing or recommending decks.
 - Provides a learning sandbox for AI developers and game theorists.
 
-#### Target Users:
+#### **Target Users:**
 - Pokémon TCG players
 - AI developers and learners
 - Gaming and e-sports community
 
-#### Key Features:
+#### **Key Features:**
 - Simplified game environment for training
 - AI agent using RL (Q-learning, PPO, or similar)
 - Match analysis system (win rate, mistakes, key cards)
@@ -220,11 +219,10 @@ A web dashboard will present key insights such as win rates, deck comparisons, a
 
 ---
 
-## 4. Idea Development Documentation
+## 📜 4. Idea Development Documentation
 
-### Process Summary:
-
-1. **Brainstormed** based on personal passions (AI + gaming)
-2. **Explored ideas** with pros and cons
-3. **Selected** the most ambitious and educational idea
-4. **Outlined** next steps and expected challenges
+### **Process Summary:**
+1. 💡 **Brainstormed** based on personal passions (AI + gaming)
+2. 🔍 **Explored ideas** with pros and cons
+3. ✅ **Selected** the most ambitious and educational idea
+4. 🛠️ **Outlined** next steps and expected challenges

@@ -1,15 +1,17 @@
-# Project Charter – Portfolio Project
+# 🌟 Project Charter – Portfolio Project
 
-## 0. Project Objectives
+## 0. 🎯 Project Objectives
 
-**Purpose:**
-The goal of this project is to develop an AI-powered system capable of analyzing and optimizing decks for Pokémon TCG Pocket. This project provides a practical application of reinforcement learning within the context of a card game, enhancing understanding of AI training, data management, and game engine development.
+**✨ Purpose:**
+The goal of this project is to build an **AI-driven system** capable of **evaluating and optimizing decks** for **Pokémon TCG Pocket** by learning from **simulated gameplay outcomes**. This initiative serves as a hands-on application of **reinforcement learning** in the context of a **simplified trading card game**, where the **AI agent** improves through **self-play** without relying on predefined strategies or datasets. The project also includes the development of a **minimal game engine** to simulate battles, a **deck scoring system**, and a **web dashboard** that allows users to **explore**, **compare**, and **visualize** the performance of different decks. This end-to-end solution will help the team strengthen their skills in **AI training workflows**, **game logic implementation**, **data management**, and **full-stack web development**.
+
 
 **SMART Objectives:**
+[Smart Objective - Define Project Objectives](https://mm.tt/map/3705342687?t=fVm3arspiu)
 
-1. Implement a functional game engine that simulates Pokémon TCG Pocket mechanics by Week 6.
-2. Develop and train a reinforcement learning model capable of playing the game and ranking decks by Week 10.
-3. Build a frontend interface that allows users to view AI matches and explore deck rankings by Week 12.
+1. By the end of the development phase, create an AI agent that can autonomously play at least 100 games and improve deck performance based on win/loss outcomes using reinforcement learning.
+2. Within 12 weeks, develop and integrate a web dashboard that displays the top 3 optimized decks with real-time performance metrics.
+3. Ensure that the game engine simulates at least 90% of all valid game states defined by simplified Pokémon TCG Pocket rules before the MVP presentation.
 
 ---
 
@@ -26,34 +28,34 @@ The goal of this project is to develop an AI-powered system capable of analyzing
 
 ### Team Roles
 
-| Role                 | Assigned To   | Responsibilities                                                               |
-| -------------------- | ------------- | ------------------------------------------------------------------------------ |
-| Project Manager      | Maxime        | Organizes timeline, ensures coordination and delivery of milestones            |
-| AI/Backend Developer | Maxime        | Designs the game logic, implements and trains the reinforcement learning agent |
-| Frontend Developer   | Badr          | Builds the web interface and manages UI/UX                                     |
-| Database Manager     | Maxime & Badr | Designs and maintains the database used to store decks and game results        |
+| 🛠️ Role               | 👤 Assigned To   | 📋 Responsibilities                                                               |
+| --------------------- | --------------- | -------------------------------------------------------------------------------- |
+| Project Manager       | Maxime          | Organizes timeline, ensures coordination and delivery of milestones              |
+| AI/Backend Developer  | Maxime          | Designs the game logic, implements and trains the reinforcement learning agent   |
+| Frontend Developer    | Badr            | Builds the web interface and manages UI/UX                                       |
+| Database Manager      | Maxime & Badr   | Designs and maintains the database used to store decks and game results          |
 
 ---
 
-## 2. Project Scope
+## 2. 📦 Project Scope
 
-### In-Scope
+### ✅ In-Scope
 
-* Development of a simplified Pokémon TCG Pocket game engine
-* Reinforcement learning agent that plays the game and learns deck performance
-* Web frontend to visualize AI matches and access deck rankings
-* Database for storing cards, decks, and game outcomes
+- Development of a **simplified Pokémon TCG Pocket game engine**
+- **Reinforcement learning agent** that plays the game and learns deck performance
+- **Web frontend** to visualize AI matches and access deck rankings
+- **Database** for storing cards, decks, and game outcomes
 
-### Out-of-Scope
+### ❌ Out-of-Scope
 
-* Multiplayer online features
-* Integration with official Pokémon TCG APIs or assets
-* Complex card effects outside the simplified ruleset
-* Mobile application development
+- Multiplayer online features
+- Integration with official Pokémon TCG APIs or assets
+- Complex card effects outside the simplified ruleset
+- Mobile application development
 
 ---
 
-## 3. Risks and Mitigation Strategies
+## 3. ⚠️ Risks and Mitigation Strategies
 
 | Risk                                                        | Likelihood | Impact | Mitigation Strategy                                                                |
 | ----------------------------------------------------------- | ---------- | ------ | ---------------------------------------------------------------------------------- |
@@ -65,7 +67,7 @@ The goal of this project is to develop an AI-powered system capable of analyzing
 
 ---
 
-## 4. High-Level Plan
+## 4. 🗓️ High-Level Plan
 
 | Stage                       | Timeline (Weeks) | Key Deliverables                                              |
 | --------------------------- | ---------------- | ------------------------------------------------------------- |

@@ -28,7 +28,7 @@ The goal of this project is to build an **AI-driven system** capable of **evalua
 
 ### Team Roles
 
-| 🛠️ Role               | 👤 Assigned To   | 📋 Responsibilities                                                               |
+| Role                  | Assigned To     | Responsibilities                                                                 |
 | --------------------- | --------------- | -------------------------------------------------------------------------------- |
 | Project Manager       | Maxime          | Organizes timeline, ensures coordination and delivery of milestones              |
 | AI/Backend Developer  | Maxime          | Designs the game logic, implements and trains the reinforcement learning agent   |
@@ -49,7 +49,7 @@ The goal of this project is to build an **AI-driven system** capable of **evalua
 ### ❌ Out-of-Scope
 
 - Multiplayer online features
-- Integration with official Pokémon TCG APIs or assets
+- Integration with Pokémon TCG Pocket APIs or assets
 - Complex card effects outside the simplified ruleset
 - Mobile application development
 

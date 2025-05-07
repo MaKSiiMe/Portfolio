@@ -4,7 +4,7 @@
 
 ## 📋 0. Team Formation Overview
 
-- **👥 Team Name:** Team Name
+- **👥 Team Name:** Team Rocket
 
 - **👤 Student Names:**
   - [TRUEL Maxime](https://github.com/MaKSiiMe) – Project Manager, AI Developer, Game Developer

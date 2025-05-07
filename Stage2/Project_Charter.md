@@ -57,13 +57,16 @@ The goal of this project is to build an **AI-driven system** capable of **evalua
 
 ## 3. ⚠️ Risks and Mitigation Strategies
 
-| Risk                                                        | Likelihood | Impact | Mitigation Strategy                                                                |
-| ----------------------------------------------------------- | ---------- | ------ | ---------------------------------------------------------------------------------- |
-| Lack of experience in reinforcement learning implementation | Medium     | High   | Dedicate time for studying RL concepts and use libraries like Stable Baselines3    |
-| Underestimation of time needed for AI training              | High       | High   | Start with simplified rules and run smaller training iterations early              |
-| Incompatibility or bugs between frontend and backend        | Medium     | Medium | Establish regular integration checkpoints and API contracts                        |
-| Scope creep with advanced game mechanics                    | Medium     | High   | Define and freeze game rules early; track all requested changes                    |
-| Limited dataset for AI evaluation                           | High       | Medium | Use self-play and synthetic data generation to build a sufficient training dataset |
+| Risk                                                        | Likelihood | Impact | Mitigation Strategy                                                                             |
+| ----------------------------------------------------------- | ---------- | ------ | ----------------------------------------------------------------------------------              |
+| Lack of experience in reinforcement learning implementation | Medium     | High   | Dedicate time for studying RL concepts and use libraries like Stable Baselines3                 |
+| Underestimation of time needed for AI training              | High       | High   | Start with simplified rules and run smaller training iterations early                           |
+| Incompatibility or bugs between frontend and backend        | Medium     | Medium | Establish regular integration checkpoints and API contracts                                     |
+| Scope creep with advanced game mechanics                    | Medium     | High   | Define and freeze game rules early; track all requested changes                                 |
+| Limited dataset for AI evaluation                           | High       | Medium | Use self-play and synthetic data generation to build a sufficient training dataset              |
+| Lack of important features right from the start.            | High       | Low    | Study the structure of similar databases (such as Pokédex online) and plan a clear data model.  |
+| Difficulty managing a large map database.                   | Medium     | High   | Use a scalable cloud service like Firebase or MongoDB or similar to manage data efficiently.    |
+| Lack of experience in the web domain                        | Medium     | Medium | Establish regular integration checkpoints and API contracts                                     |
 
 ---
 

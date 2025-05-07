@@ -10,6 +10,7 @@ Date: 2025-05-03
 
 from typing import List, Optional, Dict, Union
 
+
 class Card:
     def __init__(self, name: str, card_type: str, description: Optional[str] = None):
         """
@@ -23,6 +24,7 @@ class Card:
         self.name = name
         self.card_type = card_type
         self.description = description
+
 
 class PokemonCard(Card):
     def __init__(
@@ -75,6 +77,7 @@ class PokemonCard(Card):
         """
         return self.current_hp <= 0
 
+
 class SupporterCard(Card):
     def __init__(self, name: str, effect: str, description: Optional[str] = None):
         """
@@ -88,8 +91,9 @@ class SupporterCard(Card):
         super().__init__(name, "Supporter", description)
         self.effect = effect
 
+
 class ItemCard(Card):
-    def __init__(self, name: str, effect: str,description: Optional[str] = None):
+    def __init__(self, name: str, effect: str, description: Optional[str] = None):
         """
         Represents an Item card with a utility effect.
 
@@ -100,6 +104,7 @@ class ItemCard(Card):
         """
         super().__init__(name, "Item", description)
         self.effect = effect
+
 
 class ToolCard(Card):
     def __init__(self, name: str, effect: str, description: Optional[str] = None):
@@ -114,6 +119,7 @@ class ToolCard(Card):
         super().__init__(name, "Tool", description)
         self.effect = effect
         self.attached_to = None
+
 
 class Attack:
     def __init__(self, name: str, cost: List[str], damage: int, effect: Optional[str] = None):
@@ -130,6 +136,7 @@ class Attack:
         self.cost = cost
         self.damage = damage
         self.effect = effect
+
 
 class Talent:
     def __init__(self, name: str, effect: str):

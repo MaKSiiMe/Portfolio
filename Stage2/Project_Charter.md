@@ -22,7 +22,7 @@ The goal of this project is to build an **AI-driven system** capable of **evalua
 | Stakeholder Type | Name / Description                              | Role / Interest in the Project                                   |
 | ---------------- | ----------------------------------------------- | ---------------------------------------------------------------- |
 | Internal         | Maxime (Team Member)                            | Responsible for game engine development and AI training          |
-| Internal         | Badr (Team Member)                              | In charge of frontend development and database integration       |
+| Internal         | Badr (Team Member)                              | In charge of web development and database integration            |
 | Internal         | Holberton Instructors & Reviewers               | Ensure educational alignment and evaluate deliverables           |
 | External         | Target Users (TCG players, game AI enthusiasts) | End-users interested in watching or interacting with AI gameplay |
 
@@ -31,8 +31,8 @@ The goal of this project is to build an **AI-driven system** capable of **evalua
 | Role                  | Assigned To     | Responsibilities                                                                 |
 | --------------------- | --------------- | -------------------------------------------------------------------------------- |
 | Project Manager       | Maxime          | Organizes timeline, ensures coordination and delivery of milestones              |
-| AI/Backend Developer  | Maxime          | Designs the game logic, implements and trains the reinforcement learning agent   |
-| Frontend Developer    | Badr            | Builds the web interface and manages UI/UX                                       |
+| Game & AI Developer   | Maxime          | Designs the game logic, implements and trains the reinforcement learning agent   |
+| Fullstack Developer   | Badr            | Builds the web interface and manages UI/UX                                       |
 | Database Manager      | Maxime & Badr   | Designs and maintains the database used to store decks and game results          |
 
 ---

@@ -14,10 +14,19 @@
 
 | Terme                          | Description                                                                 |
 |--------------------------------|-----------------------------------------------------------------------------|
-| **[MDP (Markov Decision Process)](#01-mdp-markov-decision-process)** | Modélisation mathématique d’un environnement de décision avec états, actions, transitions, récompenses. |
+| **[MDP (Markov Decision Process)](#01-mdp-markov-decision-process)** | Modélisation mathématique d’un environnement de décision avec états, actions, transitions, récompenses.  |
 | **[Reward shaping](#02-reward-shaping)**                             | Modification de la fonction de récompense pour guider l’apprentissage plus efficacement.                 |
-| **[Curriculum learning](#03-curriculum-learning)**                   | Apprentissage progressif, débutant par des tâches faciles.                                                |
-| **[Self-play](#04-self-play)**                                       | L’agent joue contre lui-même ou ses versions précédentes pour apprendre.                                  |
+| **[Curriculum learning](#03-curriculum-learning)**                   | Apprentissage progressif, débutant par des tâches faciles.                                               |
+| **[Self-play](#04-self-play)**                                       | L’agent joue contre lui-même ou ses versions précédentes pour apprendre.                                 |
+| **[Policy](#05-policy)**                                             | Fonction déterminant l’action à prendre selon l’état. Peut être déterministe ou stochastique.            |
+| **[Value Function](#06-value-function)**                             | Fonction estimant la récompense attendue d’un état ou d’une action donnée.                               |
+| **[Exploration vs Exploitation](#07-exploration-vs-exploitation)**   | Dilemme entre exploiter les connaissances acquises ou explorer de nouvelles stratégies.                  |
+| **[Hyperparameters](#08-hyperparameters)**                           | Paramètres définis avant l’entraînement (learning rate, gamma, epsilon, etc.).                           |
+| **[Discount Factor](#09-discount-factor)**                           | Contrôle l’importance des récompenses futures.                                                           |
+| **[Episode](#10-episode)**                                           | Une séquence complète d’interactions entre l’agent et l’environnement.                                   |
+| **[State Space](#11-state-space)**                                   | Ensemble de tous les états possibles de l’environnement.                                                 |
+| **[Action Space](#12-action-space)**                                 | Ensemble de toutes les actions possibles dans un état donné.                                             |
+
 
 ---
 
@@ -87,6 +96,10 @@ Un MDP est un cadre mathématique qui décrit comment un agent interagit avec un
 - Action = ajouter/retirer une carte du deck
 - Récompense = victoire/défaite ou score de performance du deck en match simulé
 
+🧠 **Avantage** : Fournit une base formelle claire pour modéliser ton problème d’optimisation de deck comme un processus d’apprentissage par renforcement.
+
+[⬆ Retour à la table des matières](#table-des-matières)
+
 </details>
 
 ---
@@ -102,7 +115,9 @@ C’est l’art d’ajuster la fonction de récompense pour faciliter l’appren
 - Donner un bonus si une carte ajoutée augmente le taux de victoire
 - Donner une pénalité si le deck dépasse la limite autorisée de doublons ou devient moins polyvalent
 
-Cela peut t’aider à éviter que l’IA se perde dans l’espace des decks inutiles.
+🧠 **Avantage** : Accélère l’apprentissage et évite que l’IA stagne ou apprenne des comportements sous-optimaux.
+
+[⬆ Retour à la table des matières](#table-des-matières)
 
 </details>
 
@@ -119,7 +134,10 @@ On commence l’entraînement sur des tâches simples, puis on augmente la diffi
 - Phase 2 : L’IA a un choix libre sur 15 cartes parmi un pool limité
 - Phase 3 : L’IA peut construire un deck complet avec toute la base de données
 
-Ce processus rend l’apprentissage plus stable, surtout dans un environnement complexe comme Pokémon TCG Pocket.
+🧠 **Avantage** : Rend l’apprentissage plus stable et progressif, surtout dans des environnements complexes à forte combinatoire comme Pokémon TCG Pocket.
+
+[⬆ Retour à la table des matières](#table-des-matières)
+
 
 </details>
 
@@ -135,7 +153,10 @@ L’agent joue contre lui-même ou ses versions précédentes, ce qui permet d�
 - L’IA construit un deck, puis joue des parties contre un adversaire IA entraîné précédemment
 - Tu peux faire évoluer ce second adversaire au fil du temps, pour forcer l’IA à s’adapter à des decks toujours plus performants
 
-Cela permet de générer des données d'entraînement infinies et d’atteindre un comportement robuste.
+🧠 **Avantage** : Permet un entraînement autonome et indéfini, en générant des adversaires dynamiques adaptés au niveau de l’agent.
+
+[⬆ Retour à la table des matières](#table-des-matières)
+
 
 </details>
 
@@ -154,6 +175,9 @@ Un algorithme qui apprend à estimer la valeur Q(s, a), c’est-à-dire la quali
 
 🧠 **Avantage** : bien adapté si tu as un espace d’action discret (ex : pool limité de cartes).
 
+[⬆ Retour à la table des matières](#table-des-matières)
+
+
 </details>
 
 ---
@@ -168,7 +192,10 @@ Un algorithme acteur-critique qui apprend directement une politique (π) pour ch
 - Ton IA peut apprendre une distribution de choix de cartes, au lieu de choisir toujours la même
 - Elle s’ajuste progressivement pour éviter les comportements instables
 
-🧠 **Avantage** : Très utilisé, stable, et compatible avec des architectures plus complexes comme des Transformers ou GNNs. Utile pour entraîner des politiques stochastiques.
+🧠 **Avantage** : Très utilisé, stable, et compatible avec des architectures plus complexes comme des [Transformers](#13-transformer) ou [GNNs](#14-gnn-graph-neural-network). Utile pour entraîner des politiques stochastiques.
+
+[⬆ Retour à la table des matières](#table-des-matières)
+
 
 </details>
 
@@ -185,9 +212,12 @@ La version A3C entraîne plusieurs agents en parallèle.
 
 🧪 **Application à ton projet** :
 - Tu peux entraîner plusieurs agents avec des decks différents en parallèle et agréger leur apprentissage
-- Parfait pour accélérer l’entraînement via self-play en parallèle
+- Parfait pour accélérer l’entraînement via [self-play](#04-self-play) en parallèle
 
 🧠 **Avantage** : Très rapide à entraîner sur CPU et efficace pour les tâches complexes avec beaucoup de bruit dans la récompense (comme des résultats de match).
+
+[⬆ Retour à la table des matières](#table-des-matières)
+
 
 </details>
 
@@ -204,7 +234,10 @@ Elle simule des jeux jusqu’au bout pour estimer la valeur d’une action.
 - Utilisé pour tester différents choix de decks, en simulant des parties pour chaque branche
 - Peut aider à sélectionner les meilleures actions de construction ou même les meilleures stratégies de jeu
 
-🧠 **Avantage** : Très utile au début du projet, quand tu n’as pas encore de modèle appris. Peut aussi être combiné avec un réseau de valeur (comme dans AlphaZero).
+🧠 **Avantage** : Très utile au début du projet, quand tu n’as pas encore de modèle appris. Peut aussi être combiné avec un réseau de valeur (comme dans [AlphaZero)](#09-alphazero--muzero)).
+
+[⬆ Retour à la table des matières](#table-des-matières)
+
 
 </details>
 
@@ -214,7 +247,7 @@ Elle simule des jeux jusqu’au bout pour estimer la valeur d’une action.
 <details>
 <summary>Voir la définition</summary>
 
-AlphaZero combine self-play, MCTS et deep learning.
+AlphaZero combine [self-play](#04-self-play), [MCTS](#08-mcts-monte-carlo-tree-search) et deep learning.
 MuZero va plus loin : il n’a pas besoin de connaître les règles du jeu à l’avance. Il apprend un modèle interne de l’environnement.
 
 🧪 **Application à ton projet** :
@@ -222,6 +255,9 @@ MuZero va plus loin : il n’a pas besoin de connaître les règles du jeu à l�
 - Elle s’appuie uniquement sur les résultats de simulation et apprend les "règles" de succès implicitement
 
 🧠 **Avantage** : Très puissant dans des environnements complexes ou imparfaitement connus (comme Pokémon TCG Pocket où les synergies entre cartes ne sont pas toujours évidentes).
+
+[⬆ Retour à la table des matières](#table-des-matières)
+
 
 </details>
 
@@ -239,6 +275,9 @@ Un réseau dense classique, composé de plusieurs couches entièrement connecté
 
 🧠 **Avantage** : Simple, rapide à entraîner, suffisant si tes données sont bien structurées et peu séquentielles.
 
+[⬆ Retour à la table des matières](#table-des-matières)
+
+
 </details>
 
 ---
@@ -254,6 +293,9 @@ Un type de réseau récurrent (RNN) conçu pour mémoriser les séquences avec d
 - Utile pour prédire la synergie d’une carte ajoutée en fonction des cartes précédemment sélectionnées
 
 🧠 **Avantage** : Gère très bien les données séquentielles, par exemple pour apprendre une logique de draft ou de combo.
+
+[⬆ Retour à la table des matières](#table-des-matières)
+
 
 </details>
 
@@ -271,6 +313,9 @@ Initialement conçu pour les images, mais utilisable pour capturer des motifs lo
 
 🧠 **Avantage** : Très bon pour détecter des synergies locales (par exemple, des mini-combos de 2 ou 3 cartes).
 
+[⬆ Retour à la table des matières](#table-des-matières)
+
+
 </details>
 
 ---
@@ -286,6 +331,9 @@ Un réseau basé sur le mécanisme d’attention, permettant d’analyser de lon
 - Peut servir à générer un deck complet token par token, comme GPT génère du texte mot par mot
 
 🧠 **Avantage** : Idéal pour capturer des relations complexes et non locales entre cartes dans un deck.
+
+[⬆ Retour à la table des matières](#table-des-matières)
+
 
 </details>
 
@@ -304,6 +352,9 @@ Les réseaux de neurones pour graphes apprennent à partir de structures où les
 
 🧠 **Avantage** : Le plus adapté si tu veux représenter la structure interne d’un deck comme un graphe de synergies, de types, ou d’effets complémentaires.
 
+[⬆ Retour à la table des matières](#table-des-matières)
+
+
 </details>
 
 ---
@@ -316,9 +367,11 @@ AutoML désigne l'ensemble des techniques qui permettent d'automatiser tout ou p
 
 🧪 **Application à ton projet** :
 - Tu peux automatiser le choix du meilleur modèle pour prédire la force d’un deck ou pour sélectionner des cartes
-- Exemple : essayer automatiquement MLP, CNN, LSTM, etc., sur une tâche comme "évaluer un deck"
+- Exemple : essayer automatiquement [MLP](#10-mlp-multi-layer-perceptron), [CNN (Convolutional Neural Network)](#12-cnn-convolutional-neural-network), [LSTM](#11-lstm-long-short-term-memory), etc., sur une tâche comme "évaluer un deck"
 
 🧠 **Avantage** : Tu gagnes du temps et tu laisses l’outil explorer ce que tu ne soupçonnes même pas, surtout utile en début de projet.
+
+[⬆ Retour à la table des matières](#table-des-matières)
 
 </details>
 
@@ -328,13 +381,15 @@ AutoML désigne l'ensemble des techniques qui permettent d'automatiser tout ou p
 <details>
 <summary>Voir la définition</summary>
 
-Une branche d’AutoML spécialisée dans le RL : elle vise à automatiser le choix de l’algorithme RL, de la politique, du reward shaping, des hyperparamètres et de l’architecture réseau.
+Une branche d’AutoML spécialisée dans le RL : elle vise à automatiser le choix de l’algorithme RL, de la politique, du [Reward shaping](#02-reward-shaping), des hyperparamètres et de l’architecture réseau.
 
 🧪 **Application à ton projet** :
 - Ton environnement IA (le jeu Pokémon TCG Pocket) est entièrement simulable, donc parfait pour une exploration auto-entretenue
-- Exemple : tu veux tester automatiquement PPO, DQN, A2C avec différentes architectures (MLP, LSTM, GNN), et différentes fonctions de récompense (winrate, diversité du deck, synergies...)
+- Exemple : tu veux tester automatiquement [PPO](#06-ppo-proximal-policy-optimization), [DQN](#05-dqn-deep-q-network), [A2C](#07-a2c--a3c-advantage-actor-critic--asynchronous-a2c) avec différentes architectures ([MLP](#10-mlp-multi-layer-perceptron), [LSTM](#11-lstm-long-short-term-memory), [GNN](#14-gnn-graph-neural-network)), et différentes fonctions de récompense (winrate, diversité du deck, synergies...)
 
 🧠 **Avantage** : Laisse ton IA apprendre quelle stratégie de RL est la meilleure pour ton jeu, au lieu de tout faire manuellement.
+
+[⬆ Retour à la table des matières](#table-des-matières)
 
 </details>
 
@@ -347,10 +402,12 @@ Une branche d’AutoML spécialisée dans le RL : elle vise à automatiser le ch
 Technique d’AutoML qui cherche automatiquement la meilleure architecture de réseau de neurones pour une tâche donnée. Peut être combinée avec RL, évolution génétique, ou recherche bayésienne.
 
 🧪 **Application à ton projet** :
-- Tu veux qu’un moteur NAS teste et découvre si une architecture Transformer, hybride CNN+MLP ou GNN fonctionne le mieux pour prédire l’efficacité d’un deck ou pour prendre des décisions de construction
+- Tu veux qu’un moteur NAS teste et découvre si une architecture [Transformer](#13-transformer), hybride [CNN](#12-cnn-convolutional-neural-network)+[MLP](#10-mlp-multi-layer-perceptron) ou [GNN](#14-gnn-graph-neural-network) fonctionne le mieux pour prédire l’efficacité d’un deck ou pour prendre des décisions de construction
 - Cela peut aussi t’aider à concevoir le policy network de ton agent RL automatiquement
 
 🧠 **Avantage** : Tu n’as pas besoin de deviner l’architecture idéale pour ton modèle de deckbuilder — elle est découverte automatiquement.
+
+[⬆ Retour à la table des matières](#table-des-matières)
 
 </details>
 
@@ -371,6 +428,8 @@ Un framework d’optimisation d’hyperparamètres à grande échelle, très uti
 
 🧠 **Avantage** : Tu peux trouver rapidement les meilleurs réglages en profitant de la parallélisation (CPU ou GPU) et de l’intégration avec des frameworks comme PyTorch, RLlib, etc.
 
+[⬆ Retour à la table des matières](#table-des-matières)
+
 </details>
 
 ---
@@ -385,10 +444,12 @@ Trois outils open-source d’optimisation d’hyperparamètres :
 - Nevergrad (by Facebook) : basé sur des stratégies d’optimisation sans gradient, très utile en contexte RL
 
 🧪 **Application à ton projet** :
-- Tu peux les utiliser pour trouver automatiquement la meilleure configuration d’un agent RL ou d’un modèle d’évaluation de deck (MLP par ex.)
+- Tu peux les utiliser pour trouver automatiquement la meilleure configuration d’un agent RL ou d’un modèle d’évaluation de deck ([MLP](#10-mlp-multi-layer-perceptron) par ex.)
 - Exemple : tuning de ton algorithme PPO avec Optuna pour tester des dizaines de combinaisons automatiquement
 
 🧠 **Avantage** : Simple à intégrer dans ton code Python, rapide et efficace pour des petits comme des grands projets.
+
+[⬆ Retour à la table des matières](#table-des-matières)
 
 </details>
 
@@ -409,9 +470,11 @@ Trois outils open-source d’optimisation d’hyperparamètres :
         def reset(self): ...
         def render(self): ...
     ```
-- Cela te permettra de l’utiliser avec n’importe quelle librairie RL compatible Gym (comme SB3, Ray RLlib...)
+- Cela te permettra de l’utiliser avec n’importe quelle librairie RL compatible Gym (comme SB3, [Ray RLlib](#24-rllib-ray)...)
 
 🧠 **Avantage** : Standardisation = intégration facile avec des dizaines d’outils, visualisation simple, outils de debug inclus.
+
+[⬆ Retour à la table des matières](#table-des-matières)
 
 </details>
 
@@ -432,6 +495,8 @@ Un framework open-source pour l’entraînement d’agents RL dans les jeux de c
 
 🧠 **Avantage** : Tu gagnes du temps en réutilisant des mécaniques propres aux jeux de cartes, déjà codées et testées.
 
+[⬆ Retour à la table des matières](#table-des-matières)
+
 </details>
 
 ---
@@ -440,7 +505,7 @@ Un framework open-source pour l’entraînement d’agents RL dans les jeux de c
 <details>
 <summary>Voir la définition</summary>
 
-Une librairie Python dédiée aux environnements RL multi-agents, compatible avec Gymnasium.
+Une librairie Python dédiée aux environnements RL multi-agents, compatible avec [Gymnasium](#20-openai-gym--gymnasium).
 
 🧪 **Application à ton projet** :
 - Si tu veux simuler deux agents IA qui s’affrontent, PettingZoo est fait pour toi :
@@ -448,6 +513,8 @@ Une librairie Python dédiée aux environnements RL multi-agents, compatible ave
     - Tu peux faire apprendre les deux agents en parallèle ou en opposition
 
 🧠 **Avantage** : Permet de former ton IA contre des adversaires dynamiques, au lieu d’un bot statique. C’est idéal pour l’optimisation de decks face à un méta-jeu évolutif.
+
+[⬆ Retour à la table des matières](#table-des-matières)
 
 </details>
 
@@ -457,7 +524,7 @@ Une librairie Python dédiée aux environnements RL multi-agents, compatible ave
 <details>
 <summary>Voir la définition</summary>
 
-Une implémentation stable, modulaire et bien documentée des principaux algorithmes de RL (DQN, PPO, A2C...) basée sur PyTorch.
+Une implémentation stable, modulaire et bien documentée des principaux algorithmes de RL ([DQN](#05-dqn-deep-q-network), [PPO](#06-ppo-proximal-policy-optimization), [A2C / A3C](#07-a2c--a3c-advantage-actor-critic--asynchronous-a2c)...) basée sur PyTorch.
 
 🧪 **Application à ton projet** :
 - Une fois ton environnement Gym prêt, tu peux directement l’entraîner avec SB3 :
@@ -468,6 +535,8 @@ model.learn(total_timesteps=100_000)
 ```
 
 🧠 **Avantage** : Rapide à déployer, excellente documentation, plugins pour TensorBoard, checkpoints, callbacks personnalisés...
+
+[⬆ Retour à la table des matières](#table-des-matières)
 
 </details>
 
@@ -480,10 +549,12 @@ model.learn(total_timesteps=100_000)
 Une plateforme RL industrielle et distribuée, intégrée à l’écosystème Ray. Permet de lancer des expériences RL à grande échelle, avec support pour la parallélisation, les multi-agents, et l’AutoRL.
 
 🧪 **Application à ton projet** :
-- Idéal si tu veux entraîner plusieurs agents deckbuilders en parallèle, ou lancer des recherches d’hyperparamètres avec Ray Tune
+- Idéal si tu veux entraîner plusieurs agents deckbuilders en parallèle, ou lancer des recherches d’hyperparamètres avec [Ray Tune](#18-ray-tune)
 - Tu peux l’utiliser pour du training multi-joueur où chaque IA explore des stratégies différentes
 
 🧠 **Avantage** : Puissant, scalable, prêt pour le cloud. C’est l’outil parfait pour passer d’un prototype local à un entraînement massif.
+
+[⬆ Retour à la table des matières](#table-des-matières)
 
 </details>
 

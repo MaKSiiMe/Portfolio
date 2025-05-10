@@ -33,7 +33,7 @@ The goal of this project is to build an **AI-driven system** capable of **evalua
 | Project Manager       | Maxime          | Organizes timeline, ensures coordination and delivery of milestones              |
 | Game & AI Developer   | Maxime          | Designs the game logic, implements and trains the reinforcement learning agent   |
 | Fullstack Developer   | Badr            | Builds the web interface and manages UI/UX                                       |
-| Database Manager      | Maxime & Badr   | Designs and maintains the database used to store decks and game results          |
+| Database Manager      | Maxime & Badr   | Designs and maintains the database used to store card, decks and game results    |
 
 ---
 
@@ -48,10 +48,10 @@ The goal of this project is to build an **AI-driven system** capable of **evalua
 
 ### ❌ Out-of-Scope
 
-- Multiplayer online features
-- Integration with Pokémon TCG Pocket APIs or assets
-- Complex card effects outside the simplified ruleset
-- Mobile application development
+- **Multiplayer** online features
+- Integration with Pokémon TCG Pocket APIs or **assets**
+- Complex **card effects** outside the simplified ruleset
+- **Mobile** application development
 
 ---
 

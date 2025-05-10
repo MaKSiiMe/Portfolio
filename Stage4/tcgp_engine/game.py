@@ -56,6 +56,7 @@ class Game:
                 if player.active_pokemon.energy_attached >= len(attack.cost):
                     print(f"{player.name} utilise l'attaque {attack.name} de {player.active_pokemon.name}")
                     opponent.take_damage(attack.damage)
+                    self.check_knockouts()
                     break
 
         # Vérifier victoire
@@ -68,12 +69,13 @@ class Game:
         self.current_player_index = 1 - self.current_player_index
 
     def check_knockouts(self):
-        for player in self.players:
+        for i, player in enumerate(self.players):
             if player.active_pokemon and player.active_pokemon.is_knocked_out():
-                print(f"{player.active_pokemon.name} is knocked out!")
-                self.opponent.gain_point(player.active_pokemon)
+                print(f"{player.active_pokemon.name} est mis K.O. !")
+                opponent = self.players[1 - i]
+                opponent.gain_point(player.active_pokemon)
                 player.discard_pile.append(player.active_pokemon)
-                player.active_pokemon = None  # À remplacer par un remplacement réel plus tard
+                player.active_pokemon = None  # À remplacer plus tard par sélection d'un nouveau Pokémon
 
     def check_victory(self):
         for player in self.players:
@@ -85,3 +87,6 @@ class Game:
     def end_turn(self):
         self.current_player_index = 1 - self.current_player_index
         self.turn_count += 1
+
+    def is_game_over(self) -> bool:
+        return self.is_over

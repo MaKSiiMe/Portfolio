@@ -3,20 +3,20 @@ from player import Player
 from game import Game
 
 # Définir quelques attaques
-tackle = Attack(name="Tackle", cost=["Colorless"], damage=30)
-fire_blast = Attack(name="Fire Blast", cost=["Fire"], damage=60, effect="Burns the opponent")
+fouetLianes = Attack(name="Fouet Lianes", cost=["Colorless"], damage=40)
+flammeche = Attack(name="Flammèche", cost=["Fire"], damage=30)
 
 # Talents
 regeneration = Talent(name="Regeneration", effect="Heal 10 HP at the beginning of your turn")
 
 # Pokémon
-bulbasaur = PokemonCard(
-    name="Bulbasaur", hp=60, evolution="Base", attacks=[tackle],
-    pokemon_type="Plant", talent=regeneration
+bulbizarre = PokemonCard(
+    name="Bulbizarre", hp=70, evolution="Base", attacks=[fouetLianes],
+    pokemon_type="Plant"
 )
 
-charmander = PokemonCard(
-    name="Charmander", hp=50, evolution="Base", attacks=[fire_blast],
+salamèche = PokemonCard(
+    name="Salamèche", hp=60, evolution="Base", attacks=[flammeche],
     pokemon_type="Fire"
 )
 
@@ -24,8 +24,8 @@ charmander = PokemonCard(
 erika = SupporterCard(name="Erika", effect="Draw 2 cards")
 
 # Créer les decks
-deck1 = [bulbasaur, erika]
-deck2 = [charmander, erika]
+deck1 = [bulbizarre, erika]
+deck2 = [salamèche, erika]
 
 # Créer les joueurs
 player1 = Player(name="Maxime", deck=deck1)
@@ -35,6 +35,9 @@ player2 = Player(name="Badr", deck=deck2)
 game = Game(player1, player2)
 game.start_game()
 
-# Simuler quelques tours
-game.play_turn()  # Tour de Maxime
-game.play_turn()  # Tour de Badr
+# Boucle de jeu principale
+while not game.is_over:
+    game.play_turn()
+    game.check_knockouts()
+    if game.is_game_over():
+        break

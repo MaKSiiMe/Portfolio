@@ -1,0 +1,11 @@
+{
+    "id": "babu",
+    "name": {
+        "en": "Babu",
+        "de": "Babu",
+        "fr": "Babu"
+    },
+    "description": {
+        "en": "Just a regular Babu."
+    }
+}

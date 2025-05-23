@@ -1,4 +1,3 @@
-
 # 📘 Technical Documentation – MVP UNO AI Game
 
 ---
@@ -7,42 +6,72 @@
 
 ### User Stories (MoSCoW Prioritization)
 
-| Priority | User Story |
-|---------|------------|
-| **Must Have** | As a player, I want to play a full UNO game against an AI, so that I can enjoy a solo game experience. |
-| **Must Have** | As a developer, I want to simulate thousands of games, so that the AI can improve through training. |
-| **Must Have** | As a player, I want to see the history of moves in a dashboard, so that I can understand the AI's strategy. |
-| **Should Have** | As a tester, I want to select the AI’s difficulty level, so that I can evaluate different behaviors. |
-| **Could Have** | As a player, I want to upload my game logs, so that I can analyze external gameplays. |
+| Priority    | User Story                                                                                                      |
+|-------------|----------------------------------------------------------------------------------------------------------------|
+| **Must**    | As a player, I want to play a full UNO game against the AI, so I can test the AI’s strategy and enjoy gameplay.|
+| **Must**    | As a developer, I want the AI to choose the best card to play based on the current game state, for realism.    |
+| **Must**    | As a player, I want to see my hand and the top card on the discard pile, so I can make informed choices.       |
+| **Should**  | As a developer, I want the AI to learn from multiple simulated games, so it can improve over time.             |
+| **Should**  | As a user, I want a dashboard showing game history and AI decision logs, to analyze its behavior.              |
+| **Could**   | As a user, I want to adjust the AI difficulty, so I can choose between casual and competitive play.            |
+| **Could**   | As a developer, I want to test different reward strategies for reinforcement learning, to compare their impact. |
+| **Won't**   | Multiplayer mode                                                                                                |
+| **Won't**   | Mobile version                                                                                                  |
 
 ### Mockups
 
 Wireframes for:
-- Game View: card display, current player, action buttons.
-- Dashboard: AI stats, win ratio, recent games.
-(Mockups à créer avec Figma plus tard.)
+- **Game Interface**
+    - Player hand
+    - Discard pile (top card visible)
+    - Action buttons: Play / Draw / UNO!
+    - AI’s card count
+    - Turn indicator
+- **Dashboard / Analytics**
+    - Match history
+    - Win/loss ratio
+    - AI decision log per game (e.g., why it played that card)
+
+*(Mockups to be created in Figma later.)*
 
 ---
 
 ## 2. 🧱 System Architecture
 
-```
-+-------------+          +---------------+          +---------------+
-| Frontend UI | <------> |  FastAPI App  | <------> |   PostgreSQL  |
-|  (optional) |          | (Python backend)         |    Database   |
-+-------------+          +---------------+          +---------------+
-                                   ↑
-                                   |
-                          +----------------+
-                          |  AI Decision   |
-                          | (RL or logic)  |
-                          +----------------+
+```mermaid
+flowchart TD
+    FE[Front-End (React/Vite)]
+    BE[Back-End API (FastAPI)]
+    GE[Game Engine]
+    AI[AI Trainer]
+    GSDB[Game State DB]
+    MHDB[Match History DB]
+    PGSQL[PostgreSQL]
+
+    FE --> BE
+    BE --> GE
+    BE --> AI
+    GE --> GSDB
+    AI --> MHDB
+    GSDB --> PGSQL
+    MHDB --> PGSQL
 ```
 
-- **Frontend (optional)**: React or static HTML/JS dashboard.
-- **Backend**: FastAPI, handles game logic and REST API.
-- **AI Agent**: Trainable model or rule-based bot.
-- **DB**: PostgreSQL, stores matches, player actions, training logs.
+| Component             | Role                                                                                                 |
+|-----------------------|------------------------------------------------------------------------------------------------------|
+| **Front-End Web App** | Player interface (play card, view hand, see pile, check history).                                   |
+| **Back-End API**      | Bridge between UI, game engine, AI, and databases. Handles game and analytics routes.               |
+| **Game Engine**       | Manages simplified UNO rules, applies moves, checks win conditions.                                 |
+| **AI Trainer**        | Simulates thousands of games to train an agent via reinforcement. Can run in background.            |
+| **Database**          | Stores games, game states, AI metrics, and training logs. PostgreSQL recommended.                   |
+
+### Data Flow (Simplified)
+1. Player interacts with the front-end.
+2. Front-end calls the back-end API to play a card or start a game.
+3. Back-end calls the game engine to validate the move.
+4. Game engine returns the updated game state.
+5. AI plays its turn (if applicable) and move is returned via API.
+6. States and results are saved in the database for dashboard/training.
 
 ---
 
@@ -50,33 +79,33 @@ Wireframes for:
 
 ### Key Components & Classes
 
-- `GameEngine`: manages the game flow (turns, actions, rules).
-- `Player`: base class for human or AI players.
-- `UNOCard`: represents each card (color, type, value).
-- `DeckManager`: handles draw pile and discard pile.
-- `AIPlayer`: inherits `Player`, adds decision logic.
+- `GameEngine`: Manages game flow (turns, actions, rules).
+- `Player`: Base class for human or AI players.
+- `UNOCard`: Represents each card (color, type, value).
+- `DeckManager`: Handles draw and discard piles.
+- `AIPlayer`: Inherits `Player`, adds decision logic.
 
 ### Database Schema (PostgreSQL)
 
 ```sql
-Table: games
-- id (PK)
-- date_created
-- result (win/loss/draw)
-- total_turns
+-- Table: games
+id SERIAL PRIMARY KEY
+date_created TIMESTAMP
+result VARCHAR(10) -- win/loss/draw
+total_turns INTEGER
 
-Table: actions
-- id (PK)
-- game_id (FK)
-- player_type (human/ai)
-- card_played
-- turn_number
+-- Table: actions
+id SERIAL PRIMARY KEY
+game_id INTEGER REFERENCES games(id)
+player_type VARCHAR(10) -- human/ai
+card_played VARCHAR(20)
+turn_number INTEGER
 
-Table: ai_stats
-- id (PK)
-- model_version
-- win_ratio
-- total_games
+-- Table: ai_stats
+id SERIAL PRIMARY KEY
+model_version VARCHAR(20)
+win_ratio FLOAT
+total_games INTEGER
 ```
 
 ---
@@ -85,21 +114,47 @@ Table: ai_stats
 
 ### Sequence 1: Player Plays a Turn
 
-```
-Player -> FastAPI -> GameEngine -> ValidateMove
-                                   |
-                        returns result (valid/invalid)
-FastAPI -> DeckManager (if draw)
-FastAPI -> DB (logs move)
+**Actors:**  
+User (Player) → Frontend (React) → Backend (FastAPI) → Game Engine → Database (PostgreSQL)
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant F as Frontend (React)
+    participant B as Backend (FastAPI)
+    participant G as Game Engine
+    participant D as Database
+
+    U->>F: Click "Play card"
+    F->>B: POST /play-card
+    B->>G: Validate card
+    G-->>B: Updated game state
+    B->>D: Save move
+    D-->>B: Save successful
+    B-->>F: Return updated game state
+    F-->>U: Update UI
 ```
 
 ### Sequence 2: AI Makes a Move
 
-```
-FastAPI -> AIPlayer -> GameStateAnalysis
-                      -> ChooseAction
-FastAPI -> GameEngine -> ApplyMove
-FastAPI -> DB (logs move)
+**Actors:**  
+Backend (FastAPI) → AI Engine → Game Engine → Database (PostgreSQL) → Frontend
+
+```mermaid
+sequenceDiagram
+    participant B as Backend (FastAPI)
+    participant AI as AI Engine
+    participant G as Game Engine
+    participant D as Database
+    participant F as Frontend
+
+    B->>AI: Detect AI's turn
+    AI->>G: Choose best card
+    G-->>AI: Validate AI move, update state
+    AI->>D: Save AI move
+    D-->>AI: Save successful
+    AI-->>B: Return new state
+    B-->>F: Auto-refresh UI (AI’s move shown)
 ```
 
 ---
@@ -108,52 +163,52 @@ FastAPI -> DB (logs move)
 
 ### External APIs
 
-Aucun appel externe requis (jeu auto-suffisant).
+No external calls required (self-contained game).
 
 ### Internal API Endpoints (FastAPI)
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/game/start` | Initie une nouvelle partie |
-| `POST` | `/game/play` | Envoie l’action du joueur |
-| `GET`  | `/game/state` | Retourne l’état actuel du jeu |
-| `POST` | `/game/ai` | Fait jouer l’IA |
-| `GET`  | `/stats` | Récupère les performances de l’IA |
-| `GET`  | `/history/{id}` | Récupère les logs d’une partie |
+| Method | Endpoint         | Description                        |
+|--------|------------------|------------------------------------|
+| POST   | `/game/start`    | Start a new game                   |
+| POST   | `/game/play`     | Submit player action               |
+| GET    | `/game/state`    | Get current game state             |
+| POST   | `/game/ai`       | Make the AI play                   |
+| GET    | `/stats`         | Get AI performance stats           |
+| GET    | `/history/{id}`  | Get logs for a specific game       |
 
-> 📦 Tous les échanges utilisent le format JSON.
+> 📦 All exchanges use JSON format.
 
 ---
 
 ## 6. 🛠️ SCM and QA Strategies
 
-### SCM (Git)
+### Source Control (Git)
 
 - GitHub repository
 - Branching:
-  - `main` (prod)
-  - `develop` (dev stable)
+  - `main` (production)
+  - `develop` (stable dev)
   - `feature/*`, `bugfix/*`, `hotfix/*`
-- PR + code review obligatoire
-- Commit messages conventionnels (`feat:`, `fix:`, etc.)
+- PR + mandatory code review
+- Conventional commit messages (`feat:`, `fix:`, etc.)
 
 ### QA Strategy
 
-- `pytest` pour les tests unitaires et fonctionnels
-- `test_game_engine.py`, `test_ai_behavior.py`, etc.
-- Couverture de tests sur règles de jeu et IA
-- Tests manuels avec Postman sur les endpoints
-- GitHub Actions possible pour CI
+- `pytest` for unit and functional tests
+- Example test files: `test_game_engine.py`, `test_ai_behavior.py`
+- Test coverage on game rules and AI
+- Manual endpoint tests with Postman
+- GitHub Actions for CI (optional)
 
 ---
 
 ## 7. ⚙️ Technical Justifications
 
-| Décision | Justification |
-|----------|---------------|
-| **UNO vs Pokémon TCG** | Le jeu UNO simplifié permet un moteur de jeu stable en moins de temps. |
-| **FastAPI** | Framework léger, rapide, parfait pour API RESTful. |
-| **PostgreSQL** | Fiable et relationnel, idéal pour stocker des parties et actions. |
-| **Python** | Langage commun pour IA et backend, facilite l’intégration. |
-| **Git Flow** | Organisation claire entre dev, features, hotfixes. |
-| **Tests automatisés** | Permet de valider les règles de manière fiable, indispensable pour IA. |
+| Decision                | Justification                                                                 |
+|-------------------------|-------------------------------------------------------------------------------|
+| **UNO vs Pokémon TCG**  | Simplified UNO allows a stable game engine in less time.                      |
+| **FastAPI**             | Lightweight, fast, perfect for RESTful APIs.                                  |
+| **PostgreSQL**          | Reliable, relational, ideal for storing games and actions.                    |
+| **Python**              | Common for AI and backend, easy integration.                                  |
+| **Git Flow**            | Clear organization between dev, features, hotfixes.                           |
+| **Automated Tests**     | Validates rules reliably, essential for AI.                                   |

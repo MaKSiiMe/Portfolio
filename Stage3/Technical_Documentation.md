@@ -40,13 +40,13 @@ Wireframes for:
 
 ```mermaid
 flowchart TD
-    FE[Front-End (React/Vite)]
-    BE[Back-End API (FastAPI)]
-    GE[Game Engine]
-    AI[AI Trainer]
-    GSDB[Game State DB]
-    MHDB[Match History DB]
-    PGSQL[PostgreSQL]
+    FE["Front-End (React/Vite)"]
+    BE["Back-End API (FastAPI)"]
+    GE["Game Engine"]
+    AI["AI Trainer"]
+    GSDB["Game State DB"]
+    MHDB["Match History DB"]
+    PGSQL["PostgreSQL"]
 
     FE --> BE
     BE --> GE

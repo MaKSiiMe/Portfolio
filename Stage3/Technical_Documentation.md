@@ -6,17 +6,18 @@
 
 ### User Stories (MoSCoW Prioritization)
 
-| Priority    | User Story                                                                                                      |
+| Priority    | User Story                                                                                                     |
 |-------------|----------------------------------------------------------------------------------------------------------------|
 | **Must**    | As a player, I want to play a full UNO game against the AI, so I can test the AI’s strategy and enjoy gameplay.|
 | **Must**    | As a developer, I want the AI to choose the best card to play based on the current game state, for realism.    |
+| **Must**    | As a player, I want to be able to register and log in, to save my progress and statistics.                     |
 | **Must**    | As a player, I want to see my hand and the top card on the discard pile, so I can make informed choices.       |
 | **Should**  | As a developer, I want the AI to learn from multiple simulated games, so it can improve over time.             |
 | **Should**  | As a user, I want a dashboard showing game history and AI decision logs, to analyze its behavior.              |
 | **Could**   | As a user, I want to adjust the AI difficulty, so I can choose between casual and competitive play.            |
-| **Could**   | As a developer, I want to test different reward strategies for reinforcement learning, to compare their impact. |
-| **Won't**   | Multiplayer mode                                                                                                |
-| **Won't**   | Mobile version                                                                                                  |
+| **Could**   | As a developer, I want to test different reward strategies for reinforcement learning, to compare their impact.|
+| **Won't**   | Multiplayer mode                                                                                               |
+| **Won't**   | Mobile version                                                                                                 |
 
 ### Mockups
 
@@ -39,6 +40,7 @@ Wireframes for:
 ## 2. 🧱 System Architecture
 
 ```mermaid
+
 flowchart TD
     FE["Front-End (React/Vite)"]
     BE["Back-End API (FastAPI)"]
@@ -55,6 +57,7 @@ flowchart TD
     AI --> MHDB
     GSDB --> PGSQL
     MHDB --> PGSQL
+
 ```
 
 | Component             | Role                                                                                                 |
@@ -133,6 +136,7 @@ sequenceDiagram
     D-->>B: Save successful
     B-->>F: Return updated game state
     F-->>U: Update UI
+
 ```
 
 ### Sequence 2: AI Makes a Move
@@ -141,6 +145,7 @@ sequenceDiagram
 Backend (FastAPI) → AI Engine → Game Engine → Database (PostgreSQL) → Frontend
 
 ```mermaid
+
 sequenceDiagram
     participant B as Backend (FastAPI)
     participant AI as AI Engine
@@ -155,6 +160,7 @@ sequenceDiagram
     D-->>AI: Save successful
     AI-->>B: Return new state
     B-->>F: Auto-refresh UI (AI’s move shown)
+    
 ```
 
 ---

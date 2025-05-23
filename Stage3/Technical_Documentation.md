@@ -188,15 +188,36 @@ No external calls required (self-contained game).
 
 ## 6. 🛠️ SCM and QA Strategies
 
-### Source Control (Git)
+### Source Control Management (SCM)
 
-- GitHub repository
-- Branching:
-  - `main` (production)
-  - `develop` (stable dev)
-  - `feature/*`, `bugfix/*`, `hotfix/*`
-- PR + mandatory code review
-- Conventional commit messages (`feat:`, `fix:`, etc.)
+- **Git** with GitHub as remote repository.
+- **Branching strategy:**
+  - `main`: stable, production-ready branch
+  - `develop`: main development branch
+  - `feature/<feature_name>`: new features
+  - `bugfix/<bug_name>`: bug fixes
+  - `release/<version>`: pre-release preparation (optional)
+  - `hotfix/<patch_name>`: urgent production fixes
+- **Workflow:**
+  - Developers branch from `develop` for features/bugfixes.
+    - Use clear, conventional commit messages (e.g., `feat: add card draw logic`).
+  - Pull Requests (PR) to `develop` with mandatory code review.
+  - Merge `develop` into `main` for releases.
+
+**Recommended tools:**  
+- GitHub for repository and PR management  
+- GitHub Projects or Issues for progress tracking
+### Quality Assurance (QA)
+
+- **Automated tests:** Ensure code quality and rule validation.
+- **Manual tests:** End-to-end gameplay and API checks.
+
+| Test Type         | Tools             | Description                                      |
+|-------------------|-------------------|--------------------------------------------------|
+| Unit tests        | pytest, unittest  | Test core functions and game rules               |
+| Integration tests | pytest, httpx     | Test FastAPI endpoints                           |
+| Manual tests      | Postman, frontend | Full gameplay and API validation                 |
+| AI logic tests    | Simulation scripts| Ensure AI follows rules and behaves correctly    |
 
 ### QA Strategy
 

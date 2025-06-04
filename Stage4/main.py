@@ -7,6 +7,9 @@ VALUES = list(range(1, 10))
 SPECIAL_CARDS = ['+2', 'Reverse', 'Skip']
 CARDS_PER_PLAYER = 7
 NUM_PLAYERS = 3
+if NUM_PLAYERS > 10:
+    print("Le nombre maximum de joueurs autorisé est 10.")
+    sys.exit(1)
 PLAYER_NAMES = [f"Joueur {i}" for i in range(NUM_PLAYERS)]
 
 def create_deck(seed=None):

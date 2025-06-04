@@ -11,6 +11,7 @@ if NUM_PLAYERS > 10:
     print("Le nombre maximum de joueurs autorisé est 10.")
     sys.exit(1)
 PLAYER_NAMES = [f"Joueur {i}" for i in range(NUM_PLAYERS)]
+HUMAN_PLAYER_IDX = 0
 
 def create_deck(seed=None):
     deck = []
@@ -120,42 +121,68 @@ def main(seed=None):
 
         playable_cards = [card for card in hands[current_player] if is_playable(card, discard_pile[-1])]
 
-        if playable_cards:
-            card_to_play = playable_cards[0]
-            hands[current_player].remove(card_to_play)
-            discard_pile.append(card_to_play)
-            print(f"{PLAYER_NAMES[current_player]} joue {card_to_play}")
-            consecutive_passes = 0
-
-            # Effets spéciaux
-            if "+2" in card_to_play:
-                draw_two_next += 1
-            elif "Skip" in card_to_play:
-                skip_next = True
-            elif "Reverse" in card_to_play:
-                if NUM_PLAYERS == 2:
-                    skip_next = True
+        if current_player == HUMAN_PLAYER_IDX:
+            print("Vos cartes :", hands[current_player])
+            print("Carte sur le dessus :", discard_pile[-1])
+            if not playable_cards:
+                input("Vous ne pouvez pas jouer, appuyez sur Entrée pour piocher une carte...")
+                if deck:
+                    drawn = deck.pop()
+                    print("Vous avez pioché :", drawn)
+                    hands[current_player].append(drawn)
                 else:
-                    direction *= -1
-                    print("Sens de jeu inversé !")
-            elif card_to_play.startswith("Wild") and "+4" not in card_to_play:
-                new_color = random.choice(COLORS)
-                discard_pile[-1] = f"{new_color} Wild"
-                print(f"{PLAYER_NAMES[current_player]} change la couleur en {new_color}")
-            elif "Wild +4" in card_to_play:
-                new_color = random.choice(COLORS)
-                discard_pile[-1] = f"{new_color} Wild +4"
-                draw_four_next += 1
-                print(f"{PLAYER_NAMES[current_player]} change la couleur en {new_color} et inflige +4")
-        else:
-            if deck:
-                drawn_card = deck.pop()
-                hands[current_player].append(drawn_card)
-                print(f"{PLAYER_NAMES[current_player]} pioche une carte")
-                consecutive_passes = 0
+                    print("La pioche est vide.")
+                    consecutive_passes += 1
             else:
-                print(f"{PLAYER_NAMES[current_player]} ne peut pas piocher, le paquet est vide")
-                consecutive_passes += 1
+                print("Cartes jouables :", playable_cards)
+                while True:
+                    choice = input(f"Quelle carte voulez-vous jouer ? (0-{len(playable_cards)-1}): ")
+                    if choice.isdigit() and 0 <= int(choice) < len(playable_cards):
+                        card_to_play = playable_cards[int(choice)]
+                        hands[current_player].remove(card_to_play)
+                        discard_pile.append(card_to_play)
+                        print(f"Vous jouez {card_to_play}")
+                        # Gérer les effets spéciaux ici...
+                        break
+                    else:
+                        print("Choix invalide.")
+        else:
+            if playable_cards:
+                card_to_play = playable_cards[0]
+                hands[current_player].remove(card_to_play)
+                discard_pile.append(card_to_play)
+                print(f"{PLAYER_NAMES[current_player]} joue {card_to_play}")
+                consecutive_passes = 0
+
+                # Effets spéciaux
+                if "+2" in card_to_play:
+                    draw_two_next += 1
+                elif "Skip" in card_to_play:
+                    skip_next = True
+                elif "Reverse" in card_to_play:
+                    if NUM_PLAYERS == 2:
+                        skip_next = True
+                    else:
+                        direction *= -1
+                        print("Sens de jeu inversé !")
+                elif card_to_play.startswith("Wild") and "+4" not in card_to_play:
+                    new_color = random.choice(COLORS)
+                    discard_pile[-1] = f"{new_color} Wild"
+                    print(f"{PLAYER_NAMES[current_player]} change la couleur en {new_color}")
+                elif "Wild +4" in card_to_play:
+                    new_color = random.choice(COLORS)
+                    discard_pile[-1] = f"{new_color} Wild +4"
+                    draw_four_next += 1
+                    print(f"{PLAYER_NAMES[current_player]} change la couleur en {new_color} et inflige +4")
+            else:
+                if deck:
+                    drawn_card = deck.pop()
+                    hands[current_player].append(drawn_card)
+                    print(f"{PLAYER_NAMES[current_player]} pioche une carte")
+                    consecutive_passes = 0
+                else:
+                    print(f"{PLAYER_NAMES[current_player]} ne peut pas piocher, le paquet est vide")
+                    consecutive_passes += 1
 
         if consecutive_passes >= NUM_PLAYERS:
             print("\nAucun joueur ne peut jouer, le paquet est vide. Match nul.")

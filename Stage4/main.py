@@ -6,7 +6,7 @@ COLORS = ['Red', 'Green', 'Blue', 'Yellow']
 VALUES = list(range(1, 10))
 SPECIAL_CARDS = ['+2', 'Reverse', 'Skip']
 CARDS_PER_PLAYER = 7
-NUM_PLAYERS = 2
+NUM_PLAYERS = 3
 PLAYER_NAMES = [f"Joueur {i}" for i in range(NUM_PLAYERS)]
 
 def create_deck(seed=None):
@@ -56,6 +56,17 @@ def main(seed=None):
     hands = [deck[i * CARDS_PER_PLAYER:(i + 1) * CARDS_PER_PLAYER] for i in range(NUM_PLAYERS)]
     deck = deck[CARDS_PER_PLAYER * NUM_PLAYERS:]
     discard_pile = [deck.pop()]
+
+    if discard_pile[-1].startswith("Wild"):
+        new_color = random.choice(COLORS)
+        if "+4" in discard_pile[-1]:
+            discard_pile[-1] = f"{new_color} Wild +4"
+            draw_four_next = 1
+            print(f"Première carte: Wild +4 -> la couleur devient {new_color}, le premier joueur devra piocher 4 cartes")
+        else:
+            discard_pile[-1] = f"{new_color} Wild"
+            print(f"Première carte: Wild -> la couleur devient {new_color}")
+
     turn = 0
     current_player = 0
     consecutive_passes = 0

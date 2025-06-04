@@ -1,7 +1,13 @@
 # Portfolio Project
 
+## MVP Description
 
-### MVP Description
-For the MVP, we aim to build a simplified AI-powered tool that helps analyze and rank Pokémon TCG Pocket decks. The project includes a custom game engine that simulates basic matches using simplified rules, enabling automated testing between different decks. This allows us to evaluate deck performance over many simulated games.
+### From Pokémon TCG to UNO
 
-A web dashboard will present key insights such as win rates, deck comparisons, and visual feedback (graphs, match summaries, etc.). The goal is to provide a helpful assistant for players to better understand which decks perform well, and why.
+The original goal was to train an AI to play a simplified version of the Pokémon TCG Pocket game. However, recreating even a basic trading card game from scratch turned out to be too time-consuming for the scope of this MVP.
+
+To stay focused on the main objective — **training an AI to play a card game** — the support has been switched to a simplified version of **UNO**, which allows faster development while keeping the same AI-oriented goal.
+
+The MVP remains unchanged: build a functional game engine and train AI agents through self-play and simulation. Only the complexity of the game has been reduced to save time and prioritize the AI development phase.
+
+The TCG Pokémon project is still in progress as a personal side project alongside my specialization in AI/ML.

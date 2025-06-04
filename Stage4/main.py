@@ -3,7 +3,7 @@ import time
 import sys
 
 COLORS = ['Red', 'Green', 'Blue', 'Yellow']
-VALUES = list(range(1, 10))  # Cartes de 1 à 9 (deux fois par couleur)
+VALUES = list(range(1, 10))
 SPECIAL_CARDS = ['+2', 'Reverse', 'Skip']
 CARDS_PER_PLAYER = 7
 NUM_PLAYERS = 2
@@ -11,42 +11,30 @@ PLAYER_NAMES = [f"Joueur {i}" for i in range(NUM_PLAYERS)]
 
 def create_deck(seed=None):
     deck = []
-
-    # Cartes 0 : 1 par couleur
+    # 1 carte 0 par couleur
     for color in COLORS:
         deck.append(f"{color} 0")
-
-    # Cartes 1 à 9 : 2 par couleur
+    # 2 cartes 1-9 par couleur
     for color in COLORS:
         for value in VALUES:
-            deck.append(f"{color} {value}")
-            deck.append(f"{color} {value}")
-
-    # Cartes spéciales couleur : 2 par type et par couleur
+            deck.extend([f"{color} {value}"] * 2)
+    # 2 cartes spéciales par type et couleur
     for color in COLORS:
         for special in SPECIAL_CARDS:
             deck.extend([f"{color} {special}"] * 2)
-
-    # Jokers (sans couleur)
-    deck.extend(['Black Wild'] * 4)
-    deck.extend(['Black +4'] * 4)
-
+    # Jokers
+    deck.extend(['Wild'] * 4)
+    deck.extend(['Wild +4'] * 4)
     # Mélange
-    if seed is not None:
-        random.seed(seed)
-    else:
-        random.seed(time.time())
+    random.seed(seed if seed is not None else time.time())
     random.shuffle(deck)
     return deck
 
 def is_playable(card, top_card):
     card_parts = card.split()
     top_parts = top_card.split()
-
-    # Wilds are always playable
-    if card_parts[0] == 'Black':
+    if card_parts[0] == 'Wild':
         return True
-
     return card_parts[0] == top_parts[0] or card_parts[1] == top_parts[1]
 
 def print_hand(player_idx, hand):
@@ -81,16 +69,16 @@ def main(seed=None):
         print_board(turn, current_player, discard_pile[-1])
         print_hand(current_player, hands[current_player])
 
-        # Si le joueur doit piocher 4 cartes et passer son tour
+        # Effet +4
         if draw_four_next:
             for _ in range(4):
                 if deck:
                     hands[current_player].append(deck.pop())
             print(f"{PLAYER_NAMES[current_player]} pioche 4 cartes (effet +4)")
             draw_four_next = 0
-            skip_current_player = True  # il passe son tour
+            skip_current_player = True
 
-        # Si le joueur doit piocher 2 cartes et passer son tour
+        # Effet +2
         elif draw_two_next > 0:
             cards_to_draw = 2 * draw_two_next
             for _ in range(cards_to_draw):
@@ -101,15 +89,14 @@ def main(seed=None):
                     break
             print(f"{PLAYER_NAMES[current_player]} pioche {cards_to_draw} cartes (effet +2)")
             draw_two_next = 0
-            skip_current_player = True  # il passe son tour
+            skip_current_player = True
 
-        # Si le joueur doit passer son tour à cause d'un Skip ou Reverse (2 joueurs)
+        # Effet Skip
         elif skip_next:
             print(f"{PLAYER_NAMES[current_player]} est passé (Skip)")
             skip_next = False
             skip_current_player = True
 
-        # Si le joueur doit passer son tour (lié aux effets ci-dessus)
         if skip_current_player:
             skip_current_player = False
             consecutive_passes = 0
@@ -117,7 +104,6 @@ def main(seed=None):
             turn += 1
             continue
 
-        # Sinon, le joueur peut jouer s'il a une carte jouable
         playable_cards = [card for card in hands[current_player] if is_playable(card, discard_pile[-1])]
 
         if playable_cards:
@@ -127,30 +113,27 @@ def main(seed=None):
             print(f"{PLAYER_NAMES[current_player]} joue {card_to_play}")
             consecutive_passes = 0
 
-            # Gestion des effets spéciaux
+            # Effets spéciaux
             if "+2" in card_to_play:
-                draw_two_next += 1  # empile les +2 si plusieurs se suivent
+                draw_two_next += 1
             elif "Skip" in card_to_play:
                 skip_next = True
             elif "Reverse" in card_to_play:
                 if NUM_PLAYERS == 2:
-                    # À 2 joueurs, Reverse = Skip
                     skip_next = True
                 else:
                     direction *= -1
                     print("Sens de jeu inversé !")
-            elif "Wild" in card_to_play and "+4" not in card_to_play:
+            elif card_to_play.startswith("Wild") and "+4" not in card_to_play:
                 new_color = random.choice(COLORS)
                 discard_pile[-1] = f"{new_color} Wild"
                 print(f"{PLAYER_NAMES[current_player]} change la couleur en {new_color}")
-            elif "+4" in card_to_play:
+            elif "Wild +4" in card_to_play:
                 new_color = random.choice(COLORS)
                 discard_pile[-1] = f"{new_color} Wild +4"
-                draw_four_next += 1  # empile les +4 si plusieurs se suivent
+                draw_four_next += 1
                 print(f"{PLAYER_NAMES[current_player]} change la couleur en {new_color} et inflige +4")
-
         else:
-            # Pas de carte jouable : pioche une carte si possible
             if deck:
                 drawn_card = deck.pop()
                 hands[current_player].append(drawn_card)
@@ -164,7 +147,6 @@ def main(seed=None):
             print("\nAucun joueur ne peut jouer, le paquet est vide. Match nul.")
             return
 
-        # Passage au joueur suivant et incrément du tour
         current_player = (current_player + direction) % NUM_PLAYERS
         turn += 1
 

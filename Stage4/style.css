@@ -1,0 +1,73 @@
+body { font-family: Arial, sans-serif;}
+background {
+  background-color: #2e8b57;
+  color: white;
+  margin: 0;
+}
+header {
+  background-color: #e63f3f;
+  color: white;
+  padding: 16px;
+  text-align: center;
+    font-size: 2em;
+}
+main { display: flex; justify-content: center; margin-top: 32px;}
+#game {
+    width: 500px;
+}
+#ia-cards, #player-cards {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.card {
+    width: 60px;
+    height: 90px;
+    background-color: #fff;
+    color: black;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1em;
+    box-shadow: 2px 2px 6px #0005;
+    cursor: pointer;
+    user-select: none;
+}
+
+.card.ia {
+    background-color: #888;
+    color: #888;
+    cursor: default;
+}
+
+.card.joker {
+    background-color: #222;
+    color: #888;
+}
+
+#pile-card {
+    margin: 16px 0;
+}
+
+#actions {
+    margin-top: 16px;
+    button {
+        padding: 12px 18px;
+        background-color: #457B9D;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1em;
+    }
+    button:active {
+        background-color: #1D3557;
+    }
+    #message {
+        margin-top: 18px;
+        font-size: 1.1em;
+        min-height: 24px;
+    }
+}

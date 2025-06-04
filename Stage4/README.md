@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="https://icons8.com/icon/xuNL8GmRDT5i/uno" alt="UNO Logo" width="96"/>
-</p>
-
 <h1 align="center">🎮 UNO Game Engine – Python</h1>
 
 <p align="center">

@@ -3,9 +3,6 @@ UNO Game Module
 
 This module implements a simple UNO game simulation. It includes the creation of the deck,
 game logic, and basic user interactions for a single human player against AI players.
-
-Author: [Your Name]
-Date: [Current Date]
 """
 
 import random

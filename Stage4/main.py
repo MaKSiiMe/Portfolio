@@ -1,54 +1,102 @@
+"""
+UNO Game Module
+
+This module implements a simple UNO game simulation. It includes the creation of the deck,
+game logic, and basic user interactions for a single human player against AI players.
+
+Author: [Your Name]
+Date: [Current Date]
+"""
+
 import random
 import time
 import sys
+from typing import List, Optional
 
 COLORS = ['Red', 'Green', 'Blue', 'Yellow']
 VALUES = list(range(1, 10))
 SPECIAL_CARDS = ['+2', 'Reverse', 'Skip']
 CARDS_PER_PLAYER = 7
 NUM_PLAYERS = 3
+
 if NUM_PLAYERS > 10:
     print("Le nombre maximum de joueurs autorisé est 10.")
     sys.exit(1)
+
 PLAYER_NAMES = [f"Joueur {i}" for i in range(NUM_PLAYERS)]
 HUMAN_PLAYER_IDX = 0
 
-def create_deck(seed=None):
+def create_deck(seed: Optional[int] = None) -> List[str]:
+    """
+    Create and shuffle the UNO deck.
+
+    Args:
+        seed (Optional[int]): Seed for random shuffling.
+
+    Returns:
+        List[str]: Shuffled deck of UNO cards.
+    """
     deck = []
-    # 1 carte 0 par couleur
     for color in COLORS:
         deck.append(f"{color} 0")
-    # 2 cartes 1-9 par couleur
     for color in COLORS:
         for value in VALUES:
             deck.extend([f"{color} {value}"] * 2)
-    # 2 cartes spéciales par type et couleur
     for color in COLORS:
         for special in SPECIAL_CARDS:
             deck.extend([f"{color} {special}"] * 2)
-    # Jokers
     deck.extend(['Wild'] * 4)
     deck.extend(['Wild +4'] * 4)
-    # Mélange
     random.seed(seed if seed is not None else time.time())
     random.shuffle(deck)
     return deck
 
-def is_playable(card, top_card):
+def is_playable(card: str, top_card: str) -> bool:
+    """
+    Check if a card is playable on the current top card.
+
+    Args:
+        card (str): The card to check.
+        top_card (str): The current top card on the discard pile.
+
+    Returns:
+        bool: True if the card is playable, False otherwise.
+    """
     card_parts = card.split()
     top_parts = top_card.split()
     if card_parts[0] == 'Wild':
         return True
     return card_parts[0] == top_parts[0] or card_parts[1] == top_parts[1]
 
-def print_hand(player_idx, hand):
+def print_hand(player_idx: int, hand: List[str]) -> None:
+    """
+    Print the hand of a player.
+
+    Args:
+        player_idx (int): The index of the player.
+        hand (List[str]): The hand of the player.
+    """
     print(f"{PLAYER_NAMES[player_idx]}: {hand}")
 
-def print_board(turn, current_player, top_card):
+def print_board(turn: int, current_player: int, top_card: str) -> None:
+    """
+    Print the current state of the game board.
+
+    Args:
+        turn (int): The current turn number.
+        current_player (int): The index of the current player.
+        top_card (str): The current top card on the discard pile.
+    """
     print(f"\nTour {turn} - Tour de {PLAYER_NAMES[current_player]}")
     print(f"Carte du dessus: {top_card}")
 
-def main(seed=None):
+def main(seed: Optional[int] = None) -> None:
+    """
+    Main function to run the UNO game.
+
+    Args:
+        seed (Optional[int]): Seed for random shuffling.
+    """
     if seed is None and len(sys.argv) > 1:
         try:
             seed = int(sys.argv[1])
@@ -84,7 +132,6 @@ def main(seed=None):
         print_board(turn, current_player, discard_pile[-1])
         print_hand(current_player, hands[current_player])
 
-        # Effet +4
         if draw_four_next:
             for _ in range(4):
                 if deck:
@@ -93,7 +140,6 @@ def main(seed=None):
             draw_four_next = 0
             skip_current_player = True
 
-        # Effet +2
         elif draw_two_next > 0:
             cards_to_draw = 2 * draw_two_next
             for _ in range(cards_to_draw):
@@ -106,7 +152,6 @@ def main(seed=None):
             draw_two_next = 0
             skip_current_player = True
 
-        # Effet Skip
         elif skip_next:
             print(f"{PLAYER_NAMES[current_player]} est passé (Skip)")
             skip_next = False
@@ -172,7 +217,6 @@ def main(seed=None):
                 print(f"{PLAYER_NAMES[current_player]} joue {card_to_play}")
                 consecutive_passes = 0
 
-                # Effets spéciaux
                 if "+2" in card_to_play:
                     draw_two_next += 1
                 elif "Skip" in card_to_play:

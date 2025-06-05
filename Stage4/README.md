@@ -131,6 +131,13 @@ Before training an AI agent to play UNO, the engine must be modular and refactor
 <details>
 <summary><b>See the full checklist</b></summary>
 
+### 0. Official Scoring Mode
+- [x] Add point calculation based on cards remaining in opponents' hands.
+- [x] Track cumulative scores for each player.
+- [x] End the game when a player reaches 500 points.
+- [x] Display a scoreboard after each round.
+- [x] Allow replaying rounds while preserving player scores.
+
 ### 1. Separate game logic from players
 - [ ] Create a `UnoGame` class to manage game state (`deck`, `discard_pile`, `hands`, `current_player`, etc.).
 - [ ] Implement `get_game_state()` to return a player's view.

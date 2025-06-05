@@ -120,8 +120,8 @@ Before training an AI agent to play UNO, the engine must be modular and refactor
 
 ### ✅ 2. Create an Agent interface
 - [ ] Define an abstract class `Agent` with the method `choose_action(game_state) -> action`.
-- [ ] Implement `HumanAgent` for console input.
-- [ ] Implement `RandomAgent` that randomly chooses a legal action.
+- [x] Implement `HumanAgent` for console input.
+- [x] Implement `RandomAgent` that randomly chooses a legal action.
 - [ ] Attach an `Agent` instance per player (`self.agents = [...]`).
 
 ### ✅ 3. Encode states and actions

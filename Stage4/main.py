@@ -142,7 +142,25 @@ def main(seed=None):
                         hands[current_player].remove(card_to_play)
                         discard_pile.append(card_to_play)
                         print(f"Vous jouez {card_to_play}")
-                        # Gérer les effets spéciaux ici...
+                        if "+2" in card_to_play:
+                            draw_two_next += 1
+                        elif "Skip" in card_to_play:
+                            skip_next = True
+                        elif "Reverse" in card_to_play:
+                            if NUM_PLAYERS == 2:
+                                skip_next = True
+                            else:
+                                direction *= -1
+                                print("Sens de jeu inversé !")
+                        elif card_to_play.startswith("Wild") and "+4" not in card_to_play:
+                            new_color = random.choice(COLORS)
+                            discard_pile[-1] = f"{new_color} Wild"
+                            print(f"Vous changez la couleur en {new_color}")
+                        elif "Wild +4" in card_to_play:
+                            new_color = random.choice(COLORS)
+                            discard_pile[-1] = f"{new_color} Wild +4"
+                            draw_four_next += 1
+                            print(f"Vous changez la couleur en {new_color} et infligez +4")
                         break
                     else:
                         print("Choix invalide.")

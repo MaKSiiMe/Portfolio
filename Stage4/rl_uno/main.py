@@ -18,7 +18,7 @@ from uno.rules import is_playable, calculate_score
 from uno.display import print_board, print_hand
 
 
-NUM_PLAYERS = 3  # Configurable
+NUM_PLAYERS = 2  # Configurable
 HUMAN_PLAYER_IDX = -1  # Par défaut aucun joueur humain
 
 if NUM_PLAYERS > 10:

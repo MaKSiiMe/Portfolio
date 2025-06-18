@@ -18,7 +18,7 @@ function renderGame(state) {
     state.joueur.forEach((card, index) => {
         let c = document.createElement('div');
         c.className = 'card' + (card.valeur === 'Joker' || card.valeur === '+4' ? ' joker' : '');
-        c.textContent = ( card.couleur ? card.couleur + ' ' : '') + card.valeur;;
+        c.textContent = ( card.couleur ? card.couleur + ' ' : '') + card.valeur;
         c.style.background = couleurTOCSS(card.couleur, card.valeur);
         c.onclick = () => {
             socket.emit('jouerCarte', index);

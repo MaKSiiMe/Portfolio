@@ -1,6 +1,11 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
+const { chargerCarte } = require('./carte'); // Assurez-vous que le chemin est correct
+
+chargerCarte((cartes) => {
+    console.log('Cartes chargées depuis la base de donné db :', cartes);
+});
 
 const app = express();
 const server = http.createServer(app);

@@ -177,7 +177,7 @@ Before training an AI agent to play UNO, the engine must be modular and refactor
 - [ ] (Optional) Design other reward schemes.
 
 ### 6. Fully autonomous agent mode
-- [ ] Allow games where all players are autonomous agents.
+- [x] Allow games where all players are autonomous agents.
 - [ ] Support batch simulations over multiple episodes.
 - [ ] Collect data for reinforcement or supervised learning.
 

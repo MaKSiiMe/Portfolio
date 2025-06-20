@@ -3,9 +3,6 @@ constants.py
 
 This module defines constants for a card game. It includes colors, values,
 special cards, the number of cards per player.
-
-Author: Maxime
-Date: 05/06/2025
 """
 
 from typing import List

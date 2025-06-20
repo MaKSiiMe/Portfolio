@@ -1,20 +1,26 @@
 from flask import Blueprint, request, jsonify
-from app.models.uno import deck, rules
+
+from app.models.uno.deck import create_deck
+
 from app.models.envs import UnoEnv
 
 main = Blueprint('main', __name__)
 
-uno = UnoEnv()
+@main.route('/api/create_deck', methods=['POST'])
+def api_creat_deck():
+    data = request.get_json() or {}
+    seed = data.get('seed', None)
 
-@main.route('/api/play', methods=['POST'])
-def play():
+    deck = create_deck(seed)
+
+    return jsonify({"deck": deck})
+
+@main.route('/api/reshuffle", methods=['POST'])
+def api_reshuffle():
     data = request.get_json()
-    move = data.get('move')
+    deck = data.get('deck', [])
+    discard_pile = data.get('discard_pile', [])
 
-    result = {"message": f"Received move: {move}"}
+    reshuffle_discard_pile(deck, discard_pile)
 
-    return jsonify(response)
-
-@main.route('/api/index', methods=['POST'])
-def index():
-    return "UNO API is running!"
+    return jsonify({"deck": deck, "discard_pile": discard_pile})

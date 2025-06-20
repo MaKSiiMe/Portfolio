@@ -3,9 +3,6 @@ display.py
 
 This module provides functions to print the current state of the game,
 including player hands and the board state.
-
-Author: Maxime
-Date: 05/06/2025
 """
 
 from typing import List

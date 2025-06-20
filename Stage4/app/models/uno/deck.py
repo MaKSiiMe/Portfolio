@@ -8,9 +8,6 @@ Functions:
 - create_deck: Generates a shuffled deck of cards.
 - reshuffle_discard_pile: Reshuffles the discard pile into the deck when
   the deck is empty.
-
-Author: Maxime
-Date: 05/06/2025
 """
 
 import random

@@ -10,15 +10,15 @@ import sys
 import random
 from typing import Optional
 
-from uno.constants import (
+from app.models.uno.constants import (
     COLORS, VALUES, SPECIAL_CARDS, WILD_CARDS, CARDS_PER_PLAYER, MAX_PLAYERS
 )
-from uno.deck import create_deck, reshuffle_discard_pile
-from uno.rules import is_playable, calculate_score
-from uno.display import print_board, print_hand
+from app.models.uno.deck import create_deck, reshuffle_discard_pile
+from app.models.uno.rules import is_playable, calculate_score
+from app.models.uno.display import print_board, print_hand
 
 
-NUM_PLAYERS = 2  # Configurable
+NUM_PLAYERS = 3  # Configurable
 HUMAN_PLAYER_IDX = -1  # Par défaut aucun joueur humain
 
 if NUM_PLAYERS > 10:

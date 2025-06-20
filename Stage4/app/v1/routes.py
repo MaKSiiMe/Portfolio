@@ -15,7 +15,7 @@ def api_creat_deck():
 
     return jsonify({"deck": deck})
 
-@main.route('/api/reshuffle", methods=['POST'])
+@main.route('/api/reshuffle', methods=['POST'])
 def api_reshuffle():
     data = request.get_json()
     deck = data.get('deck', [])

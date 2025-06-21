@@ -62,6 +62,5 @@ def reshuffle_discard_pile(deck: List[str], discard_pile: List[str]) -> None:
     discard_pile.clear()
     discard_pile.append(top_card)
     print(
-        "La pioche était vide : la défausse a été mélangée pour former une "
-        "nouvelle pioche."
+        "\nThe draw pile was empty: the discard pile has been shuffled to form a new draw pile."
     )

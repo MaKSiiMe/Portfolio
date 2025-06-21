@@ -128,20 +128,35 @@ python main.py 42
 ## 🎲 Example Output
 
 ```
+=== Round 16 ===
+First card: Blue 3
+
 Turn 0 - Player 0's turn
-Top card: Blue 5
-Player 0: Red 2, Blue 7, Yellow +2, ...
-Player 0 plays Blue 7
+Top card: Blue 3
+Player 0: Red 5, Blue 5, Green 8, Blue Reverse, Wild +4, Yellow Skip, Green 2
+Player 0 plays: Blue 5
 ...
-Player 2 draws a card
+Turn 42 - Player 0's turn
+Top card: Red Skip
+Player 0: Blue 7, Blue Reverse, Red +2, Green 6, Green 6
+Player 0 plays: Red +2
 ...
-Player 1 wins the round and scores 42 points.
+The draw pile was empty: the discard pile has been shuffled to form a new draw pile.
+...
+🎉 Player 2 wins the round! 🎉
+
+Remaining cards for other players:
+Player 0: ['Red 7', 'Yellow 3']
+Player 1: ['Yellow 6', 'Blue 4']
+
+Player 2 earns 20 points.
+...
 Current scores:
-  Player 0 : 0 points
-  Player 1 : 42 points
-  Player 2 : 0 points
-...
-🎉 Player 1 wins the game with 502 points in 13 rounds!
+Player 0: 466 points
+Player 1: 510 points
+Player 2: 204 points
+
+🏆 Player 1 wins the game with 510 points in 16 rounds!
 ```
 
 ---

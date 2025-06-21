@@ -10,16 +10,16 @@ from app.models.uno.rules import is_playable, calculate_score
 
 class Game:
     """
-    Classe principale pour gérer le jeu de cartes UNO.
+    Main class to manage the UNO card game.
     """
 
     def __init__(self, num_players: int = 2, seed: Optional[int] = None):
         """
-        Initialise une nouvelle partie d'UNO.
+        Initialize a new UNO game.
 
         Args:
-            num_players (int): Nombre de joueurs.
-            seed (Optional[int]): Graine pour la génération aléatoire des cartes.
+            num_players (int): Number of players.
+            seed (Optional[int]): Seed for random card generation.
         """
         self.num_players = num_players
         self.seed = seed
@@ -37,8 +37,7 @@ class Game:
 
     def start(self):
         """
-        Démarre la partie en distribuant les cartes aux joueurs et en plaçant la première
-        carte dans la défausse.
+        Starts the game by dealing cards to players and placing the first card in the discard pile.
         """
         for i in range(self.num_players):
             self.hands[i] = [self.deck.pop() for _ in range(CARDS_PER_PLAYER)]
@@ -47,7 +46,7 @@ class Game:
 
     def handle_first_card(self):
         """
-        Gère la première carte de la défausse si c'est une carte spéciale.
+        Handles the first card in the discard pile if it is a special card.
         """
         if self.discard_pile[-1].startswith("Wild"):
             new_color = random.choice(COLORS)
@@ -59,11 +58,10 @@ class Game:
 
     def get_state(self) -> dict:
         """
-        Retourne l'état actuel du jeu.
+        Returns the current state of the game.
 
         Returns:
-            dict: État actuel du jeu avec des informations sur les joueurs, le deck,
-                 la défausse, les mains, le joueur courant, la direction et le tour.
+            dict: Current game state with information about players, deck, discard pile, hands, current player, direction, and turn.
         """
         return {
             "num_players": self.num_players,
@@ -77,11 +75,11 @@ class Game:
 
     def draw_cards(self, player_idx: int, count: int):
         """
-        Pioche des cartes pour un joueur.
+        Draw cards for a player.
 
         Args:
-            player_idx (int): Index du joueur.
-            count (int): Nombre de cartes à piocher.
+            player_idx (int): Player index.
+            count (int): Number of cards to draw.
         """
         for _ in range(count):
             if not self.deck:
@@ -91,16 +89,16 @@ class Game:
 
     def play_turn(self, human_input: Optional[int] = None) -> Optional[int]:
         """
-        Joue le tour d'un joueur.
+        Play a player's turn.
 
         Args:
-            human_input (Optional[int]): Index de la carte choisie par l'humain.
+            human_input (Optional[int]): Index of the card chosen by the human player.
 
         Returns:
-            Optional[int]: Index du gagnant si la partie est terminée, sinon None.
+            Optional[int]: Index of the winner if the game is over, otherwise None.
 
         Raises:
-            ValueError: Si l'index de la carte choisie est invalide.
+            ValueError: If the chosen card index is invalid.
         """
         hand = self.hands[self.current_player]
         top_card = self.discard_pile[-1]
@@ -127,7 +125,7 @@ class Game:
                 if 0 <= human_input < len(playable):
                     chosen_card = playable[human_input]
                 else:
-                    raise ValueError("Choix invalide.")
+                    raise ValueError("Invalid choice.")
             else:
                 chosen_card = playable[0]
             hand.remove(chosen_card)
@@ -161,17 +159,17 @@ class Game:
 
     def advance_turn(self):
         """
-        Passe au tour suivant.
+        Move to the next turn.
         """
         self.current_player = (self.current_player + self.direction) % self.num_players
         self.turn += 1
 
     def calculate_scores(self) -> List[int]:
         """
-        Calcule les scores de tous les joueurs.
+        Calculate the scores for all players.
 
         Returns:
-            List[int]: Liste des scores des joueurs.
+            List[int]: List of player scores.
         """
         scores = [calculate_score(self.hands, winner_idx=i) for i in range(self.num_players)]
         return scores

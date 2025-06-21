@@ -193,9 +193,9 @@ Before training an AI agent to play UNO, the engine must be modular and refactor
 - [x] Allow replaying rounds while preserving player scores.
 
 ### 1. Separate game logic from players
-- [ ] Create a `UnoGame` class to manage game state (`deck`, `discard_pile`, `hands`, `current_player`, etc.).
-- [ ] Implement `get_game_state()` to return a player's view.
-- [ ] Implement `play_turn(player_action)` to apply an action and update the state.
+- [x] Create a `UnoGame` class to manage game state (`deck`, `discard_pile`, `hands`, `current_player`, etc.).
+- [x] Implement `get_game_state()` to return a player's view.
+- [x] Implement `play_turn(player_action)` to apply an action and update the state.
 
 ### 2. Create an Agent interface
 - [ ] Define an abstract class `Agent` with the method `choose_action(game_state) -> action`.

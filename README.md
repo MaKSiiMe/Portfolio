@@ -48,14 +48,43 @@ The MVP remains unchanged: build a functional game engine and train AI agents th
 ## 📁 Project Structure
 
 ```
-.
-├── main.py            # Main script: launches an automated UNO game
-├── uno/
-│   ├── constants.py   # Game constants (colors, values, etc.)
-│   ├── deck.py        # Deck creation and management
-│   ├── display.py     # Display functions for the game and hands
-│   └── rules.py       # Game rules and score calculation
-└── README.md          # This file
+├── Stage4/
+│   ├── app/
+│   │   ├── models/
+│   │   │   ├── uno/
+│   │   │   │   ├── constants.py
+│   │   │   │   ├── deck.py
+│   │   │   │   ├── display.py
+│   │   │   │   ├── rules.py
+│   │   │   │   ├── utils.py
+│   │   │   │   └── __init__.py
+│   │   │   ├── agents/
+│   │   │   │   ├── random_agent.py
+│   │   │   │   ├── rule_based_agent.py
+│   │   │   │   ├── rl_agent.py
+│   │   │   │   └── __init__.py
+│   │   │   ├── envs/
+│   │   │   │   ├── uno_env.py
+│   │   │   │   └── __init__.py
+│   │   │   └── __init__.py
+│   │   ├── scripts/
+│   │   │   ├── train.py
+│   │   │   ├── evaluate.py
+│   │   │   └── play_human.py
+│   │   ├── static/
+│   │   │   ├── css/
+│   │   │   │   └── style.css
+│   │   │   ├── js/
+│   │   │   │   └── script.js
+│   │   │   └── index.html
+│   │   ├── v1/
+│   │   │   ├── routes.py
+│   │   │   └── __init__.py
+│   │   └── __init__.py
+│   ├── run.py
+│   ├── server.py
+│   └── requirements.txt
+├── README.md
 ```
 
 ---

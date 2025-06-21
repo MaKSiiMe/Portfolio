@@ -11,8 +11,7 @@ import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
 
-from uno.deck import create_deck  # ou ton équivalent
-from uno.rules import UnoGame  # ou ta classe principale du moteur
+from app.models.uno.deck import create_deck, reshuffle_discard_pile  
 
 class UnoEnv(gym.Env):
     metadata = {"render_modes": ["human"]}

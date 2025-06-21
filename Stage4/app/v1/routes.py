@@ -1,10 +1,31 @@
 from flask import Blueprint, request, jsonify
 
-from app.models.uno.deck import create_deck
+from app.models.uno.game import Game
 
-from app.models.envs import UnoEnv
+from app.models.uno.deck import create_deck
+from app.models.uno.deck import reshuffle_discard_pile
+
+from app.models.envs.uno_env import UnoEnv
 
 main = Blueprint('main', __name__)
+game = Game(num_players=2)
+
+
+@main.route("/", methods=["GET"])
+def index():
+    return "API UNO OK"
+
+@main.route('/api/new_game', methods=['POST'])
+def new_game():
+    global game
+    game = Game(num_players=2)
+    game.start()
+    return jsonify({"message": "New game started", "state": game.get_state()})
+
+@main.route('/api/game_state', methods=['GET'])
+def game_state():
+        return jsonify(game.get_state())
+
 
 @main.route('/api/create_deck', methods=['POST'])
 def api_creat_deck():

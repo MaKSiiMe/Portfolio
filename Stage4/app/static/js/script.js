@@ -1,87 +1,77 @@
-const socket = io();
+// Simple UNO web demo: start game, play turn, show state
 
-function renderGame(state) {
-    // Affichage Ia
-    document.getElementById( 'ia-cards-count').textContent = state.iaCount;
-    let IaDIV = document.getElementById('ia-cards');
-    IaDIV.innerHTML = '';
-    for (let i = 0; i < state.ia.length; i++) {
-        let c = document.createElement('div');
-        c.className = 'card';
-        c.textContent = '?';
-        IaDIV.appendChild(c);
+document.addEventListener('DOMContentLoaded', () => {
+    const startBtn = document.getElementById('startBtn');
+    const playTurnBtn = document.getElementById('playTurnBtn');
+    const gameStateEl = document.getElementById('gameState');
+
+    let gameId = null;
+
+    async function updateGameState() {
+        if (!gameId) {
+            gameStateEl.textContent = "No game in progress.";
+            return;
+        }
+        const res = await fetch(`/api/game_state/${gameId}`);
+        if (!res.ok) {
+            gameStateEl.textContent = "Game not found or error.";
+            playTurnBtn.disabled = true;
+            return;
+        }
+        const data = await res.json();
+        gameStateEl.textContent = JSON.stringify(data, null, 2);
     }
 
-    // Affichage Joueur
-    let mainDIV = document.getElementById('player-cards');
-    mainDIV.innerHTML = '';
-    state.joueur.forEach((card, index) => {
-        let c = document.createElement('div');
-        c.className = 'card' + (card.valeur === 'Joker' || card.valeur === '+4' ? ' joker' : '');
-        c.textContent = ( card.couleur ? card.couleur + ' ' : '') + card.valeur;
-        c.style.background = couleurTOCSS(card.couleur, card.valeur);
-        c.onclick = () => {
-            socket.emit('jouerCarte', index);
+    startBtn.addEventListener('click', async () => {
+        startBtn.disabled = true;
+        playTurnBtn.disabled = true;
+        gameStateEl.textContent = "Starting game...";
+        try {
+            const res = await fetch('/api/start_game', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ num_players: 2 })
+            });
+            const data = await res.json();
+            if (data.game_id) {
+                gameId = data.game_id;
+                playTurnBtn.disabled = false;
+                await updateGameState();
+            } else {
+                gameStateEl.textContent = "Failed to start game.";
+                startBtn.disabled = false;
+            }
+        } catch (e) {
+            gameStateEl.textContent = "Error starting game.";
+            startBtn.disabled = false;
         }
-        mainDIV.appendChild(c);
     });
 
-    // affichage de pile
-    let cp = state.pile[state.pile.length - 1];
-    let pileDIV = document.getElementById('pile-card');
-    pileDIV.textContent = cp.valeur + (cp.couleur ? ' ' + cp.couleur : '');
-    pileDIV.className = 'card' + (cp.valeur === 'Joker' || cp.valeur === '+4' ? ' joker' : '');
-    pileDIV.style.background = couleurTOCSS(cp.couleur, cp.valeur);
+    playTurnBtn.addEventListener('click', async () => {
+        if (!gameId) return;
+        playTurnBtn.disabled = true;
+        try {
+            const res = await fetch('/api/play_turn', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ game_id: gameId })
+            });
+            const data = await res.json();
+            await updateGameState();
+            // If game is over, disable play button
+            if (data.winner !== null && data.winner !== undefined) {
+                playTurnBtn.disabled = true;
+                startBtn.disabled = false;
+            } else {
+                playTurnBtn.disabled = false;
+            }
+        } catch (e) {
+            gameStateEl.textContent = "Error playing turn.";
+            playTurnBtn.disabled = false;
+        }
+    });
 
-    // Bouton uno
-    
-    document.getElementById('uno-button').disabled = !(state.joueur.length === 2 && state.tour === 'joueur') && !state.uno;
-
-    document.getElementById('message').textContent || '';
-}
-
-function couleurTOCSS(couleur, valeur) {
-    if (valeur === 'Joker' || valeur === '+4') {
-        return '#222';
-    }
-    switch (couleur) {
-        case 'Rouge':
-            return 'red';
-        case 'Bleu':
-            return 'blue';
-        case 'Vert':
-            return 'green';
-        case 'Jaune':
-            return 'yellow';
-        default:
-            return '';
-    }
-}
-
-// gestion des boutons
-document.getElementById('draw-button').onclick = () => {
-    socket.emit('piocher');
-}
-document.getElementById('restart-button').onclick = () => {
-    socket.emit('nouvelle partie');
-}
-
-document.getElementById('draw-card').onclick = () => {
-    socket.emit('piocher');
-};
-
-document.getElementById('play-card').onclick = () => {
-    // Ajoutez la logique pour jouer une carte si nécessaire
-    console.log('Jouer une carte (à implémenter)');
-};
-
-document.getElementById('end-turn').onclick = () => {
-    // Ajoutez la logique pour terminer le tour si nécessaire
-    console.log('Terminer le tour (à implémenter)');
-};
-
-// Reception des mises à jour du serveur
-socket.on('maj', renderGame);
-
-// Demmarage de la partie
-socket.emit('initialiser');
+    // Initial state
+    playTurnBtn.disabled = true;
+    gameStateEl.textContent = "No game in progress.";
+});

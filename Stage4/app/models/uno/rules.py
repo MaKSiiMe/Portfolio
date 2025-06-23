@@ -8,25 +8,25 @@ calculate scores in a UNO game.
 from typing import List
 
 
-def is_playable(card: str, top_card: str) -> bool:
+def is_playable(card: str, top_card: str, current_color: str) -> bool:
     """
-    Determine if a card is playable on the top card.
+    Determine if a card is playable based on the current color or the top card.
 
     Args:
         card (str): The card to check.
         top_card (str): The top card of the discard pile.
+        current_color (str): The active color in play.
 
     Returns:
         bool: True if the card is playable, False otherwise.
     """
     card_parts = card.split()
-    top_parts = top_card.split()
-
     if card_parts[0] == 'Wild':
         return True
-    if len(card_parts) < 2 or len(top_parts) < 2:
+    if len(card_parts) < 2:
         return False
-    return card_parts[0] == top_parts[0] or card_parts[1] == top_parts[1]
+    return card_parts[0] == current_color or card_parts[1] == top_card.split()[-1]
+
 
 
 def calculate_card_points(card: str) -> int:

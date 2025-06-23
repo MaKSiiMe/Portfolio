@@ -1,7 +1,7 @@
 # utils.py
 
 from typing import Dict, List
-from uno.constants import COLORS, VALUES, SPECIAL_CARDS, WILD_CARDS
+from .constants import COLORS, VALUES, SPECIAL_CARDS, WILD_CARDS
 
 # Encodage/décodage des cartes
 CARD_ENCODING: Dict[str, int] = {}

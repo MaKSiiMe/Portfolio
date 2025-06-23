@@ -1,11 +1,20 @@
-"""
-rl_agent.py
+class RLAgent:
+    """
+    Placeholder for a Reinforcement Learning-based agent.
+    Expects a trained policy to be loaded or defined.
+    """
 
-Reinforcement Learning UNO Agent
+    def __init__(self, model=None):
+        """
+        Args:
+            model: Trained policy or neural network (optional for now).
+        """
+        self.model = model
 
-This module defines a reinforcement learning-based agent for the UNO game.
-It can be trained using Gymnasium-compatible algorithms.
-"""
-# (plus tard) Agent entraîné par RL
+    def choose_action(self, obs):
+        """
+        Selects an action based on the current observation.
 
-# select_action(observation)
+        For now, raises NotImplementedError.
+        """
+        raise NotImplementedError("RLAgent not implemented yet.")

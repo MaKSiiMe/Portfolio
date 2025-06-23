@@ -1,10 +1,7 @@
-"""
-random_agent.py
+import numpy as np
 
-Random UNO Agent
-
-This module defines a simple agent that plays UNO by selecting random valid actions.
-"""
-# Un agent aléatoire (baseline)
-
-# select_action(observation)
+def choose_action(env, obs):
+    """
+    Chooses a random action from the environment's action space.
+    """
+    return env.action_space.sample()

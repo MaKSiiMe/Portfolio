@@ -20,3 +20,38 @@ def choose_action(env, obs):
     except ValueError:
         print("Invalid input. Drawing by default.")
         return env.action_space.n - 1
+
+def print_hand(player_idx, hand):
+    """
+    Print the hand of a player (for human interaction).
+    """
+    print(f"Player {player_idx}: {', '.join(hand)}")
+
+def print_board(turn, current_player, top_card, deck_size=None):
+    """
+    Print the current state of the board (for human interaction).
+    """
+    print(f"\nTurn {turn} - Player {current_player}'s turn")
+    print(f"Top card: {top_card}")
+    if deck_size is not None:
+        print(f"Deck size: {deck_size}")
+
+def ask_playable_choice(playable):
+    """
+    Ask the human to choose a playable card or draw.
+    """
+    print("Playable cards:", playable)
+    while True:
+        choice = input(f"Which card do you want to play? (0-{len(playable)-1} or 'p' to draw): ")
+        if choice == 'p':
+            return None
+        elif choice.isdigit() and 0 <= int(choice) < len(playable):
+            return int(choice)
+        else:
+            print("Invalid choice.")
+
+def ask_draw():
+    """
+    Prompt when no playable cards.
+    """
+    input("No playable cards. Press Enter to draw...")

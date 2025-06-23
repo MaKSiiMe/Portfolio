@@ -10,10 +10,13 @@ import sys
 from typing import List, Optional
 
 from app.models.uno.game import Game
-from app.models.uno.display import print_board, print_hand
+from app.models.agents.human_agent import (
+    print_board, print_hand, ask_playable_choice, ask_draw
+)
+from app.models.agents.rule_based_agent import choose_action
 
 NUM_PLAYERS = 3
-HUMAN_PLAYER_IDX = -1
+HUMAN_PLAYER_IDX = -1  # Index of the human player in the game
 TARGET_SCORE = 500
 
 def main(seed: Optional[int] = None) -> None:
@@ -58,38 +61,35 @@ def main(seed: Optional[int] = None) -> None:
                 if playable:
                     print("Playable cards:", playable)
                     while True:
-                        choice = input(
-                            f"Which card do you want to play? (0-{len(playable)-1} or 'p' to draw): ")
-                        if choice == 'p':
+                        choice = ask_playable_choice(playable)
+                        if choice is None:
                             winner = game.play_turn(human_input=None)
                             card_played = None
                             break
-                        elif choice.isdigit() and 0 <= int(choice) < len(playable):
-                            card_played = playable[int(choice)]
-                            winner = game.play_turn(human_input=int(choice))
-                            break
                         else:
-                            print("Invalid choice.")
+                            card_played = playable[choice]
+                            winner = game.play_turn(human_input=choice)
+                            break
                 else:
-                    input("No playable cards. Press Enter to draw...")
+                    ask_draw()
                     winner = game.play_turn(human_input=None)
                     card_played = None
             else:
-                playable = [
-                    card for card in game.hands[game.current_player]
-                    if game.discard_pile and
-                       (
-                           card.split()[0] == game.discard_pile[-1].split()[0] or
-                           (len(card.split()) > 1 and len(game.discard_pile[-1].split()) > 1 and card.split()[1] == game.discard_pile[-1].split()[1]) or
-                           card.startswith("Wild")
-                       )
-                ]
-                hand_before = list(game.hands[game.current_player])
-                winner = game.play_turn()
-                hand_after = game.hands[player_playing]
-                if len(hand_after) < len(hand_before):
-                    diff = [card for card in hand_before if card not in hand_after]
-                    card_played = diff[0] if diff else None
+                # Utilise l'agent rule_based pour les autres joueurs
+                idx = choose_action(game)
+                winner = game.play_turn(human_input=idx)
+                if idx is not None:
+                    card_played = [
+                        card for card in game.hands[player_playing]
+                        if card.split()[0] == game.discard_pile[-1].split()[0]
+                        or (len(card.split()) > 1 and len(game.discard_pile[-1].split()) > 1 and card.split()[1] == game.discard_pile[-1].split()[1])
+                        or card.startswith("Wild")
+                    ][idx] if idx < len([
+                        card for card in game.hands[player_playing]
+                        if card.split()[0] == game.discard_pile[-1].split()[0]
+                        or (len(card.split()) > 1 and len(game.discard_pile[-1].split()) > 1 and card.split()[1] == game.discard_pile[-1].split()[1])
+                        or card.startswith("Wild")
+                    ]) else None
                 else:
                     card_played = None
 
@@ -124,4 +124,5 @@ def main(seed: Optional[int] = None) -> None:
     print(f"\n🏆 Player {winner} wins the game with {scores[winner]} points in {game_number - 1} rounds!")
 
 if __name__ == "__main__":
+    main()
     main()

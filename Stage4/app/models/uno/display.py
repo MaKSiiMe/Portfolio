@@ -8,17 +8,6 @@ including player hands and the board state.
 from typing import List
 
 
-def print_hand(player_idx: int, hand: List[str]) -> None:
-    """
-    Print the hand of a player.
-
-    Args:
-        player_idx (int): The index of the player.
-        hand (List[str]): The list of cards in the player's hand.
-    """
-    print(f"Player {player_idx}: {', '.join(hand)}")
-
-
 def print_board(turn: int, current_player: int, top_card: str, deck_size: int = None) -> None:
     """
     Print the current state of the board.

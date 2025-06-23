@@ -78,3 +78,52 @@ def delete_game(game_id):
         return jsonify({"message": f"Game {game_id} deleted."})
     else:
         return jsonify({"error": "Invalid game_id"}), 404
+
+
+@bp.route("/draw_cards", methods=["POST"])
+def draw_cards():
+    data = request.get_json()
+    game_id = data.get("game_id")
+    player_idx = data.get("player_idx")
+    count = data.get("count", 1)
+
+    game = games.get(game_id)
+    if not game:
+        return jsonify({"error": "Invalid game_id"}), 404
+
+    if not isinstance(player_idx, int) or player_idx < 0 or player_idx >= game.num_players:
+        return jsonify({"error": "Invalid player index"}), 400
+
+    game.draw_cards(player_idx, count)
+
+    return jsonify({"state": game.get_state()})
+
+
+@bp.route("/play_card", methods=["POST"])
+def play_card():
+    data = request.get_json()
+    game_id = data.get("game_id")
+    player_idx = data.get("player_idx")
+    card = data.get("card")
+
+    game = games.get(game_id)
+    if not game:
+        return jsonify({"error": "Invalid game_id"}), 404
+
+    if not isinstance(player_idx, int) or player_idx < 0 or player_idx >= game.num_players:
+        return jsonify({"error": "Invalid player index"}), 400
+
+    # Cherche et joue la carte
+    hand = game.hands[player_idx]
+    if card not in hand:
+        return jsonify({"error": "Card not in player hand"}), 400
+
+    if not is_playable(card, game.discard_pile[-1]):
+        return jsonify({"error": "Card is not playable"}), 400
+
+    hand.remove(card)
+    game.discard_pile.append(card)
+
+    # Gérer les effets spéciaux ici si nécessaire (tu peux externaliser ça dans une méthode dans `Game` si besoin)
+
+    return jsonify({"state": game.get_state()})

@@ -50,43 +50,36 @@ The MVP remains unchanged: build a functional game engine and train AI agents th
 ```
 ├── Stage4/
 │   ├── app/
-│   │   ├── models/
-│   │   │   ├── uno/
+│   │   ├── models/                         # Core logic: game engine, agents, environments
+│   │   │   ├── uno/                        # UNO game logic (rules, deck, display, utils)
 │   │   │   │   ├── constants.py
 │   │   │   │   ├── deck.py
 │   │   │   │   ├── display.py
 │   │   │   │   ├── rules.py
-│   │   │   │   ├── utils.py
-│   │   │   │   └── __init__.py
-│   │   │   ├── agents/
+│   │   │   │   └── utils.py
+│   │   │   ├── agents/                     # AI agents (random, rule-based, RL)
 │   │   │   │   ├── random_agent.py
 │   │   │   │   ├── rule_based_agent.py
-│   │   │   │   ├── rl_agent.py
-│   │   │   │   └── __init__.py
-│   │   │   ├── envs/
-│   │   │   │   ├── uno_env.py
-│   │   │   │   └── __init__.py
-│   │   │   └── __init__.py
-│   │   ├── scripts/
+│   │   │   │   └── rl_agent.py
+│   │   │   └── envs/                       # Gymnasium environments for UNO
+│   │   │       └── uno_env.py
+│   │   ├── scripts/                        # Scripts for training, evaluation, and testing
 │   │   │   ├── train.py
 │   │   │   ├── evaluate.py
 │   │   │   └── play_human.py
-│   │   ├── static/
+│   │   ├── static/                         # Static files for web demo (HTML, CSS, JS)
 │   │   │   ├── css/
 │   │   │   │   └── style.css
 │   │   │   ├── js/
 │   │   │   │   └── script.js
 │   │   │   └── index.html
-│   │   ├── v1/
-│   │   │   ├── routes.py
-│   │   │   └── __init__.py
-│   │   └── __init__.py
-│   ├── run.py
-│   ├── server.py
-│   └── requirements.txt
-├── README.md
+│   │   └── v1/                             # API routes (Flask blueprint)
+│   │       └── routes.py
+│   ├── run.py                              # CLI entry point for UNO game
+│   ├── server.py                           # Flask server entry point
+│   └── requirements.txt                    # Python dependencies
+└── README.md
 ```
-
 ---
 
 ## ⚡️ Usage
@@ -135,14 +128,17 @@ Turn 0 - Player 0's turn
 Top card: Blue 3
 Player 0: Red 5, Blue 5, Green 8, Blue Reverse, Wild +4, Yellow Skip, Green 2
 Player 0 plays: Blue 5
-...
+```
+```
 Turn 42 - Player 0's turn
 Top card: Red Skip
 Player 0: Blue 7, Blue Reverse, Red +2, Green 6, Green 6
 Player 0 plays: Red +2
-...
+```
+```
 The draw pile was empty: the discard pile has been shuffled to form a new draw pile.
-...
+```
+```
 🎉 Player 2 wins the round! 🎉
 
 Remaining cards for other players:
@@ -150,12 +146,14 @@ Player 0: ['Red 7', 'Yellow 3']
 Player 1: ['Yellow 6', 'Blue 4']
 
 Player 2 earns 20 points.
-...
+```
+```
 Current scores:
 Player 0: 466 points
 Player 1: 510 points
 Player 2: 204 points
-
+```
+```
 🏆 Player 1 wins the game with 510 points in 16 rounds!
 ```
 

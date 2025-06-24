@@ -59,11 +59,14 @@ The MVP remains unchanged: build a functional game engine and train AI agents th
 │   │   │   │   ├── utils.py
 │   │   │   │   └── __init__.py
 │   │   │   ├── agents/
+│   │   │   │   ├── human_agent.py
 │   │   │   │   ├── random_agent.py
-│   │   │   │   ├── rule_based_agent.py
 │   │   │   │   ├── rl_agent.py
+│   │   │   │   ├── rule_based_agent.py
 │   │   │   │   └── __init__.py
 │   │   │   ├── envs/
+│   │   │   │   ├── run_env.py
+│   │   │   │   ├── test_env.py
 │   │   │   │   ├── uno_env.py
 │   │   │   │   └── __init__.py
 │   │   │   └── __init__.py

@@ -7,9 +7,10 @@ from app.models.uno.constants import (
 )
 from app.models.uno.deck import create_deck, reshuffle_discard_pile
 from app.models.uno.rules import is_playable, calculate_score
+from app.models.agents.rule_based_agent import choose_action  # Ajouté
 
 class Game:
-    def __init__(self, num_players: int = 2, seed: Optional[int] = None):
+    def __init__(self, num_players: int = 2, seed: Optional[int] = None, agents=None):
         self.num_players = num_players
         self.seed = seed
         self.deck = create_deck(seed)
@@ -24,6 +25,7 @@ class Game:
         self.consecutive_passes = 0
         self.turn = 0
         self.current_color = None  # ✅ NOUVEAU : couleur active séparée
+        self.agents = agents if agents is not None else []
 
     def start(self):
         for i in range(self.num_players):
@@ -84,7 +86,7 @@ class Game:
     def play_turn(self, human_input: Optional[int] = None) -> Optional[int]:
         hand = self.hands[self.current_player]
         top_card = self.discard_pile[-1]
-        
+
         if self.draw_four_next:
             self.draw_cards(self.current_player, 4)
             self.draw_four_next = 0
@@ -110,7 +112,23 @@ class Game:
                 else:
                     raise ValueError("Invalid choice.")
             else:
-                chosen_card = playable[0]
+                # Utilise l'agent associé si défini
+                if self.agents and self.agents[self.current_player]:
+                    agent = self.agents[self.current_player]
+                    idx = agent(self, {
+                        "hand": hand,
+                        "top_card": top_card,
+                        "current_color": self.current_color
+                    })
+                    if idx is not None and 0 <= idx < len(playable):
+                        chosen_card = playable[idx]
+                    else:
+                        self.draw_cards(self.current_player, 1)
+                        self.consecutive_passes += 1
+                        self.advance_turn()
+                        return None
+                else:
+                    chosen_card = playable[0]
 
             hand.remove(chosen_card)
             self.discard_pile.append(chosen_card)
@@ -127,11 +145,11 @@ class Game:
                     self.direction *= -1
             elif "Wild +4" in chosen_card:
                 self.draw_four_next += 1
-                self.current_color = random.choice(COLORS)  # ✅ Choix couleur ici
+                self.current_color = random.choice(COLORS)
             elif "Wild" in chosen_card:
-                self.current_color = random.choice(COLORS)  # ✅ Choix couleur ici
+                self.current_color = random.choice(COLORS)
             else:
-                self.current_color = chosen_card.split()[0]  # ✅ Mise à jour couleur normale
+                self.current_color = chosen_card.split()[0]
         else:
             self.draw_cards(self.current_player, 1)
             self.consecutive_passes += 1

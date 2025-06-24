@@ -1,4 +1,5 @@
 from app.models.uno.encodings import IDX2CARD, ALL_CARDS
+from app.models.uno.display import print_hand, print_board  # Import depuis display.py
 
 def choose_action(env, obs):
     """
@@ -20,21 +21,6 @@ def choose_action(env, obs):
     except ValueError:
         print("Invalid input. Drawing by default.")
         return env.action_space.n - 1
-
-def print_hand(player_idx, hand):
-    """
-    Print the hand of a player (for human interaction).
-    """
-    print(f"Player {player_idx}: {', '.join(hand)}")
-
-def print_board(turn, current_player, top_card, deck_size=None):
-    """
-    Print the current state of the board (for human interaction).
-    """
-    print(f"\nTurn {turn} - Player {current_player}'s turn")
-    print(f"Top card: {top_card}")
-    if deck_size is not None:
-        print(f"Deck size: {deck_size}")
 
 def ask_playable_choice(playable):
     """

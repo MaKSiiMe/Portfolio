@@ -10,13 +10,11 @@ import sys
 from typing import List, Optional
 
 from app.models.uno.game import Game
-from app.models.agents.human_agent import (
-    print_board, print_hand, ask_playable_choice, ask_draw
-)
-from app.models.agents.rule_based_agent import choose_action
+from app.models.uno.display import print_board, print_hand  # <-- ici
+from app.models.agents.human_agent import ask_playable_choice, ask_draw
 
 NUM_PLAYERS = 3
-HUMAN_PLAYER_IDX = -1  # Index of the human player in the game
+HUMAN_PLAYER_IDX = -1  # Index du joueur humain (0 pour le premier joueur)
 TARGET_SCORE = 500
 
 def main(seed: Optional[int] = None) -> None:
@@ -48,6 +46,7 @@ def main(seed: Optional[int] = None) -> None:
 
             card_played = None
             player_playing = game.current_player
+
             if game.current_player == HUMAN_PLAYER_IDX:
                 playable = [
                     card for card in game.hands[game.current_player]
@@ -75,23 +74,7 @@ def main(seed: Optional[int] = None) -> None:
                     winner = game.play_turn(human_input=None)
                     card_played = None
             else:
-                # Utilise l'agent rule_based pour les autres joueurs
-                idx = choose_action(game)
-                winner = game.play_turn(human_input=idx)
-                if idx is not None:
-                    card_played = [
-                        card for card in game.hands[player_playing]
-                        if card.split()[0] == game.discard_pile[-1].split()[0]
-                        or (len(card.split()) > 1 and len(game.discard_pile[-1].split()) > 1 and card.split()[1] == game.discard_pile[-1].split()[1])
-                        or card.startswith("Wild")
-                    ][idx] if idx < len([
-                        card for card in game.hands[player_playing]
-                        if card.split()[0] == game.discard_pile[-1].split()[0]
-                        or (len(card.split()) > 1 and len(game.discard_pile[-1].split()) > 1 and card.split()[1] == game.discard_pile[-1].split()[1])
-                        or card.startswith("Wild")
-                    ]) else None
-                else:
-                    card_played = None
+                winner = game.play_turn()
 
             if card_played is not None:
                 print(f"Player {player_playing} plays: {card_played}")

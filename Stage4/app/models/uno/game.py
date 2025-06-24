@@ -7,7 +7,7 @@ from app.models.uno.constants import (
 )
 from app.models.uno.deck import create_deck, reshuffle_discard_pile
 from app.models.uno.rules import is_playable, calculate_score
-from app.models.agents.rule_based_agent import choose_action  # Ajouté
+from app.models.agents.rules_agent import choose_action
 
 class Game:
     def __init__(self, num_players: int = 2, seed: Optional[int] = None, agents=None):

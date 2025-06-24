@@ -18,7 +18,7 @@ from app.models.uno.encodings import CARD2IDX, ALL_CARDS
 from app.models.uno.rules import is_playable
 
 NUM_CARDS = len(ALL_CARDS)
-MAX_HAND_SIZE = 20  # Adjustable if necessary
+MAX_HAND_SIZE = 20
 
 def _normalize_top_card(card: str) -> str:
     """
@@ -27,101 +27,109 @@ def _normalize_top_card(card: str) -> str:
     """
     parts = card.split()
     if parts[0] in {"Red", "Green", "Blue", "Yellow"} and "Wild" in card:
-        return " ".join(parts[1:])  # Keeps 'Wild' or 'Wild +4'
+        return " ".join(parts[1:])
     return card
 
 class UnoEnv(gym.Env):
     metadata = {"render_modes": ["human"]}
 
-    def __init__(self, seed: Optional[int] = None):
+    def __init__(self, seed: Optional[int] = None, opponent_agent_fn=None):
         super().__init__()
         self._seed = seed
         self.rng = np.random.default_rng(seed)
 
-        self.action_space = spaces.Discrete(NUM_CARDS + 1)  # +1 for 'draw'
+        self.action_space = spaces.Discrete(NUM_CARDS + 1)
 
         self.observation_space = spaces.Dict({
             "hand": spaces.Box(low=-1, high=NUM_CARDS, shape=(MAX_HAND_SIZE,), dtype=np.int32),
             "top_card": spaces.Discrete(NUM_CARDS),
-            "opponent_card_count": spaces.Discrete(100),  # Arbitrary upper limit
+            "opponent_card_count": spaces.Discrete(100),
         })
 
         self.game = None
+        self.opponent_agent_fn = opponent_agent_fn
 
     def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None) -> Tuple[Dict, Dict]:
-        """
-        Resets the environment and starts a new UNO game.
-        """
         self.game = Game(num_players=2, seed=seed or self._seed)
         self.game.start()
-
         obs = self._get_obs()
-        info = {}
-        return obs, info
+        return obs, {}
 
     def step(self, action: int) -> Tuple[Dict, float, bool, bool, Dict]:
-        """
-        Execute an action and return the environment feedback.
-        """
-
-        hand = self.game.hands[self.game.current_player]
-        top_card = self.game.discard_pile[-1]
-        normalized_top_card = _normalize_top_card(top_card)
+        reward = 0
+        from app.models.uno.encodings import ALL_CARDS
 
         if action == NUM_CARDS:
-            # Action = Draw
             self.game.draw_cards(self.game.current_player, 1)
             self.game.advance_turn()
             reward = -0.1
         else:
             card_to_play = ALL_CARDS[action]
-            # Cherche tous les indices où la carte est présente et jouable
+            hand = self.game.hands[self.game.current_player]
+
             playable_indices = [
                 idx for idx, card in enumerate(hand)
                 if card == card_to_play and (
                     card.startswith("Wild") or
-                    card.split()[0] == top_card.split()[0] or
-                    (len(card.split()) > 1 and len(top_card.split()) > 1 and card.split()[1] == top_card.split()[1])
+                    card.split()[0] == self.game.discard_pile[-1].split()[0] or
+                    (len(card.split()) > 1 and len(self.game.discard_pile[-1].split()) > 1 and card.split()[1] == self.game.discard_pile[-1].split()[1])
                 )
             ]
-            # On vérifie que l'indice est bien valide dans la liste des cartes jouables
+
             if playable_indices:
-                # On doit retrouver l'indice de la carte dans la liste des cartes jouables (pas juste dans la main)
-                # Pour éviter ValueError dans play_turn, il faut calculer l'indice dans la liste 'playable'
                 playable = [card for card in hand if (
                     card.startswith("Wild") or
-                    card.split()[0] == top_card.split()[0] or
-                    (len(card.split()) > 1 and len(top_card.split()) > 1 and card.split()[1] == top_card.split()[1])
+                    card.split()[0] == self.game.discard_pile[-1].split()[0] or
+                    (len(card.split()) > 1 and len(self.game.discard_pile[-1].split()) > 1 and card.split()[1] == self.game.discard_pile[-1].split()[1])
                 )]
-                # On cherche la position de card_to_play dans la liste 'playable'
+
                 try:
                     idx_in_playable = playable.index(card_to_play)
                     result = self.game.play_turn(human_input=idx_in_playable)
                     reward = 1.0 if result else 0.5
                 except ValueError:
-                    # Sécurité : la carte n'est pas dans la liste des jouables
                     self.game.draw_cards(self.game.current_player, 1)
                     self.game.advance_turn()
                     reward = -1.0
             else:
-                # Invalid action → draw penalty
                 self.game.draw_cards(self.game.current_player, 1)
                 self.game.advance_turn()
                 reward = -1.0
 
         done = any(len(h) == 0 for h in self.game.hands)
         truncated = False
+
+        if not done and self.opponent_agent_fn is not None:
+            obs_opponent = self._get_obs_player(1)
+            opponent_action = self.opponent_agent_fn(self, obs_opponent)
+            hand = self.game.hands[1]
+            playable = [
+                card for card in hand if (
+                    card.startswith("Wild") or
+                    card.split()[0] == self.game.discard_pile[-1].split()[0] or
+                    (len(card.split()) > 1 and len(self.game.discard_pile[-1].split()) > 1 and card.split()[1] == self.game.discard_pile[-1].split()[1])
+                )
+            ]
+            card_to_play = ALL_CARDS[opponent_action] if opponent_action is not None and opponent_action < len(ALL_CARDS) else None
+            if card_to_play and card_to_play in playable:
+                prev_player = self.game.current_player
+                self.game.current_player = 1
+                idx_in_playable = playable.index(card_to_play)
+                self.game.play_turn(human_input=idx_in_playable)
+                self.game.current_player = prev_player
+            else:
+                self.game.draw_cards(1, 1)
+                self.game.advance_turn()
+            done = any(len(h) == 0 for h in self.game.hands)
+
         obs = self._get_obs()
-        info = {}
-
-        return obs, reward, done, truncated, info
-
+        return obs, reward, done, truncated, {}
 
     def _get_obs(self) -> Dict:
-        """
-        Builds the observation dictionary from the current game state.
-        """
-        player_hand = self.game.hands[self.game.current_player]
+        return self._get_obs_player(self.game.current_player)
+
+    def _get_obs_player(self, player: int) -> Dict:
+        player_hand = self.game.hands[player]
         top_card = self.game.discard_pile[-1]
         normalized_top_card = _normalize_top_card(top_card)
 
@@ -133,11 +141,8 @@ class UnoEnv(gym.Env):
         return {
             "hand": encode_hand(player_hand, max_size=MAX_HAND_SIZE),
             "top_card": top_card_idx,
-            "opponent_card_count": len(self.game.hands[1])
+            "opponent_card_count": len(self.game.hands[1 - player])
         }
 
     def render(self):
-        """
-        Print the game board for visualization.
-        """
         self.game.print_board()

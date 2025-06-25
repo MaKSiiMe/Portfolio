@@ -36,7 +36,7 @@ The MVP remains unchanged: build a functional game engine and train AI agents th
 
 | Feature         | Description                                              |
 |:--------------- |:--------------------------------------------------------|
-| 👥 Players      | 2 to 10 virtual players (3 by default)                   |
+| 👥 Players      | 2 to 10 virtual players (2 by default)                   |
 | 🃏 UNO Rules    | Dealing, drawing, discard pile, special effects          |
 | 🔄 Special Cards| +2, +4, Color change, Reverse, Skip                      |
 | 🤖 AI           | Automatically plays the first valid card                 |

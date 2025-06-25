@@ -21,13 +21,55 @@ def is_playable(card: str, top_card: str, current_color: str) -> bool:
         bool: True if the card is playable, False otherwise.
     """
     card_parts = card.split()
+    top_parts = top_card.split()
+
+    if not card_parts or not top_parts:
+        return False
+
     if card_parts[0] == 'Wild':
         return True
-    if len(card_parts) < 2:
-        return False
-    return card_parts[0] == current_color or card_parts[1] == top_card.split()[-1]
 
+    card_color = card_parts[0]
+    card_value = " ".join(card_parts[1:]) if len(card_parts) > 1 else None
 
+    top_color = top_parts[0]
+    top_value = " ".join(top_parts[1:]) if len(top_parts) > 1 else None
+
+    return card_color == current_color or card_value == top_value
+
+def get_playable_cards(hand: List[str], top_card: str, current_color: str) -> List[str]:
+    """
+    Get a list of playable cards from a hand based on the top card and current color.
+
+    Args:
+        hand (List[str]): The player's hand of cards.
+        top_card (str): The top card of the discard pile.
+        current_color (str): The active color in play.
+
+    Returns:
+        List[str]: A list of playable cards.
+    """
+    return [
+        card for card in hand
+        if is_playable(card, top_card, current_color)
+    ]
+
+def get_playable_cards_with_indices(hand: List[str], top_card: str, current_color: str) -> List[int]:
+    """
+    Get indices of playable cards from a hand based on the top card and current color.
+
+    Args:
+        hand (List[str]): The player's hand of cards.
+        top_card (str): The top card of the discard pile.
+        current_color (str): The active color in play.
+
+    Returns:
+        List[int]: A list of indices of playable cards.
+    """
+    return [
+        i for i, card in enumerate(hand)
+        if is_playable(card, top_card, current_color)
+    ]
 
 def calculate_card_points(card: str) -> int:
     """

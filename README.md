@@ -181,66 +181,102 @@ Player 2: 204 points
 
 ---
 
-## 🧠 AI Roadmap
+## 🧠 Global Roadmap: Trainable & Playable UNO AI via Web Interface
 
-Before training an AI agent to play UNO, the engine must be modular and refactored. Here are the planned steps to support agent training, simulation, and evaluation.
+This roadmap consolidates all required steps to:
+- Build a modular and stable UNO game engine
+- Train an AI agent using Gymnasium
+- Allow a human player to play against the AI via a web interface
 
 <details>
 <summary><b>See the full checklist</b></summary>
 
-### 0. Official Scoring Mode
-- [x] Add point calculation based on cards remaining in opponents' hands.
-- [x] Track cumulative scores for each player.
-- [x] End the game when a player reaches 500 points.
-- [x] Display a scoreboard after each round.
-- [x] Allow replaying rounds while preserving player scores.
+### ✅ 1. Stabilize the Game Engine
 
-### 1. Separate game logic from players
-- [x] Create a `UnoGame` class to manage game state (`deck`, `discard_pile`, `hands`, `current_player`, etc.).
-- [x] Implement `get_game_state()` to return a player's view.
-- [x] Implement `play_turn(player_action)` to apply an action and update the state.
+- [x] Refactor game logic into a `Game` class
+- [x] Handle all special effects: +2, +4, Wild, Reverse, Skip
+- [x] Implement official scoring (end at 500 points, scoreboard, round accumulation)
+- [x] Support multiple autonomous agents
+- [ ] Refactor each special effect into a dedicated method
+- [ ] Add basic unit tests for card effects
+- [ ] Add a `verbose=False` mode to disable printouts
+- [ ] Support fast simulation mode (no `input()`, no `print()`)
 
-### 2. Create an Agent interface
-- [ ] Define an abstract class `Agent` with the method `choose_action(game_state) -> action`.
-- [x] Implement `HumanAgent` for console input.
-- [x] Implement `RandomAgent` that randomly chooses a legal action.
-- [ ] Attach an `Agent` instance per player (`self.agents = [...]`).
+### 🤖 2. Implement AI Agents
 
-### 3. Encode states and actions
-- [ ] Implement `encode_state(game_state)` to return a tensor or feature vector.
-- [ ] Implement `decode_action(index)` if action space is discrete.
-- [ ] Define the set of possible actions (playable cards + draw).
+- [ ] Create an abstract `Agent` or `BaseAgent` class with `choose_action(game_state)`
+- [x] Implement `HumanAgent` (console-based)
+- [x] Implement `RandomAgent`
+- [x] Implement `RuleBasedAgent`
+- [ ] Implement `RLAgent` (based on a trained model)
+- [ ] Ensure all agents follow the same interface
+- [ ] Assign an agent instance per player (`self.agents = [...]`)
 
-### 4. Simulation and logging
-- [ ] Add a silent simulation mode (no print).
-- [ ] Log each tuple `(state, action, reward, next_state, done)` per turn.
-- [ ] Add a `run_episode()` method that returns the full log.
+### 🧩 3. Encode Game State and Actions
 
-### 5. Define the reward function
-- [ ] Implement `reward_function(state, action, next_state)`:
-  - Small penalty each turn to encourage quick victory.
-  - Large reward if the agent wins.
-  - Penalty for illegal or null action.
-- [ ] (Optional) Design other reward schemes.
+- [x] Implement `encode_state(game_state)` → vector/tensor
+- [x] Define `action_space` (playable cards + draw)
+- [x] Implement `decode_action(index)`
+- [ ] Implement consistent `observation_space`
+- [ ] Support encoding of `top_card`, `hand`, `nb_cards_others`, etc.
 
-### 6. Fully autonomous agent mode
-- [x] Allow games where all players are autonomous agents.
-- [ ] Support batch simulations over multiple episodes.
-- [ ] Collect data for reinforcement or supervised learning.
+### 🔁 4. Gymnasium Environment `UnoEnv`
 
-### 7. Replay and trace saving
-- [ ] Allow saving complete episodes in JSON or pickle.
-- [ ] (Optional) Tools to replay an episode step by step.
+- [x] Implement `reset()` and `step()` with observation, reward, done, info
+- [x] Handle `done=True` at end of round
+- [ ] Integrate a reward function:
+  - Win: +1 / Loss: -1
+  - Turn penalty: -0.1
+  - Optional: rewards for strategic moves
+- [ ] Test environment thoroughly with basic agents
 
-### 8. Debug & visualization tools
-- [ ] Add a `verbose` flag to display agent decisions.
-- [x] Show cards played each turn for traceability.
+### 📈 5. Simulation & Data Collection
+
+- [ ] Implement a complete `run_episode()` method
+- [ ] Log each `(state, action, reward, next_state, done)`
+- [ ] Add batch simulation mode (e.g. 1000 games)
+- [ ] Save episodes (Pickle / JSON)
+- [ ] Add a step-by-step replay/debug tool
+
+### 🏋️‍♂️ 6. Train AI Agent
+
+- [ ] Implement a `train.py` script (DQN or similar)
+- [ ] Support classic RL training loop
+- [ ] Save and load models (`.pt` / `.pth`)
+- [ ] Document the training pipeline (README or notebook)
+
+### 🌐 7. Flask Backend Integration
+
+- [ ] Create API routes:
+  - `POST /start` – start a game
+  - `POST /play` – send human action
+  - `GET /state` – get current state
+  - `GET /play-ai` – make AI play
+- [ ] Manage session state between requests
+- [ ] Return clean JSON for frontend
+
+### 🖥️ 8. Web Interface (Frontend)
+
+- [ ] Display player's hand (text or image)
+- [ ] Add buttons to: play card, draw, pass
+- [ ] Show current top card and color
+- [ ] Display score and winner at round end
+- [ ] Automatically show AI move after each human move
+
+### 🧪 9. UX, Debug, Validation
+
+- [ ] Add debug mode (`verbose`, logs)
+- [ ] Display current turn clearly
+- [ ] Validate player actions on client side
+- [ ] Add replay support for saved episodes
+
+### 🚀 10. Deployment
+
+- [ ] Dockerize the full project
+- [ ] Deploy to Render / Railway / Fly.io
+- [ ] Prepare public demo (GitHub page, video, etc.)
 
 ---
-
-### ✨ Bonus (Advanced Mechanics)
-- [x] Refactor each special effect (`+2`, `Reverse`, etc.) into its own method.
-- [ ] Write unit tests to validate effect handling.
 
 </details>
 

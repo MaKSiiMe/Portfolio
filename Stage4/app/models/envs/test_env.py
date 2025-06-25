@@ -1,31 +1,32 @@
 """
-test_env.py
+test_env_vector.py
 
-Basic testing script for the UnoEnv Gymnasium environment.
-Plays random actions to validate environment setup.
+Test the UnoEnv environment using random actions.
+Compatible with new vector-based observation (via encode_state).
 """
 
 import sys
 import os
 import argparse
+import numpy as np
 
-# Add project root to sys.path to allow absolute imports
+# Add project root to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 
 from app.models.envs.uno_env import UnoEnv
-from app.models.uno.utils import decode_hand
 from app.models.uno.encodings import IDX2CARD
 
-def render_hand(hand_encoded):
-    """
-    Convert encoded hand (array of indices) to readable card strings.
-    """
-    return decode_hand(hand_encoded)
+def decode_vector(obs: np.ndarray):
+    hand_vector = obs[:108]
+    top_card_vector = obs[108:216]
+    opponent_counts = obs[216:]
+
+    # Correction : ignorer les indices qui ne sont pas dans IDX2CARD (padding ou bug possible)
+    hand = [IDX2CARD[i] for i in range(108) if i in IDX2CARD and hand_vector[i] > 0]
+    top_card = IDX2CARD[np.argmax(top_card_vector)] if np.argmax(top_card_vector) in IDX2CARD else "UNKNOWN"
+    return hand, top_card, opponent_counts.astype(int).tolist()
 
 def random_agent_test(episodes: int = 3, max_steps: int = 50, verbose: bool = True):
-    """
-    Runs random action episodes to test the UnoEnv environment.
-    """
     with UnoEnv(seed=42) as env:
         for ep in range(episodes):
             obs, _ = env.reset()
@@ -40,9 +41,10 @@ def random_agent_test(episodes: int = 3, max_steps: int = 50, verbose: bool = Tr
                 obs, reward, done, truncated, _ = env.step(action)
 
                 if verbose:
+                    hand, top_card, opponents = decode_vector(obs)
                     print(f"Step {step_count}: Action={action} | Reward={reward:.2f} | Done={done}")
-                    print(f"  Hand: {render_hand(obs['hand'])}")
-                    print(f"  Top Card: {IDX2CARD[obs['top_card']]} | Opponent cards: {obs['opponent_card_count']}")
+                    print(f"  Hand: {hand}")
+                    print(f"  Top Card: {top_card} | Opponent cards: {opponents}")
 
                 step_count += 1
 
@@ -53,7 +55,7 @@ def random_agent_test(episodes: int = 3, max_steps: int = 50, verbose: bool = Tr
                     print("--> Episode reached max steps without termination.\n")
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Run random agent test for UnoEnv.")
+    parser = argparse.ArgumentParser(description="Run vector-based test for UnoEnv.")
     parser.add_argument("-e", "--episodes", type=int, default=3, help="Number of episodes to run.")
     parser.add_argument("-s", "--steps", type=int, default=50, help="Maximum number of steps per episode.")
     parser.add_argument("-q", "--quiet", action="store_true", help="Suppress detailed output.")

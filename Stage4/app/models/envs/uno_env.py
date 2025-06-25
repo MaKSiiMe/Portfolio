@@ -13,12 +13,13 @@ from typing import Optional, Tuple, Dict
 
 from app.models.uno.deck import create_deck
 from app.models.uno.game import Game
-from app.models.uno.utils import encode_hand
+from app.models.uno.utils import encode_hand, encode_state, decode_card  # Ajoute decode_card à l'import
 from app.models.uno.encodings import CARD2IDX, ALL_CARDS
 from app.models.uno.rules import is_playable
 
 NUM_CARDS = len(ALL_CARDS)
 MAX_HAND_SIZE = 20
+TOTAL_CARDS = NUM_CARDS  # Ajout pour compatibilité avec le code plus bas
 
 def _normalize_top_card(card: str) -> str:
     """
@@ -49,13 +50,30 @@ class UnoEnv(gym.Env):
         self.game = None
         self.opponent_agent_fn = opponent_agent_fn
 
-    def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None) -> Tuple[Dict, Dict]:
-        self.game = Game(num_players=2, seed=seed or self._seed)
+    def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None) -> Tuple[np.ndarray, Dict]:
+        """
+        Réinitialise l'environnement pour un nouvel épisode de jeu.
+
+        Args:
+            seed (Optional[int]): Graine aléatoire
+            options (Optional[Dict]): Options supplémentaires (non utilisé ici)
+
+        Returns:
+            Tuple[np.ndarray, Dict]: Observation initiale + info (vide)
+        """
+        self._seed = seed or self._seed
+        self.rng = np.random.default_rng(self._seed)
+
+        self.game = Game(num_players=2, seed=self._seed)
         self.game.start()
-        obs = self._get_obs()
+
+        obs = encode_state(self.game.get_state(), self.game.current_player)
         return obs, {}
 
-    def step(self, action: int) -> Tuple[Dict, float, bool, bool, Dict]:
+    def step(self, action: int) -> Tuple[np.ndarray, float, bool, bool, Dict]:
+        """
+        Applique l'action de l'agent et retourne la nouvelle observation, récompense, etc.
+        """
         reward = 0.0
         player = self.game.current_player
         hand = self.game.hands[player]
@@ -69,82 +87,68 @@ class UnoEnv(gym.Env):
         ]
         has_playable = len(playable_cards) > 0
 
-        if action == NUM_CARDS:
+        # Action = piocher
+        if action == TOTAL_CARDS:
             if has_playable:
-                reward = -2.0  # Mauvais choix, alors qu'une carte était jouable
+                reward = -2.0  # Mauvais choix
             else:
-                reward = -0.1  # Petite pénalité pour draw légitime
+                reward = -0.1  # Légère pénalité
             self.game.draw_cards(player, 1)
             self.game.advance_turn()
-        elif 0 <= action < NUM_CARDS:
-            card_to_play = ALL_CARDS[action]
+
+        # Action = jouer une carte spécifique
+        elif 0 <= action < TOTAL_CARDS:
+            card_to_play = decode_card(action)
             matching_indices = [
                 i for i, card in enumerate(hand)
                 if card == card_to_play and is_playable(card, top_card, current_color)
             ]
             if matching_indices:
+                idx = matching_indices[0]
+                # Correction : vérifier que idx est bien dans la main jouable pour play_turn
                 try:
-                    idx = matching_indices[0]
                     result = self.game.play_turn(human_input=idx)
                     reward = 1.0 if result else 0.5
                 except Exception:
-                    reward = -1.0
+                    # Si play_turn échoue, on pioche à la place
+                    reward = -2.0 if has_playable else -1.0
                     self.game.draw_cards(player, 1)
                     self.game.advance_turn()
             else:
                 reward = -2.0 if has_playable else -1.0
                 self.game.draw_cards(player, 1)
                 self.game.advance_turn()
+
+        # Action invalide
         else:
-            reward = -2.0  # Action invalide
+            reward = -2.0
             self.game.draw_cards(player, 1)
             self.game.advance_turn()
 
+        # Vérifie si la partie est finie
         done = any(len(h) == 0 for h in self.game.hands)
         truncated = False
 
-        # Adversaire automatique
+        # Fait jouer l'adversaire si partie non terminée
         while not done and self.game.current_player != player:
+            # Correction : ne fait jouer l'adversaire que si self.opponent_agent_fn est défini
             if self.opponent_agent_fn is not None:
-                obs_opponent = self._get_obs_player(self.game.current_player)
-                opponent_action = self.opponent_agent_fn(self, obs_opponent)
-
                 opponent = self.game.current_player
-                hand = self.game.hands[opponent]
-                top_card = self.game.discard_pile[-1]
-                current_color = self.game.current_color
-
-                card_to_play = (
-                    ALL_CARDS[opponent_action]
-                    if opponent_action is not None and 0 <= opponent_action < NUM_CARDS
-                    else None
-                )
-
-                playable = [
-                    idx for idx, card in enumerate(hand)
-                    if card == card_to_play and is_playable(card, top_card, current_color)
-                ]
-
-                if card_to_play and playable:
-                    try:
-                        idx_in_hand = playable[0]
-                        self.game.play_turn(human_input=idx_in_hand)
-                    except Exception:
-                        self.game.draw_cards(opponent, 1)
-                        self.game.advance_turn()
-                else:
-                    self.game.draw_cards(opponent, 1)
-                    self.game.advance_turn()
-
+                state = self.game.get_state()
+                action = self.opponent_agent_fn(state, opponent)
+                self.step(action)
                 done = any(len(h) == 0 for h in self.game.hands)
             else:
+                # Si aucun agent adversaire n'est défini, passe simplement le tour
                 self.game.advance_turn()
+                done = any(len(h) == 0 for h in self.game.hands)
 
-        obs = self._get_obs()
+        obs = encode_state(self.game.get_state(), player)
         return obs, reward, done, truncated, {}
 
+
     def _get_obs(self) -> Dict:
-        return self._get_obs_player(self.game.current_player)
+        return encode_state(self.game.get_state(), self.game.current_player)
 
     def _get_obs_player(self, player: int) -> Dict:
         player_hand = self.game.hands[player]

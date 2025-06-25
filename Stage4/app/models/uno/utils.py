@@ -5,10 +5,6 @@ from .constants import COLORS, VALUES, SPECIAL_CARDS, WILD_CARDS
 
 ALL_CARDS: List[str] = []
 
-ALL_CARDS: List[str] = []
-
-ALL_CARDS: List[str] = []
-
 # Encodage/décodage des cartes
 CARD_ENCODING: Dict[str, int] = {}
 CARD_DECODING: Dict[int, str] = {}

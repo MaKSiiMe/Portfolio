@@ -66,16 +66,17 @@ class Game:
         Returns:
             dict: Current game state with information about players, deck, discard pile, hands, current player, direction, and turn.
         """
-        print(f"[🏁] Player {self.current_player} wins!")
-
         return {
             "num_players": self.num_players,
             "deck_size": len(self.deck),
             "discard_pile": self.discard_pile,
             "hands": self.hands,
             "current_player": self.current_player,
+            "current_color": self.current_color,
             "direction": self.direction,
-            "turn": self.turn
+            "turn": self.turn,
+            "cards_left": [len(h) for h in self.hands],
+            "winner": self.get_winner(),
         }
 
 
@@ -200,3 +201,10 @@ class Game:
         """
         scores = [calculate_score(self.hands, winner_idx=i) for i in range(self.num_players)]
         return scores
+
+
+    def get_winner(self) -> Optional[int]:
+        for i, hand in enumerate(self.hands):
+            if len(hand) == 0:
+                return i
+        return None

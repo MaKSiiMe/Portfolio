@@ -217,8 +217,8 @@ This roadmap consolidates all required steps to:
 - [x] Implement `encode_state(game_state)` → vector/tensor
 - [x] Define `action_space` (playable cards + draw)
 - [x] Implement `decode_action(index)`
-- [ ] Implement consistent `observation_space`
-- [ ] Support encoding of `top_card`, `hand`, `nb_cards_others`, etc.
+- [x] Implement consistent `observation_space`
+- [x] Support encoding of `top_card`, `hand`, `nb_cards_others`, etc.
 
 ### 🔁 4. Gymnasium Environment `UnoEnv`
 

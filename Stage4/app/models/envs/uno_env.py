@@ -53,9 +53,9 @@ class UnoEnv(gym.Env):
 
         obs = self._get_observation()
         info = {}
-        return obs, info {}
+        return obs, info
 
-    def step(self, action int) -> Tuple[Dict, float, bool, bool, Dict]:
+    def step(self, action: int) -> Tuple[Dict, float, bool, bool, Dict]:
 
         player_hand = self.hands[self.current_player]
         top_card = self.discard_pile[-1]
@@ -67,7 +67,7 @@ class UnoEnv(gym.Env):
         else:
             try:
                 card_to_play = IDX2CARD[action]
-            exept KeyError:
+            except KeyError:
                 card_to_play = None
             if card_to_play in player_hand and self._is_playble(card_to_play, top_card):
                 player_hand.remove(card_to_play)
@@ -106,7 +106,7 @@ class UnoEnv(gym.Env):
         }
 
     def _is_playable(self, card: str, top_card: str) -> bool:
-        if card i n ["Wild", "Wild +4"]:
+        if card in ["Wild", "Wild +4"]:
             return True
         card_color, *card_value = card.split()
         top_color, *top_value = top_card.split()

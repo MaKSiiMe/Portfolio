@@ -1,129 +1,85 @@
-/* **Styles de base** */
 body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #2e8b57; /* Vert foncé pour le fond */
-    color: white;
+  font-family: "Segoe UI", sans-serif;
+  background: linear-gradient(135deg, #009688, #00695c);
+  color: #fff;
+  text-align: center;
+  margin: 0;
+  padding: 2rem;
 }
 
-header {
-    background-color: #e63f3f; /* Rouge pour le titre */
-    color: white;
-    text-align: center;
-    padding: 16px;
-    font-size: 2em;
-    font-weight: bold;
+h1, h2 {
+  margin-bottom: 1rem;
 }
 
-main {
-    display: flex;
-    justify-content: center;
-    padding: 16px;
+.game-container {
+  display: flex;
+  justify-content: center;
+  gap: 80px;
+  margin: 2rem 0;
 }
 
-#game {
-    width: 600px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-/* **Zone des cartes IA** */
-#ia-area {
-    text-align: center;
-    margin-bottom: 16px;
-}
-
-#ia-cards {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-}
-
-/* **Zone des cartes Joueur** */
-#player-area {
-    text-align: center;
-    margin-top: 16px;
-}
-
-#player-cards {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-}
-
-/* **Carte individuelle** */
 .card {
-    width: 60px;
-    height: 90px;
-    background-color: white;
-    color: black;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1em;
-    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
-    cursor: pointer;
+  width: 90px;
+  height: 140px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 18px;
+  color: white;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  cursor: pointer;
+  user-select: none;
 }
 
-.card.joker {
-    background-color: black;
-    color: white;
+.card:hover {
+  transform: scale(1.05);
 }
 
-/* **Pile de cartes** */
-#pile-area {
-    text-align: center;
-    margin: 16px 0;
+.back {
+  background: repeating-linear-gradient(45deg, #222 0px, #444 10px);
+  color: #eee;
 }
 
-#pile-card {
-    width: 60px;
-    height: 90px;
-    background-color: white;
-    color: black;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1em;
-    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
+.Red { background-color: #d32f2f; }
+.Green { background-color: #388e3c; }
+.Blue { background-color: #1976d2; }
+.Yellow { background-color: #fbc02d; color: black; }
+.Wild {
+  background: conic-gradient(red, yellow, green, blue);
+  color: black;
+  font-size: 16px;
+  padding: 0 4px;
 }
 
-/* **Boutons d'action** */
-#action {
-    margin-top: 16px;
-    display: flex;
-    gap: 12px;
-    justify-content: center;
+.hand-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
 }
 
-button {
-    padding: 12px 18px;
-    background-color: #457B9D;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 1em;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+.status-msg {
+  margin-top: 20px;
+  font-size: 1.2rem;
+  font-weight: bold;
 }
 
-button:hover {
-    background-color: #1D3557;
+.draw-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border-radius: 8px;
+  border: none;
+  background-color: #ffc107;
+  color: #000;
+  cursor: pointer;
+  transition: background 0.2s;
 }
-
-button:disabled {
-    background-color: gray;
-    cursor: not-allowed;
-}
-
-/* **Message** */
-#message {
-    margin-top: 18px;
-    font-size: 1.1em;
-    min-height: 24px;
-    text-align: center;
+.draw-btn:hover {
+  background-color: #ffb300;
 }

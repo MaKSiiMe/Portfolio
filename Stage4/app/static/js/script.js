@@ -1,87 +1,67 @@
-const socket = io();
+import { isPlayable, drawCard } from './api.js';
 
-function renderGame(state) {
-    // Affichage Ia
-    document.getElementById( 'ia-cards-count').textContent = state.iaCount;
-    let IaDIV = document.getElementById('ia-cards');
-    IaDIV.innerHTML = '';
-    for (let i = 0; i < state.ia.length; i++) {
-        let c = document.createElement('div');
-        c.className = 'card';
-        c.textContent = '?';
-        IaDIV.appendChild(c);
-    }
+let hand = ["Red 5", "Green +2", "Wild +4", "Yellow Skip", "Blue 9"];
+let topCard = "Red Reverse";
+let currentColor = "Red";
+let skipNext = false;
+let drawPenalty = 0;
 
-    // Affichage Joueur
-    let mainDIV = document.getElementById('player-cards');
-    mainDIV.innerHTML = '';
-    state.joueur.forEach((card, index) => {
-        let c = document.createElement('div');
-        c.className = 'card' + (card.valeur === 'Joker' || card.valeur === '+4' ? ' joker' : '');
-        c.textContent = ( card.couleur ? card.couleur + ' ' : '') + card.valeur;
-        c.style.background = couleurTOCSS(card.couleur, card.valeur);
-        c.onclick = () => {
-            socket.emit('jouerCarte', index);
-        }
-        mainDIV.appendChild(c);
-    });
-
-    // affichage de pile
-    let cp = state.pile[state.pile.length - 1];
-    let pileDIV = document.getElementById('pile-card');
-    pileDIV.textContent = cp.valeur + (cp.couleur ? ' ' + cp.couleur : '');
-    pileDIV.className = 'card' + (cp.valeur === 'Joker' || cp.valeur === '+4' ? ' joker' : '');
-    pileDIV.style.background = couleurTOCSS(cp.couleur, cp.valeur);
-
-    // Bouton uno
-    
-    document.getElementById('uno-button').disabled = !(state.joueur.length === 2 && state.tour === 'joueur') && !state.uno;
-
-    document.getElementById('message').textContent || '';
+function renderHand() {
+  const handDiv = document.getElementById("hand");
+  handDiv.innerHTML = "";
+  hand.forEach((card, index) => {
+    const div = document.createElement("div");
+    div.className = `card ${getColorClass(card)}`;
+    div.innerText = card;
+    div.onclick = () => tryPlayCard(card, index, div);
+    handDiv.appendChild(div);
+  });
 }
 
-function couleurTOCSS(couleur, valeur) {
-    if (valeur === 'Joker' || valeur === '+4') {
-        return '#222';
-    }
-    switch (couleur) {
-        case 'Rouge':
-            return 'red';
-        case 'Bleu':
-            return 'blue';
-        case 'Vert':
-            return 'green';
-        case 'Jaune':
-            return 'yellow';
-        default:
-            return '';
-    }
+function renderTopCard() {
+  const topDiv = document.getElementById("topCard");
+  topDiv.className = `card ${getColorClass(topCard)}`;
+  topDiv.innerText = topCard;
 }
 
-// gestion des boutons
-document.getElementById('draw-button').onclick = () => {
-    socket.emit('piocher');
-}
-document.getElementById('restart-button').onclick = () => {
-    socket.emit('nouvelle partie');
+function getColorClass(card) {
+  const color = card.split(" ")[0];
+  if (["Red", "Green", "Blue", "Yellow"].includes(color)) return color;
+  return "Wild";
 }
 
-document.getElementById('draw-card').onclick = () => {
-    socket.emit('piocher');
-};
+async function tryPlayCard(card, index, cardElement) {
+  const status = document.getElementById("status");
+  const { playable } = await isPlayable(card, topCard, currentColor);
 
-document.getElementById('play-card').onclick = () => {
-    // Ajoutez la logique pour jouer une carte si nécessaire
-    console.log('Jouer une carte (à implémenter)');
-};
+  if (!playable) {
+    status.innerText = `❌ "${card}" non jouable.`;
+    cardElement.style.opacity = 0.5;
+    setTimeout(() => cardElement.style.opacity = 1, 500);
+    return;
+  }
 
-document.getElementById('end-turn').onclick = () => {
-    // Ajoutez la logique pour terminer le tour si nécessaire
-    console.log('Terminer le tour (à implémenter)');
-};
+  if (card.includes("+2")) drawPenalty += 2;
+  if (card.includes("Wild +4")) drawPenalty += 4;
+  if (card.includes("Skip")) skipNext = true;
 
-// Reception des mises à jour du serveur
-socket.on('maj', renderGame);
+  topCard = card;
+  currentColor = getColorClass(card);
+  hand.splice(index, 1);
+  status.innerText = `✅ "${card}" joué${drawPenalty ? ` (+${drawPenalty})` : ''}${skipNext ? ' - tour sauté' : ''}.`;
 
-// Demmarage de la partie
-socket.emit('initialiser');
+  renderHand();
+  renderTopCard();
+}
+
+async function handleDrawCard() {
+  const { card } = await drawCard();
+  hand.push(card);
+  document.getElementById("status").innerText = `🃏 Carte piochée : ${card}`;
+  renderHand();
+}
+
+document.getElementById("drawBtn").addEventListener("click", handleDrawCard);
+
+renderHand();
+renderTopCard();

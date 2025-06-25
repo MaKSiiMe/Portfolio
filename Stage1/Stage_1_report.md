@@ -96,7 +96,7 @@
 | Adaptive AI opponent for training                                       | 4/5         | 5/5              | 4/5                 | 5/5         | Depends on training progress                           | NO                |
 | Interactive Deck Builder                                                | 3/5         | 5/5              | 4/5                 | 5/5         | Needs card database and real-time feedback, complex UX | NO                |
 | Simplified Match Simulator                                              | 4/5         | 4/5              | 4/5                 | 4/5         | Requires API, possible visual/animation challenges     | NO (Optional)     |
-| Community & Sharing Platform (users profiles, decks, idéas, feedbacks)  | 3/5         | 5/5              | 3/5                 | 5/5         | User management, database, moderation...               | NO                |
+| Community & Sharing Platform (users profiles, decks, ideas, feedbacks)  | 3/5         | 5/5              | 3/5                 | 5/5         | User management, database, moderation...               | NO                |
 
 ---
 

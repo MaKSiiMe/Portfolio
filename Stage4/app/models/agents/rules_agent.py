@@ -1,19 +1,26 @@
+# rule_based_agent.py
+
 from app.models.uno.rules import is_playable
-from app.models.uno.encodings import IDX2CARD, CARD2IDX
+from app.models.uno.encodings import CARD2IDX
+from app.models.uno.utils import encode_card, TOTAL_CARDS
 
-def choose_action(env, obs):
-    """
-    Play the first playable card in hand, otherwise draw.
-    Returns an integer action index (dans ALL_CARDS), ou l'action 'draw'.
-    """
-    hand = [IDX2CARD[c] for c in obs['hand'] if c in IDX2CARD]
-    top_card = IDX2CARD[obs["top_card"]]
-    current_color = obs.get('current_color', None)
+class RuleBasedAgent:
+    def choose_action(self, game_state: dict, player_idx: int) -> int:
+        """
+        Choisit la première carte jouable, sinon pioche.
+        Args:
+            game_state (dict): état brut du jeu (Game.get_state())
+            player_idx (int): index du joueur courant
 
-    playable = [
-        card for card in hand
-        if is_playable(card, top_card, current_color)
-    ]
-    if playable:
-        return CARD2IDX[playable[0]]
-    return env.action_space.n - 1
+        Returns:
+            int: action (0-107 pour jouer une carte, 108 = piocher)
+        """
+        hand = game_state["hands"][player_idx]
+        top_card = game_state["discard_pile"][-1]
+        current_color = game_state.get("current_color", None)
+
+        for card in hand:
+            if is_playable(card, top_card, current_color):
+                return encode_card(card)
+
+        return TOTAL_CARDS  # Action "DRAW"

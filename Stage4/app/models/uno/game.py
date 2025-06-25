@@ -7,7 +7,7 @@ from app.models.uno.constants import (
 )
 from app.models.uno.deck import create_deck, reshuffle_discard_pile
 from app.models.uno.rules import is_playable, calculate_score
-from app.models.agents.rules_agent import choose_action
+from app.models.agents.rules_agent import RuleBasedAgent
 
 class Game:
     def __init__(self, num_players: int = 2, seed: Optional[int] = None, agents=None):
@@ -25,7 +25,12 @@ class Game:
         self.consecutive_passes = 0
         self.turn = 0
         self.current_color = None  # ✅ NOUVEAU : couleur active séparée
-        self.agents = agents if agents is not None else []
+        if agents is not None:
+            self.agents = agents
+        else:
+            # Par défaut, tous les joueurs sont des RuleBasedAgent
+            self.agents = [RuleBasedAgent() for _ in range(num_players)]
+
 
     def start(self):
         for i in range(self.num_players):
@@ -40,6 +45,7 @@ class Game:
         else:
             self.current_color = first_card.split()[0]  # Couleur du premier card
 
+
     def handle_first_card(self):
         """
         Handles the first card in the discard pile if it is a special card.
@@ -52,6 +58,7 @@ class Game:
             else:
                 self.discard_pile[-1] = f"{new_color} Wild"
 
+
     def get_state(self) -> dict:
         """
         Returns the current state of the game.
@@ -59,6 +66,8 @@ class Game:
         Returns:
             dict: Current game state with information about players, deck, discard pile, hands, current player, direction, and turn.
         """
+        print(f"[🏁] Player {self.current_player} wins!")
+
         return {
             "num_players": self.num_players,
             "deck_size": len(self.deck),
@@ -68,6 +77,7 @@ class Game:
             "direction": self.direction,
             "turn": self.turn
         }
+
 
     def draw_cards(self, player_idx: int, count: int):
         """
@@ -83,16 +93,23 @@ class Game:
             if self.deck:
                 self.hands[player_idx].append(self.deck.pop())
 
+
     def play_turn(self, human_input: Optional[int] = None) -> Optional[int]:
-        hand = self.hands[self.current_player]
+        player = self.current_player
+        hand = self.hands[player]
         top_card = self.discard_pile[-1]
 
+        if not self.hands[self.current_player]:
+            return self.current_player  # Already won
+
+
+        # Appliquer les effets accumulés
         if self.draw_four_next:
-            self.draw_cards(self.current_player, 4)
+            self.draw_cards(player, 4)
             self.draw_four_next = 0
             self.skip_current_player = True
         if self.draw_two_next:
-            self.draw_cards(self.current_player, 2 * self.draw_two_next)
+            self.draw_cards(player, 2 * self.draw_two_next)
             self.draw_two_next = 0
             self.skip_current_player = True
         if self.skip_next:
@@ -104,65 +121,75 @@ class Game:
             self.advance_turn()
             return None
 
+        # Cartes jouables
         playable = [card for card in hand if is_playable(card, top_card, self.current_color)]
+        print(f"[DEBUG] Playable cards for player {self.current_player}: {playable}")
+
         if playable:
             if human_input is not None:
-                if 0 <= human_input < len(playable):
-                    chosen_card = playable[human_input]
-                else:
-                    raise ValueError("Invalid choice.")
+                # On suppose que human_input vient d'env.step() et correspond à une carte
+                card_str = hand[human_input]
+                if card_str not in playable:
+                    raise ValueError("Card is not playable.")
+                chosen_card = card_str
+
             else:
-                # Utilise l'agent associé si défini
-                if self.agents and self.agents[self.current_player]:
-                    agent = self.agents[self.current_player]
-                    idx = agent(self, {
-                        "hand": hand,
-                        "top_card": top_card,
-                        "current_color": self.current_color
-                    })
-                    if idx is not None and 0 <= idx < len(playable):
-                        chosen_card = playable[idx]
-                    else:
-                        self.draw_cards(self.current_player, 1)
-                        self.consecutive_passes += 1
+                if self.agents and self.agents[player]:
+                    agent = self.agents[player]
+                    idx = agent.choose_action(self.get_state(), player)
+
+                    if idx is None or idx == len(ALL_CARDS):  # DRAW
+                        self.draw_cards(player, 1)
                         self.advance_turn()
                         return None
+
+                    card_str = ALL_CARDS[idx]
+                    if card_str not in hand or not is_playable(card_str, top_card, self.current_color):
+                        self.draw_cards(player, 1)
+                        self.advance_turn()
+                        return None
+
+                    chosen_card = card_str
                 else:
-                    chosen_card = playable[0]
+                    # Aucun agent => tirer une carte
+                    self.draw_cards(player, 1)
+                    self.advance_turn()
+                    return None
 
-            hand.remove(chosen_card)
+            # Appliquer les effets de carte
+            self.hands[player].remove(chosen_card)
             self.discard_pile.append(chosen_card)
-            self.consecutive_passes = 0
 
-            if "+2" in chosen_card:
-                self.draw_two_next += 1
-            elif "Skip" in chosen_card:
+            if "Skip" in chosen_card:
                 self.skip_next = True
             elif "Reverse" in chosen_card:
+                self.direction *= -1 if self.num_players > 2 else 1
                 if self.num_players == 2:
                     self.skip_next = True
-                else:
-                    self.direction *= -1
             elif "Wild +4" in chosen_card:
                 self.draw_four_next += 1
-                self.current_color = random.choice(COLORS)
+                self.current_color = self.choose_random_color(self.hands[player])
             elif "Wild" in chosen_card:
-                self.current_color = random.choice(COLORS)
+                self.current_color = self.choose_random_color(self.hands[player])
             else:
                 self.current_color = chosen_card.split()[0]
+
         else:
-            self.draw_cards(self.current_player, 1)
+            self.draw_cards(player, 1)
             self.consecutive_passes += 1
 
-        if len(hand) == 0:
-            return self.current_player
+        # Vérifier victoire
+        if len(self.hands[player]) == 0:
+            return player
 
         self.advance_turn()
         return None
 
+
     def advance_turn(self):
         self.current_player = (self.current_player + self.direction) % self.num_players
         self.turn += 1
+
 
     def calculate_scores(self) -> List[int]:
         """

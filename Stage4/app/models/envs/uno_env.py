@@ -61,9 +61,9 @@ class UnoEnv(gym.Env):
         Returns:
             Tuple[np.ndarray, Dict]: Observation initiale + info (vide)
         """
+        self.done = False
         self._seed = seed or self._seed
         self.rng = np.random.default_rng(self._seed)
-
         self.game = Game(num_players=2, seed=self._seed)
         self.game.start()
 
@@ -79,6 +79,14 @@ class UnoEnv(gym.Env):
         hand = self.game.hands[player]
         top_card = self.game.discard_pile[-1]
         current_color = self.game.current_color
+
+        if self.done:
+            winner = self.game.get_state().get("winner")
+            if winner is not None:
+                rewards = [-1.0] * self.game.num_players
+                rewards[winner] = 1.0
+            else:
+                rewards = [0.0] * self.game.num_players
 
         # Liste des cartes jouables
         playable_cards = [
@@ -98,23 +106,37 @@ class UnoEnv(gym.Env):
 
         # Action = jouer une carte spécifique
         elif 0 <= action < TOTAL_CARDS:
-            card_to_play = decode_card(action)
-            matching_indices = [
-                i for i, card in enumerate(hand)
-                if card == card_to_play and is_playable(card, top_card, current_color)
-            ]
-            if matching_indices:
-                idx = matching_indices[0]
-                # Correction : vérifier que idx est bien dans la main jouable pour play_turn
-                try:
-                    result = self.game.play_turn(human_input=idx)
-                    reward = 1.0 if result else 0.5
-                except Exception:
-                    # Si play_turn échoue, on pioche à la place
-                    reward = -2.0 if has_playable else -1.0
-                    self.game.draw_cards(player, 1)
-                    self.game.advance_turn()
-            else:
+            try:
+                card_to_play = decode_card(action)
+                print(f"[DEBUG] RuleBased tries to play: {card_to_play}")
+                print(f"[DEBUG] Top card: {top_card} | Current color: {current_color}")
+                print(f"[DEBUG] Full hand: {hand}")
+
+                if verbose:
+                    print(f"RuleBased plays: {card_to_play} | top: {top_card} | color: {current_color}")
+                    print(f"Hand before: {hand}")
+
+            except Exception:
+                card_to_play = None
+
+            found = False
+            for idx, card in enumerate(hand):
+                if (
+                    card_to_play is not None
+                    and card == card_to_play
+                    and is_playable(card, top_card, current_color)
+                ):
+                    try:
+                        print(f"RuleBased plays: {card_to_play} | top: {top_card} | color: {current_color}")
+                        result = self.game.play_turn(human_input=idx)
+                        reward = 1.0 if result else 0.5
+                        found = True
+                        break
+                    except Exception as e:
+                        print(f"Play failed: {e}")
+                        continue
+
+            if not found:
                 reward = -2.0 if has_playable else -1.0
                 self.game.draw_cards(player, 1)
                 self.game.advance_turn()
@@ -126,7 +148,10 @@ class UnoEnv(gym.Env):
             self.game.advance_turn()
 
         # Vérifie si la partie est finie
-        done = any(len(h) == 0 for h in self.game.hands)
+        state = self.game.get_state()
+        if state.get("winner") is not None or any(len(h) == 0 for h in self.game.hands):
+            self.done = True
+        done = self.done
         truncated = False
 
         # Fait jouer l'adversaire si partie non terminée

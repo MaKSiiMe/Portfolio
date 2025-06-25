@@ -3,13 +3,9 @@ display.py
 
 This module provides functions to print the current state of the game,
 including player hands and the board state.
-
-Author: Maxime
-Date: 05/06/2025
 """
 
 from typing import List
-from .constants import PLAYER_NAMES
 
 
 def print_hand(player_idx: int, hand: List[str]) -> None:
@@ -20,10 +16,10 @@ def print_hand(player_idx: int, hand: List[str]) -> None:
         player_idx (int): The index of the player.
         hand (List[str]): The list of cards in the player's hand.
     """
-    print(f"{PLAYER_NAMES[player_idx]}: {', '.join(hand)}")
+    print(f"Player {player_idx}: {', '.join(hand)}")
 
 
-def print_board(turn: int, current_player: int, top_card: str) -> None:
+def print_board(turn: int, current_player: int, top_card: str, deck_size: int = None) -> None:
     """
     Print the current state of the board.
 
@@ -31,6 +27,9 @@ def print_board(turn: int, current_player: int, top_card: str) -> None:
         turn (int): The current turn number.
         current_player (int): The index of the current player.
         top_card (str): The top card on the discard pile.
+        deck_size (int, optional): The size of the deck. Defaults to None.
     """
-    print(f"\nTour {turn} - Tour de {PLAYER_NAMES[current_player]}")
-    print(f"Carte du dessus: {top_card}")
+    print(f"\nTurn {turn} - Player {current_player}'s turn")
+    print(f"Top card: {top_card}")
+    if deck_size is not None:
+        print(f"Deck size: {deck_size}")

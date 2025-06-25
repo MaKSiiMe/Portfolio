@@ -1,0 +1,68 @@
+{
+  "info": {
+    "name": "UNO API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Start Game",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"num_players\": 2,\n    \"seed\": 42\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:5000/api/start_game",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "5000",
+          "path": ["api", "start_game"]
+        }
+      }
+    },
+    {
+      "name": "Get Game State",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:5000/api/game_state/{{game_id}}",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "5000",
+          "path": ["api", "game_state", "{{game_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Play Turn",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"game_id\": \"{{game_id}}\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:5000/api/play_turn",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "5000",
+          "path": ["api", "play_turn"]
+        }
+      }
+    }
+  ]
+}

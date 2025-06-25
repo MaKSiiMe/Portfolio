@@ -3,9 +3,6 @@ rules.py
 
 This module contains functions to determine the playability of cards and
 calculate scores in a UNO game.
-
-Author: Maxime
-Date: 05/06/2025
 """
 
 from typing import List

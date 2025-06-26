@@ -40,7 +40,7 @@ class UnoEnv(gym.Env):
         self.action_space = spaces.Discrete(NUM_CARDS + 1)
 
         self.observation_space = spaces.Dict({
-            "hand": spaces.Box(low=-1, high=NUM_CARDS, shape=(MAX_HAND_SIZE,), dtype=np.int32),
+            "hand": spaces.Box(low=0.0, high=np.inf, shape=(TOTAL_CARDS,), dtype=np.float32),
             "top_card": spaces.Discrete(NUM_CARDS),
             "opponent_card_count": spaces.Discrete(100),
         })
@@ -48,13 +48,14 @@ class UnoEnv(gym.Env):
         self.game = None
         self.opponent_agent_fn = opponent_agent_fn
 
-    def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None) -> Tuple[np.ndarray, Dict]:
+    def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None):
         self.done = False
         self._seed = seed or self._seed
         self.rng = np.random.default_rng(self._seed)
         self.game = Game(num_players=2, seed=self._seed)
         self.game.start()
-        obs = encode_state(self.game.get_state(), self.game.current_player)
+
+        obs = self._get_obs_player(self.game.current_player)
         return obs, {}
 
     def step(self, action: int) -> Tuple[np.ndarray, float, bool, bool, Dict]:
@@ -135,7 +136,7 @@ class UnoEnv(gym.Env):
                 self.done = self.game.get_winner() is not None
                 done = self.done
 
-        obs = encode_state(self.game.get_state(), player)
+        obs = self._get_obs_player(player)
         return obs, reward, done, truncated, {}
 
     def _get_obs(self) -> Dict:
@@ -152,7 +153,7 @@ class UnoEnv(gym.Env):
             raise ValueError(f"Top card '{normalized_top_card}' not found in CARD2IDX")
 
         return {
-            "hand": encode_hand(player_hand, max_size=MAX_HAND_SIZE),
+            "hand": encode_hand(player_hand),
             "top_card": top_card_idx,
             "opponent_card_count": len(self.game.hands[1 - player])
         }

@@ -1,7 +1,7 @@
 """
 train.py
 
-Runs simulated matches between two agents: RuleBasedAgent vs RandomAgent.
+Runs simulated matches between two agents(PPoAgent vs RuleBasedAgent or RandomAgent).
 Logs the results and optionally saves transitions for training.
 """
 
@@ -10,10 +10,9 @@ import os
 import argparse
 import numpy as np
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-
 from app.models.envs.uno_env import UnoEnv
 from app.models.agents.rules_agent import RuleBasedAgent
+from app.models.agents.ppo_agent import choose_action as PPOAgent
 from app.models.agents.random_agent import choose_action as random_agent
 from app.models.uno.utils import encode_state
 
@@ -59,7 +58,7 @@ def run_episode(agent1, agent2, max_steps=500):
 
 
 def simulate_matches(num_episodes=10, verbose=False):
-    agent1 = RuleBasedAgent()
+    agent1 = PPOAgent()
     agent2 = random_agent
     results = {"RuleBased": 0, "Random": 0, "Draw": 0}
 
@@ -104,7 +103,7 @@ def simulate_matches(num_episodes=10, verbose=False):
 
 
     print("\n=== Summary ===")
-    print(f"RuleBasedAgent Wins: {results['RuleBased']}")
+    print(f"PPOAgent Wins: {results['RuleBased']}")
     print(f"RandomAgent Wins: {results['Random']}")
     print(f"Draws: {results['Draw']}")
 

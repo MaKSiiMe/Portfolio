@@ -43,7 +43,6 @@ for wild in WILD_CARDS:
 
 TOTAL_CARDS = _card_id  # = 108
 
-
 import numpy as np
 
 def encode_card(card_str: str) -> int:

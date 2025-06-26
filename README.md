@@ -48,46 +48,55 @@ The MVP remains unchanged: build a functional game engine and train AI agents th
 ## 📁 Project Structure
 
 ```
-├── Stage4/
-│   ├── app/
-│   │   ├── models/
-│   │   │   ├── uno/
-│   │   │   │   ├── constants.py
-│   │   │   │   ├── deck.py
-│   │   │   │   ├── display.py
-│   │   │   │   ├── rules.py
-│   │   │   │   ├── utils.py
-│   │   │   │   └── __init__.py
-│   │   │   ├── agents/
-│   │   │   │   ├── human_agent.py
-│   │   │   │   ├── random_agent.py
-│   │   │   │   ├── rl_agent.py
-│   │   │   │   ├── rule_based_agent.py
-│   │   │   │   └── __init__.py
-│   │   │   ├── envs/
-│   │   │   │   ├── run_env.py
-│   │   │   │   ├── test_env.py
-│   │   │   │   ├── uno_env.py
-│   │   │   │   └── __init__.py
-│   │   │   └── __init__.py
-│   │   ├── scripts/
-│   │   │   ├── train.py
-│   │   │   ├── evaluate.py
-│   │   │   └── play_human.py
-│   │   ├── static/
-│   │   │   ├── css/
-│   │   │   │   └── style.css
-│   │   │   ├── js/
-│   │   │   │   └── script.js
-│   │   │   └── index.html
-│   │   ├── v1/
-│   │   │   ├── routes.py
-│   │   │   └── __init__.py
-│   │   └── __init__.py
-│   ├── run.py
-│   ├── server.py
-│   └── requirements.txt
-├── README.md
+Stage4/
+├── app/
+│   ├── __init__.py
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── uno/
+│   │   │   ├── __init__.py
+│   │   │   ├── constants.py
+│   │   │   ├── deck.py
+│   │   │   ├── display.py
+│   │   │   ├── encodings.py
+│   │   │   ├── game.py
+│   │   │   ├── rules.py
+│   │   │   └── utils.py
+│   │   ├── agents/
+│   │   │   ├── __init__.py
+│   │   │   ├── human_agent.py
+│   │   │   ├── ppo_agent.py
+│   │   │   ├── random_agent.py
+│   │   │   ├── rl_agent.py
+│   │   │   └── rules_agent.py
+│   │   └── envs/
+│   │       ├── __init__.py
+│   │       ├── check_env.py
+│   │       ├── run_env.py
+│   │       ├── test_env.py
+│   │       └── uno_env.py
+│   ├── scripts/
+│   │   ├── evaluate.py
+│   │   ├── play_human.py
+│   │   ├── tests/
+│   │   │   ├── UNO_API.postman_collection.json
+│   │   │   └── test_partie_complete.py
+│   │   ├── train.py
+│   │   ├── training/
+│   │   │   └── train_ppo.py
+│   ├── static/
+│   │   ├── css/
+│   │   │   └── style.css
+│   │   ├── js/
+│   │   │   └── script.js
+│   │   └── index.html
+│   └── v1/
+│       ├── __init__.py
+│       └── routes.py
+├── requirements.txt
+├── run.py
+├── server.py
+└── README.md
 ```
 
 ---

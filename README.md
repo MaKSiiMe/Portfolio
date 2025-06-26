@@ -36,7 +36,7 @@ The MVP remains unchanged: build a functional game engine and train AI agents th
 
 | Feature         | Description                                              |
 |:--------------- |:--------------------------------------------------------|
-| 👥 Players      | 2 to 10 virtual players (3 by default)                   |
+| 👥 Players      | 2 to 10 virtual players (2 by default)                   |
 | 🃏 UNO Rules    | Dealing, drawing, discard pile, special effects          |
 | 🔄 Special Cards| +2, +4, Color change, Reverse, Skip                      |
 | 🤖 AI           | Automatically plays the first valid card                 |
@@ -92,14 +92,14 @@ The MVP remains unchanged: build a functional game engine and train AI agents th
 ### Start a Game
 
 ```bash
-python main.py
+python run.py
 ```
 
 - By default, the game runs with 3 automated players.
 - To set a random seed (for reproducibility):
 
 ```bash
-python main.py 42
+python run.py 42
 ```
 
 ---
@@ -161,8 +161,8 @@ Player 2: 204 points
 
 ## 🛠️ Customization
 
-- Change the `NUM_PLAYERS` variable in `main.py` to set the number of players (max 10).
-- Change the `HUMAN_PLAYER_IDX = -1` variable in `main.py` to set the index of a human player (by default, no human player, -1 = fully automated simulation).
+- Change the `NUM_PLAYERS` variable in `run.py` to set the number of players (max 10).
+- Change the `HUMAN_PLAYER_IDX = -1` variable in `run.py` to set the index of a human player (by default, no human player, -1 = fully automated simulation).
 - Player behavior is automated (no human interaction by default, unless you enable a human player).
 
 ---

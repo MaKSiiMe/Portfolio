@@ -14,4 +14,7 @@ WILD_CARDS: List[str] = ['Wild', 'Wild +4']
 
 CARDS_PER_PLAYER: int = 7
 MAX_PLAYERS: int = 10
-PLAYER_NAMES = [f"Player {i}" for i in range(MAX_PLAYERS)]
+PLAYER_NAMES = [f"Joueur {i}" for i in range(MAX_PLAYERS)]
+
+NUM_CARDS: int = len(ALL_CARDS)
+MAX_HAND_SIZE: int = 20

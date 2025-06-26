@@ -1,7 +1,9 @@
 # utils.py
 
 from typing import Dict, List
-from uno.constants import COLORS, VALUES, SPECIAL_CARDS, WILD_CARDS
+from .constants import COLORS, VALUES, SPECIAL_CARDS, WILD_CARDS
+
+ALL_CARDS: List[str] = []
 
 # Encodage/décodage des cartes
 CARD_ENCODING: Dict[str, int] = {}
@@ -9,49 +11,30 @@ CARD_DECODING: Dict[int, str] = {}
 
 _card_id = 0
 
-# Cartes "0" (une seule par couleur)
+# Cartes numérotées
 for color in COLORS:
-    card = f"{color} 0"
-    CARD_ENCODING[card] = _card_id
-    CARD_DECODING[_card_id] = card
-    _card_id += 1
-
-# Cartes numérotées 1-9 (deux par couleur)
-for color in COLORS:
+    ALL_CARDS.append(f"{color} 0")
     for value in VALUES:
-        card = f"{color} {value}"
-        for _ in range(2):
-            CARD_ENCODING[card] = _card_id
-            CARD_DECODING[_card_id] = card
-            _card_id += 1
-
-# Cartes spéciales couleur (deux par couleur)
-for color in COLORS:
+        ALL_CARDS.append(f"{color} {value}")
     for special in SPECIAL_CARDS:
-        card = f"{color} {special}"
-        for _ in range(2):
-            CARD_ENCODING[card] = _card_id
-            CARD_DECODING[_card_id] = card
-            _card_id += 1
+        ALL_CARDS.append(f"{color} {special}")
 
-# Cartes Wild (4 exemplaires)
-for wild in WILD_CARDS:
-    for _ in range(4):
-        CARD_ENCODING[wild] = _card_id
-        CARD_DECODING[_card_id] = wild
-        _card_id += 1
+# Cartes spéciales sans couleur
+ALL_CARDS.extend(WILD_CARDS)
 
-TOTAL_CARDS = _card_id  # = 108
+# Dictionnaires d'encodage et décodage
+CARD2IDX: Dict[str, int] = {card: idx for idx, card in enumerate(ALL_CARDS)}
+IDX2CARD: Dict[int, str] = {idx: card for idx, card in enumerate(ALL_CARDS)}
 
 
 def encode_card(card_str: str) -> int:
     """Convertit une carte en entier unique"""
-    return CARD_ENCODING[card_str]
+    return CARD2IDX[card_str]
 
 
 def decode_card(card_id: int) -> str:
     """Convertit un entier en carte"""
-    return CARD_DECODING[card_id]
+    return IDX2CARD[card_id]
 
 
 def encode_hand(hand: List[str], max_size: int = 20) -> List[int]:
@@ -80,4 +63,4 @@ def decode_hand(encoded_hand: List[int]) -> List[str]:
     Returns:
         List[str]: Cartes correspondantes
     """
-    return [decode_card(cid) for cid in encoded_hand if cid != -1]
+    return [decode_card(idx) for idx in encoded_hand if idx != -1]

@@ -17,7 +17,6 @@ from uno.deck import create_deck
 from uno.constants import MAX_PLAYERS, CARDS_PER_PLAYER, MAX_HAND_SIZE
 from uno.utils import ALL_CARDS, CARD2IDX, IDX2CARD, encode_hand
 
-from app.models.uno.deck import create_deck, reshuffle_discard_pile  
 
 class UnoEnv(gym.Env):
 
@@ -47,15 +46,15 @@ class UnoEnv(gym.Env):
 
     def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None) -> Tuple[Dict, Dict]:
         self.deck = create_deck(seed=self.seed)
-        self.hands = [[self.deck.pop() for _ in range(CARDS_PER_PLAYER)] for _ in range(self.num_players)]
+        self hands = [[self.deck.pop() for _ in range(CARDS_PER_PLAYER)] for _ in range(self.num_players)]
         self.discard_pile = [self.deck.pop()]
         self.current_player = 0
 
         obs = self._get_observation()
         info = {}
-        return obs, info
+        return obs, info {}
 
-    def step(self, action: int) -> Tuple[Dict, float, bool, bool, Dict]:
+    def step(self, action int) -> Tuple[Dict, float, bool, bool, Dict]:
 
         player_hand = self.hands[self.current_player]
         top_card = self.discard_pile[-1]
@@ -67,7 +66,7 @@ class UnoEnv(gym.Env):
         else:
             try:
                 card_to_play = IDX2CARD[action]
-            except KeyError:
+            exept KeyError:
                 card_to_play = None
             if card_to_play in player_hand and self._is_playble(card_to_play, top_card):
                 player_hand.remove(card_to_play)
@@ -106,7 +105,7 @@ class UnoEnv(gym.Env):
         }
 
     def _is_playable(self, card: str, top_card: str) -> bool:
-        if card in ["Wild", "Wild +4"]:
+        if card i n ["Wild", "Wild +4"]:
             return True
         card_color, *card_value = card.split()
         top_color, *top_value = top_card.split()

@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UNO - Test Interface</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jeu de UNO</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h1>UNO - Test Interface</h1>
+  <h1>UNO - Test Interface</h1>
+  <button id="start-btn">Nouvelle Partie</button>
+  <button id="draw-btn">Piocher</button>
+  <button onclick="renderAllUnoCards()">Toutes les cartes</button>
 
-    <button id="startBtn">Démarrer une Partie</button>
+  <div id="top-card" class="top-card"></div>
+  <div id="hand" class="hand-container"></div>
 
-    <h2>État de la partie</h2>
-    <pre id="gameState">Aucune partie en cours.</pre>
-
-    <button id="playTurnBtn" disabled>Jouer un tour (Bot)</button>
-
-    <script src="js/script.js"></script>
+  <script type="module" src="js/script.js"></script>
+  <script type="module" src="js/api.js"></script>
 </body>
 </html>

@@ -1,90 +1,79 @@
-
 body {
-  font-family: "Segoe UI", sans-serif;
-  background: linear-gradient(135deg, #009688, #00695c);
-  color: #fff;
-  text-align: center;
-  margin: 0;
-  padding: 2rem;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #5c2ca4;
+    color: white;
+    overflow: hidden;
 }
 
-h1, h2 {
-  margin-bottom: 1rem;
+.player {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 14px;
 }
 
-.game-container {
-  display: flex;
-  justify-content: center;
-  gap: 80px;
-  margin: 2rem 0;
+.player img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid gold;
 }
 
-.card {
-  width: 90px;
-  height: 140px;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
-  font-size: 18px;
-  color: white;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-  cursor: pointer;
-  user-select: none;
+#player-bottom { bottom: 10px; left: 50%; transform: translateX(-50%); }
+#player-top { top: 10px; left: 50%; transform: translateX(-50%); }
+#player-left { top: 50%; left: 10px; transform: translateY(-50%); }
+#player-right { top: 50%; right: 10px; transform: translateY(-50%); }
+
+#center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
 }
 
-.card:hover {
-  transform: scale(1.05);
+#deck, #discard {
+    width: 80px;
+    height: 120px;
+    display: inline-block;
+    margin: 0 20px;
 }
 
-.back {
-  background: repeating-linear-gradient(45deg, #222 0px, #444 10px);
-  color: #eee;
+.card-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
 }
 
-.Red { background-color: #d32f2f; }
-.Green { background-color: #388e3c; }
-.Blue { background-color: #1976d2; }
-.Yellow { background-color: #fbc02d; color: black; }
-.Wild {
-  background: conic-gradient(red, yellow, green, blue);
-  color: black;
-  font-size: 16px;
-  padding: 0 4px;
+#hand {
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    bottom: 140px;
+    width: 100%;
+    gap: 10px;
 }
 
-.hand-container {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 20px;
+.hand-card {
+    width: 60px;
+    height: 90px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
 }
 
-.status-msg {
-  margin-top: 20px;
-  font-size: 1.2rem;
-  font-weight: bold;
+.hand-card:hover {
+    transform: translateY(-10px);
 }
 
-.draw-btn {
-  margin-top: 20px;
-  padding: 10px 20px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  border-radius: 8px;
-  border: none;
-  background-color: #ffc107;
-  color: #000;
-  cursor: pointer;
-  transition: background 0.2s;
+button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    border: none;
+    background-color: #4a1f8c;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
 }
-.draw-btn:hover {
-  background-color: #ffb300;
-}
-
-body { font-family: sans-serif; padding: 1rem; }
-button { margin: 0.5rem 0; }
-pre { background: #f4f4f4; padding: 1rem; overflow-x: auto; }

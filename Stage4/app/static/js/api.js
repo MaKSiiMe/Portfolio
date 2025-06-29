@@ -4,7 +4,7 @@ export function startGame() {
   return fetch(`${API_BASE}/start_game`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ num_players: 2 }) // par défaut
+    body: JSON.stringify({ num_players: 2 })
   }).then(res => res.json());
 }
 

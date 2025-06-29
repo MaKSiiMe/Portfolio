@@ -50,32 +50,39 @@ button:hover {
 }
 
 .card-back {
-  display: inline-block;
-  width: 80px;
-  height: 120px;
+  width: 90px;
+  height: 130px;
   border-radius: 12px;
   background-color: black;
   color: white;
-  font-weight: bold;
   font-size: 2em;
   text-align: center;
-  line-height: 120px;
-  margin: 5px;
+  line-height: 130px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
 .hand-container {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  padding: 10px;
+  flex-wrap: nowrap;
+  gap: 12px;
+  padding: 20px;
+  position: fixed;
+  bottom: 20px;
+  width: 100%;
 }
 
 #top-card {
-  margin: 20px auto;
-  height: 140px;
+    width: 90px;
+  height: 130px;
+  border-radius: 12px;
+  background-color: grey;
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: 24px;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
 .game-zone {
@@ -126,3 +133,58 @@ button:hover {
 .color-green { background-color: #27ae60; }
 .color-blue { background-color: #2980b9; }
 .color-yellow { background-color: #f1c40f; }
+
+@keyframes drawCard {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  100% { transform: translateY(-20px) scale(1.1); opacity: 1; }
+}
+
+.card.drawn {
+  animation: drawCard 0.5s ease-out;
+}
+
+.board {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  margin-top: 40px;
+  position: relative;
+}
+
+.center-zone {
+  display: flex;
+  align-items: center;
+  gap: 60px;
+}
+
+.draw-stack, .discard-stack {
+  width: 90px;
+  height: 130px;
+  position: relative;
+}
+
+#draw-pile-stack {
+  position: relative;
+  width: 90px;
+  height: 130px;
+}
+
+.card-back.stacked {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 90px;
+  height: 130px;
+  border-radius: 12px;
+  background: linear-gradient(to bottom, #000000, #333); /* dégradé noir */
+  border: 2px solid #888; /* contour gris clair */
+  color: white;
+  font-size: 2em;
+  text-align: center;
+  line-height: 130px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.5);
+  pointer-events: none;
+  opacity: 0.9;
+}
+

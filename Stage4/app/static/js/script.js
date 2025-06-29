@@ -30,11 +30,23 @@ document.getElementById("draw-btn").addEventListener("click", async () => {
     console.log("Carte piochée :", newCard);
 
     if (newCard && newCard.color && newCard.value) {
-        animateCardDraw(newCard);
+        animateCardFlyingToHand(newCard);
+
+        // ➕ Réduire visuellement la pile
+        const pile = document.getElementById("draw-pile-stack");
+        if (pile.children.length > 0) {
+            pile.removeChild(pile.lastElementChild);
+        }
+
+        // Régénérer la pile si elle est vide
+        if (pile.children.length === 0) {
+            renderDrawPileStack();
+        }
+
     } else {
         console.warn("Carte invalide :", newCard);
         alert("Aucune carte valide n'a été piochée !");
-        renderHand(playerHand); // fallback
+        renderHand(playerHand);
     }
 });
 
@@ -135,6 +147,58 @@ function generateFullDeck() {
     return deck;
 }
 
-console.log("Type et contenu newCard :", typeof newCard, newCard);
-console.log("newCard.color =", newCard.color);
-console.log("newCard.value =", newCard.value);
+function renderDrawPileStack() {
+  const pile = document.getElementById("draw-pile-stack");
+  pile.innerHTML = "";
+
+  for (let i = 0; i < 15; i++) {
+    const card = document.createElement("div");
+    card.className = "card-back stacked";
+    const angle = (Math.random() * 6 - 3).toFixed(1);
+    const offsetX = Math.random() * 4 - 2;
+    const offsetY = i * 1.5;
+    card.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${angle}deg)`;
+    card.style.zIndex = i;
+    pile.appendChild(card);
+  }
+}
+
+function animateCardFlyingToHand(card) {
+    const drawPile = document.getElementById("draw-pile-stack");
+    const hand = document.getElementById("hand");
+
+    const flyingCard = document.createElement("div");
+    flyingCard.className = `card ${card.color}`;
+    flyingCard.textContent = card.value;
+
+    // Position absolue initiale (dessus pile)
+    const rectStart = drawPile.getBoundingClientRect();
+    const rectEnd = hand.getBoundingClientRect();
+
+    flyingCard.style.position = 'absolute';
+    flyingCard.style.left = rectStart.left + "px";
+    flyingCard.style.top = rectStart.top + "px";
+    flyingCard.style.zIndex = 9999;
+    flyingCard.style.transition = 'all 0.6s ease-out';
+    flyingCard.style.transform = 'scale(1.2)';
+    flyingCard.style.pointerEvents = 'none';
+
+    document.body.appendChild(flyingCard);
+
+    setTimeout(() => {
+        flyingCard.style.left = rectEnd.left + 60 + "px";
+        flyingCard.style.top = rectEnd.top - 20 + "px";
+        flyingCard.style.transform = 'scale(0.9)';
+        flyingCard.style.opacity = '0.2';
+    }, 10);
+
+    setTimeout(() => {
+        document.body.removeChild(flyingCard);
+        renderHand(playerHand); // met à jour la vraie main après animation
+    }, 700);
+}
+
+
+window.addEventListener("DOMContentLoaded", () => {
+  renderDrawPileStack();
+});

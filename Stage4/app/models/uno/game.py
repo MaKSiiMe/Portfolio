@@ -66,8 +66,8 @@ class Game:
         return {
             "num_players": self.num_players,
             "deck_size": len(self.deck),
-            "discard_pile": self.discard_pile,
-            "hands": self.hands,
+            "discard_pile": [parse_card(card) for card in self.discard_pile],
+            "hands": [[parse_card(card) for card in hand] for hand in self.hands],
             "current_player": self.current_player,
             "direction": self.direction,
             "turn": self.turn
@@ -173,3 +173,16 @@ class Game:
         """
         scores = [calculate_score(self.hands, winner_idx=i) for i in range(self.num_players)]
         return scores
+
+    def serialize(self):
+        return self.get_state()
+    
+def parse_card(card):
+    if isinstance(card, dict):
+        return card
+    elif isinstance(card, str):
+        parts = card.split(" ", 1)
+        return {"color": parts[0], "value": parts[1]}
+    else:
+        raise ValueError("Card format not recognized")
+    

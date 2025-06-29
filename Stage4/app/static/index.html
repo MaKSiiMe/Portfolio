@@ -13,9 +13,15 @@
   <button id="draw-btn">Piocher</button>
   <button onclick="renderAllUnoCards()">Toutes les cartes</button>
 
-  <div class="game-zone">
-    <div id="draw-pile" class="card-back">🂠</div>
-    <div id="top-card"></div>
+  <div class="board">
+    <div class="center-zone">
+      <div id="draw-pile-stack" class="draw-stack">
+  <!-- les dos de cartes UNO seront empilés dynamiquement ici -->   
+      </div>
+      <div class="discard-stack">
+        <div id="top-card" class="card">?</div>
+      </div>
+    </div>
   </div>
 
   <div id="hand" class="hand-container"></div>

@@ -4,6 +4,7 @@ import os
 import sys
 import time
 import argparse
+import logging
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../')))
 
@@ -11,6 +12,7 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.vec_env import DummyVecEnv
 from app.models.envs.uno_env import UnoEnv
 
+logging.basicConfig(level=logging.INFO)
 log_dir = f"./Stage4/app/logs/ppo/run_{int(time.time())}"
 
 # Argument CLI

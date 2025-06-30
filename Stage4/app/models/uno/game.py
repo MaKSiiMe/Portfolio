@@ -1,6 +1,7 @@
 from typing import List, Optional
 import random
 import time
+import logging
 
 from app.models.uno.constants import (
     COLORS, VALUES, SPECIAL_CARDS, WILD_CARDS, CARDS_PER_PLAYER
@@ -124,7 +125,8 @@ class Game:
 
         # Cartes jouables
         playable = [card for card in hand if is_playable(card, top_card, self.current_color)]
-        print(f"[DEBUG] Playable cards for player {self.current_player}: {playable}")
+        
+        logging.debug(f"[DEBUG] Playable cards for player {self.current_player}: {playable}")
 
         if playable:
             if human_input is not None:

@@ -61,6 +61,8 @@ def reshuffle_discard_pile(deck: List[str], discard_pile: List[str]) -> None:
     deck.extend(discard_pile)
     discard_pile.clear()
     discard_pile.append(top_card)
+    """
     print(
         "\nThe draw pile was empty: the discard pile has been shuffled to form a new draw pile."
     )
+    """

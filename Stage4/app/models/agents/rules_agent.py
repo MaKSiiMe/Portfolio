@@ -1,5 +1,3 @@
-# rule_based_agent.py
-
 from app.models.uno.rules import is_playable
 from app.models.uno.encodings import CARD2IDX
 from app.models.uno.utils import encode_card, TOTAL_CARDS
@@ -23,4 +21,4 @@ class RuleBasedAgent:
             if is_playable(card, top_card, current_color):
                 return encode_card(card)
 
-        return TOTAL_CARDS  # Action "DRAW"
+        return TOTAL_CARDS

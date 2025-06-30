@@ -1,5 +1,5 @@
 from app.models.uno.encodings import IDX2CARD, ALL_CARDS
-from app.models.uno.display import print_hand, print_board  # Import depuis display.py
+from app.models.uno.display import print_hand, print_board
 
 def choose_action(env, obs):
     """

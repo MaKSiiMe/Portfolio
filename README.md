@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <b>A simple, modular, fully automated UNO engine, ready for AI experiments!</b>
+  <b>This project offers a fully automated UNO game simulation in Python, supporting self-play and reinforcement learning agents for AI experimentation.</b>
 </p>
 
 ---
@@ -28,18 +28,18 @@ To stay focused on the main objective — **training an AI to play a card game**
 
 The MVP remains unchanged: build a functional game engine and train AI agents through self-play and simulation. Only the game's complexity has been reduced to save time and prioritize the AI phase.
 
-> **Note:** The Pokémon TCG project is still ongoing as a personal side project alongside my AI/ML specialization.
+> **Note:** The Pokémon TCG project is still ongoing as a personal side project alongside my AI/ML specialization
 
 ---
 
 ## 🧩 Main Features
 
 | Feature         | Description                                              |
-|:--------------- |:--------------------------------------------------------|
+|:--------------- |:---------------------------------------------------------|
 | 👥 Players      | 2 to 10 virtual players (3 by default)                   |
 | 🃏 UNO Rules    | Dealing, drawing, discard pile, special effects          |
 | 🔄 Special Cards| +2, +4, Color change, Reverse, Skip                      |
-| 🤖 AI           | Automatically plays the first valid card                 |
+| 🤖 AI           | Random, rule-based, and RL agents                        |
 | 📺 Display      | Detailed progress in the terminal                        |
 | 🏆 Victory      | Shows the winner or a draw                               |
 
@@ -48,51 +48,16 @@ The MVP remains unchanged: build a functional game engine and train AI agents th
 ## 📁 Project Structure
 
 ```
+
 Stage4/
 ├── app/
-│   ├── __init__.py
 │   ├── models/
-│   │   ├── __init__.py
-│   │   ├── uno/
-│   │   │   ├── __init__.py
-│   │   │   ├── constants.py
-│   │   │   ├── deck.py
-│   │   │   ├── display.py
-│   │   │   ├── encodings.py
-│   │   │   ├── game.py
-│   │   │   ├── rules.py
-│   │   │   └── utils.py
-│   │   ├── agents/
-│   │   │   ├── __init__.py
-│   │   │   ├── human_agent.py
-│   │   │   ├── ppo_agent.py
-│   │   │   ├── random_agent.py
-│   │   │   ├── rl_agent.py
-│   │   │   └── rules_agent.py
-│   │   └── envs/
-│   │       ├── __init__.py
-│   │       ├── check_env.py
-│   │       ├── run_env.py
-│   │       ├── test_env.py
-│   │       └── uno_env.py
-│   ├── scripts/
-│   │   ├── evaluate.py
-│   │   ├── play_human.py
-│   │   ├── tests/
-│   │   │   ├── UNO_API.postman_collection.json
-│   │   │   └── test_partie_complete.py
-│   │   ├── train.py
-│   │   ├── training/
-│   │   │   └── train_ppo.py
-│   ├── static/
-│   │   ├── css/
-│   │   │   └── style.css
-│   │   ├── js/
-│   │   │   └── script.js
-│   │   └── index.html
-│   └── v1/
-│       ├── __init__.py
-│       └── routes.py
+│   │   ├── uno/              # Core UNO game logic
+│   │   ├── agents/           # All agent types (random, rule-based, RL, human)
+│   │   └── envs/             # Gymnasium environment and related utilities
+│   ├── scripts/              # Training, evaluation, test scripts
+│   ├── static/               # (Optional) Frontend static files
+│   └── v1/                   # API (Flask) routes
 ├── requirements.txt
 ├── run.py
 ├── server.py
@@ -106,19 +71,31 @@ Stage4/
 ### Prerequisites
 
 - Python 3.10 or higher
-- No external packages required
+- Install dependencies:
+  ```bash
+    pip install -r requirements.txt
+  ```
 
 ### Start a Game
 
-```bash
-python main.py
-```
+You can run the UNO engine in two modes:
+- **Console mode**
+  ```bash
+    python run.py
+  ```
+> Runs a full game in the terminal with detailed output
 
-- By default, the game runs with 3 automated players.
-- To set a random seed (for reproducibility):
+- **API server mode** (for web/app integration):
+  ```bash
+    python server.py
+  ```
+> Starts a Flask REST API to interact with the UNO engine from an external interface
+
+By default, the game runs with 3 automated players
+To set a random seed (for reproducibility):
 
 ```bash
-python main.py 42
+  python server.py 42
 ```
 
 ---
@@ -135,9 +112,11 @@ python main.py 42
 - **End of round:** The first player with no cards wins the round. If no one can play and the draw pile is empty, the round is a draw.
 - **Official UNO scoring:** The round winner scores the sum of points from all cards left in other players' hands. The game continues until a player reaches 500 points.
 
+> - Supports simulation between any combination of AI agents (random, rule-based, PPO, human)
+
 ---
 
-## 🎲 Example Output
+## 🎲 Example Output in console mode
 
 ```
 === Round 16 ===
@@ -175,18 +154,21 @@ Player 2: 204 points
 
 ## 🛠️ Customization
 
-- Change the `NUM_PLAYERS` variable in `main.py` to set the number of players (max 10).
-- Change the `HUMAN_PLAYER_IDX = -1` variable in `main.py` to set the index of a human player (by default, no human player, -1 = fully automated simulation).
+- Change the `NUM_PLAYERS` variable in `run.py` to set the number of players (max 10).
+- Change the `HUMAN_PLAYER_IDX = -1` variable in `run.py` to set the index of a human player (by default, no human player, -1 = fully automated simulation).
 - Player behavior is automated (no human interaction by default, unless you enable a human player).
 
 ---
 
 ## ⚠️ Limitations & Improvement Ideas
 
-- By default, there is no human player (`HUMAN_PLAYER_IDX = -1`), but you can enable one by changing this variable.
-- No advanced strategy or AI yet.
-- No unit tests or graphical interface.
-- The code now follows PEP8 (pycodestyle) standards.
+- By default, there is no human player (`HUMAN_PLAYER_IDX = -1`), but you can enable one by changing this variable
+  - Open `run.py`
+  - Set `HUMAN_PLAYER_IDX` to the desired player index (e.g., `HUMAN_PLAYER_IDX = 0`)
+  - When running in console mode, that player will be prompted for actions.
+- Includes baseline agents (random, rule-based) and a PPO reinforcement learning agent
+- No advanced GUI (web interface planned but not implemented yet)
+- The code now follows PEP8 (pycodestyle) standards
 
 ---
 
@@ -196,6 +178,25 @@ This roadmap consolidates all required steps to:
 - Build a modular and stable UNO game engine
 - Train an AI agent using Gymnasium
 - Allow a human player to play against the AI via a web interface
+
+
+### Project Progress Overview
+
+| Section                          | Progress    | Description / Remaining Tasks                                |
+|----------------------------------|:-----------:|--------------------------------------------------------------|
+| 1. Game Engine                   |   ✅ 100%   | Stable, multi-agent, full UNO rules, official scoring        |
+| 2. AI Agents                     |   🟡 80%    | RL agent functional; unify agent interface/abstraction       |
+| 3. Encode Game State & Actions   |   ✅ 100%   | Observation & action space vectorized, decoding implemented  |
+| 4. Gymnasium Environment         |   ✅ 100%   | reset/step, RL compatibility, tested with basic agents       |
+| 5. Simulation & Data Collection  |   🟡 60%    | run_episode and batch OK; logging/export/replay in progress  |
+| 6. Train AI Agent                |   ✅ 100%   | PPO training scripts, save/load models, PPO vs Random eval   |
+| 7. Flask Backend (API)           |   ⬜        | API routes, session management, JSON responses to implement  |
+| 8. Web Interface (Frontend)      |   🔴        | Out of scope (handled by another team member)                |
+| 9. UX, Debug, Validation         |   ⬜        | Debug mode, logs, client-side validation, replay             |
+| 10. Deployment                   |   ⬜        | Dockerization, cloud deployment, public demo                 |
+
+**Legend:**  
+✅ = Done 🟡 = In Progress ⬜ = Not Started 🔴 = out of scope
 
 <details>
 <summary><b>See the full checklist</b></summary>
@@ -217,7 +218,7 @@ This roadmap consolidates all required steps to:
 - [x] Implement `HumanAgent` (console-based)
 - [x] Implement `RandomAgent`
 - [x] Implement `RuleBasedAgent`
-- [ ] Implement `RLAgent` (based on a trained model)
+- [x] Implement `RLAgent` (based on a trained model)
 - [ ] Ensure all agents follow the same interface
 - [ ] Assign an agent instance per player (`self.agents = [...]`)
 
@@ -233,26 +234,26 @@ This roadmap consolidates all required steps to:
 
 - [x] Implement `reset()` and `step()` with observation, reward, done, info
 - [x] Handle `done=True` at end of round
-- [ ] Integrate a reward function:
+- [ ] [WIP] Integrate a reward function:
   - Win: +1 / Loss: -1
   - Turn penalty: -0.1
   - Optional: rewards for strategic moves
-- [ ] Test environment thoroughly with basic agents
+- [x] Test environment thoroughly with basic agents
 
 ### 📈 5. Simulation & Data Collection
 
-- [ ] Implement a complete `run_episode()` method
-- [ ] Log each `(state, action, reward, next_state, done)`
-- [ ] Add batch simulation mode (e.g. 1000 games)
-- [ ] Save episodes (Pickle / JSON)
-- [ ] Add a step-by-step replay/debug tool
+- [x] Implement a complete `run_episode()` method
+- [ ] [WIP] Log each `(state, action, reward, next_state, done)`
+- [x] Add batch simulation mode (e.g. 1000 games)
+- [ ] [WIP] Save episodes (Pickle / JSON)
+- [ ] [WIP] Add a step-by-step replay/debug tool
 
 ### 🏋️‍♂️ 6. Train AI Agent
 
-- [ ] Implement a `train.py` script (DQN or similar)
-- [ ] Support classic RL training loop
-- [ ] Save and load models (`.pt` / `.pth`)
-- [ ] Document the training pipeline (README or notebook)
+- [x] Implement a `train.py` script (PPO, DQN or similar)
+- [x] Support classic RL training loop
+- [x] Save and load models (`.pt` / `.pth`)
+- [ ] [WIP] Document the training pipeline (README or notebook)
 
 ### 🌐 7. Flask Backend Integration
 
@@ -264,7 +265,7 @@ This roadmap consolidates all required steps to:
 - [ ] Manage session state between requests
 - [ ] Return clean JSON for frontend
 
-### 🖥️ 8. Web Interface (Frontend)
+### 🖥️ 8. Web Interface (Frontend) (by another team member)
 
 - [ ] Display player's hand (text or image)
 - [ ] Add buttons to: play card, draw, pass
@@ -272,14 +273,14 @@ This roadmap consolidates all required steps to:
 - [ ] Display score and winner at round end
 - [ ] Automatically show AI move after each human move
 
-### 🧪 9. UX, Debug, Validation
+### 🧪 9. UX, Debug, Validation (shared with another team member)
 
-- [ ] Add debug mode (`verbose`, logs)
+- [ ] [WIP] Add debug mode (`verbose`, logs)
 - [ ] Display current turn clearly
 - [ ] Validate player actions on client side
 - [ ] Add replay support for saved episodes
 
-### 🚀 10. Deployment
+### 🚀 10. Deployment (shared with another team member)
 
 - [ ] Dockerize the full project
 - [ ] Deploy to Render / Railway / Fly.io

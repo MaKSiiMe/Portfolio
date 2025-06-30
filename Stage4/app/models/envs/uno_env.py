@@ -8,12 +8,13 @@ This module implements a custom Gymnasium environment for the UNO card game.
 
 import gymnasium as gym
 from gymnasium import spaces
+from gymnasium.utils import seeding
 import numpy as np
 from typing import Optional, Tuple, Dict
 
 from app.models.uno.deck import create_deck
 from app.models.uno.game import Game
-from app.models.uno.utils import encode_hand, encode_state, decode_card
+from app.models.uno.utils import encode_hand, encode_state, decode_card, normalize_top_card
 from app.models.uno.encodings import CARD2IDX, ALL_CARDS
 from app.models.uno.rules import is_playable
 
@@ -21,11 +22,6 @@ NUM_CARDS = len(ALL_CARDS)
 MAX_HAND_SIZE = 20
 TOTAL_CARDS = NUM_CARDS
 
-def _normalize_top_card(card: str) -> str:
-    parts = card.split()
-    if parts[0] in {"Red", "Green", "Blue", "Yellow"} and "Wild" in card:
-        return " ".join(parts[1:])
-    return card
 
 class UnoEnv(gym.Env):
     metadata = {"render_modes": ["human"]}
@@ -40,8 +36,8 @@ class UnoEnv(gym.Env):
         self.action_space = spaces.Discrete(NUM_CARDS + 1)
 
         self.observation_space = spaces.Dict({
-            "hand": spaces.Box(low=0.0, high=np.inf, shape=(TOTAL_CARDS,), dtype=np.float32),
-            "top_card": spaces.Discrete(NUM_CARDS),
+            "hand": spaces.Box(low=0.0, high=np.inf, shape=(len(ALL_CARDS),), dtype=np.float32),
+            "top_card": spaces.Discrete(len(ALL_CARDS)),
             "opponent_card_count": spaces.Discrete(100),
         })
 
@@ -51,7 +47,8 @@ class UnoEnv(gym.Env):
     def reset(self, seed: Optional[int] = None, options: Optional[Dict] = None):
         self.done = False
         self._seed = seed or self._seed
-        self.rng = np.random.default_rng(self._seed)
+        self.np_random, _ = seeding.np_random(self._seed)
+
         self.game = Game(num_players=2, seed=self._seed)
         self.game.start()
 
@@ -145,7 +142,7 @@ class UnoEnv(gym.Env):
     def _get_obs_player(self, player: int) -> Dict:
         player_hand = self.game.hands[player]
         top_card = self.game.discard_pile[-1]
-        normalized_top_card = _normalize_top_card(top_card)
+        normalized_top_card = normalize_top_card(top_card)
 
         try:
             top_card_idx = CARD2IDX[normalized_top_card]

@@ -2,6 +2,8 @@
 
 from typing import Dict, List
 from .constants import COLORS, VALUES, SPECIAL_CARDS, WILD_CARDS
+from .encodings import ALL_CARDS, CARD2IDX, IDX2CARD
+
 
 # Encodage/décodage des cartes
 CARD_ENCODING: Dict[str, int] = {}
@@ -52,6 +54,8 @@ def encode_card(card_str: str) -> int:
 
 def decode_card(card_id: int) -> str:
     """Convertit un entier en carte"""
+    if card not in CARD2IDX:
+        raise KeyError(f"Card '{card}' not in CARD2IDX")
     return CARD_DECODING[card_id]
 
 
@@ -65,9 +69,10 @@ def encode_hand(hand: List[str]) -> np.ndarray:
     Returns:
         np.ndarray: Vecteur de fréquences (float32)
     """
-    vec = np.zeros(TOTAL_CARDS, dtype=np.float32)
+    vec = np.zeros(len(CARD2IDX), dtype=np.float32)
     for card in hand:
-        vec[encode_card(card)] += 1
+        norm_card = normalize_card(card)
+        vec[CARD2IDX[norm_card]] += 1
     return vec
 
 
@@ -144,3 +149,18 @@ def decode_action(index: int) -> str:
     if index == TOTAL_CARDS:
         return "DRAW"
     return decode_card(index)
+
+
+def normalize_card(card: str) -> str:
+    if 'Wild' in card:
+        parts = card.split()
+        if parts[0] in {"Red", "Green", "Blue", "Yellow"}:
+            return " ".join(parts[1:])
+    return card
+
+
+def normalize_top_card(card: str) -> str:
+    parts = card.split()
+    if parts[0] in {"Red", "Green", "Blue", "Yellow"} and "Wild" in card:
+        return " ".join(parts[1:])
+    return card

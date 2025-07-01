@@ -161,6 +161,10 @@ function renderDrawPileStack() {
     card.style.zIndex = i;
     pile.appendChild(card);
   }
+  // Appliquer l'animation de rebond
+  pile.classList.remove("pile-reborn"); // reset
+  void pile.offsetWidth; // forcer le reflow pour redéclencher l'animation
+  pile.classList.add("pile-reborn");
 }
 
 function animateCardFlyingToHand(card) {
@@ -197,6 +201,8 @@ function animateCardFlyingToHand(card) {
         renderHand(playerHand); // met à jour la vraie main après animation
     }, 700);
 }
+
+
 
 
 window.addEventListener("DOMContentLoaded", () => {

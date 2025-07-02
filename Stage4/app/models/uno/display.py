@@ -23,7 +23,6 @@ def print_board(turn: int, current_player: int, top_card: str, deck_size: int = 
     if deck_size is not None:
         print(f"Deck size: {deck_size}")
 
-
 def print_hand(player_idx, hand):
     """
     Print the hand of a player (for human interaction).

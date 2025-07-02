@@ -44,7 +44,6 @@ class Game:
                 else:
                     self.agents.append(RuleBasedAgent())
 
-
     def start(self):
         for i in range(self.num_players):
             self.hands[i] = [self.deck.pop() for _ in range(CARDS_PER_PLAYER)]
@@ -58,7 +57,6 @@ class Game:
         else:
             self.current_color = first_card.split()[0]  # Couleur du premier card
 
-
     def handle_first_card(self):
         """
         Handles the first card in the discard pile if it is a special card.
@@ -70,7 +68,6 @@ class Game:
                 self.draw_four_next = 1
             else:
                 self.discard_pile[-1] = f"{new_color} Wild"
-
 
     def get_state(self) -> dict:
         """
@@ -92,7 +89,6 @@ class Game:
             "winner": self.get_winner(),
         }
 
-
     def draw_cards(self, player_idx: int, count: int):
         """
         Draw cards for a player.
@@ -106,7 +102,6 @@ class Game:
                 reshuffle_discard_pile(self.deck, self.discard_pile)
             if self.deck:
                 self.hands[player_idx].append(self.deck.pop())
-
 
     def play_turn(self, human_input: Optional[int] = None) -> Optional[int]:
         player = self.current_player
@@ -200,11 +195,9 @@ class Game:
         self.advance_turn()
         return None
 
-
     def advance_turn(self):
         self.current_player = (self.current_player + self.direction) % self.num_players
         self.turn += 1
-
 
     def calculate_scores(self) -> List[int]:
         """
@@ -215,7 +208,6 @@ class Game:
         """
         scores = [calculate_score(self.hands, winner_idx=i) for i in range(self.num_players)]
         return scores
-
 
     def get_winner(self) -> Optional[int]:
         for i, hand in enumerate(self.hands):

@@ -41,7 +41,6 @@ def create_deck(seed: Optional[int] = None) -> List[str]:
     random.shuffle(deck)
     return deck
 
-
 def reshuffle_discard_pile(deck: List[str], discard_pile: List[str]) -> None:
     """
     Reshuffles the discard pile into the deck when the deck is empty.

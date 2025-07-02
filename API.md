@@ -162,18 +162,21 @@ All responses are in JSON format.
 ```json
 {
   "card": "Red 5",
-  "top_card": "Red +2"
+  "top_card": "Yellow +2",
+  "current_color": "Red"
 }
 ```
 
 **Response:**
 ```json
 {
-  "success": true,
-  "data": {
-    "playable": true
-  },
-  "error": null
+{
+    "data": {
+        "playable": true
+    },
+    "error": null,
+    "success": true
+}
 }
 ```
 

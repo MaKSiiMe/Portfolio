@@ -51,13 +51,11 @@ def encode_card(card_str: str) -> int:
     """Convertit une carte en entier unique"""
     return CARD_ENCODING[card_str]
 
-
 def decode_card(card_id: int) -> str:
     """Convertit un entier en carte"""
     if card not in CARD2IDX:
         raise KeyError(f"Card '{card}' not in CARD2IDX")
     return CARD_DECODING[card_id]
-
 
 def encode_hand(hand: List[str]) -> np.ndarray:
     """
@@ -75,7 +73,6 @@ def encode_hand(hand: List[str]) -> np.ndarray:
         vec[CARD2IDX[norm_card]] += 1
     return vec
 
-
 def decode_hand(encoded_hand: List[int]) -> List[str]:
     """
     Convertit une liste d'entiers en noms de cartes (str), ignore les -1.
@@ -87,7 +84,6 @@ def decode_hand(encoded_hand: List[int]) -> List[str]:
         List[str]: Cartes correspondantes
     """
     return [decode_card(cid) for cid in encoded_hand if cid != -1]
-
 
 def encode_state(game_state: dict, player_idx: int) -> np.ndarray:
     """
@@ -135,7 +131,6 @@ def encode_state(game_state: dict, player_idx: int) -> np.ndarray:
 
     return state_vector
 
-
 def decode_action(index: int) -> str:
     """
     Convertit un index d'action en nom de carte, ou 'DRAW' si c'est l'action piocher.
@@ -150,14 +145,12 @@ def decode_action(index: int) -> str:
         return "DRAW"
     return decode_card(index)
 
-
 def normalize_card(card: str) -> str:
     if 'Wild' in card:
         parts = card.split()
         if parts[0] in {"Red", "Green", "Blue", "Yellow"}:
             return " ".join(parts[1:])
     return card
-
 
 def normalize_top_card(card: str) -> str:
     parts = card.split()

@@ -91,7 +91,6 @@ def calculate_card_points(card: str) -> int:
         except (IndexError, ValueError):
             return 0
 
-
 def calculate_score(hands: List[List[str]], winner_idx: int) -> int:
     """
     Calculate the total score of the game by summing the points of the

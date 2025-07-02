@@ -126,14 +126,17 @@ Turn 0 - Player 0's turn
 Top card: Blue 3
 Player 0: Red 5, Blue 5, Green 8, Blue Reverse, Wild +4, Yellow Skip, Green 2
 Player 0 plays: Blue 5
-...
+```
+```
 Turn 42 - Player 0's turn
 Top card: Red Skip
 Player 0: Blue 7, Blue Reverse, Red +2, Green 6, Green 6
 Player 0 plays: Red +2
-...
+```
+```
 The draw pile was empty: the discard pile has been shuffled to form a new draw pile.
-...
+```
+```
 🎉 Player 2 wins the round! 🎉
 
 Remaining cards for other players:
@@ -141,7 +144,8 @@ Player 0: ['Red 7', 'Yellow 3']
 Player 1: ['Yellow 6', 'Blue 4']
 
 Player 2 earns 20 points.
-...
+```
+```
 Current scores:
 Player 0: 466 points
 Player 1: 510 points
@@ -257,11 +261,10 @@ This roadmap consolidates all required steps to:
 
 ### 🌐 7. Flask Backend Integration
 
-- [ ] Create API routes:
+- [ ] [WIP] Create API routes:
   - `POST /start` – start a game
   - `POST /play` – send human action
   - `GET /state` – get current state
-  - `GET /play-ai` – make AI play
 - [ ] Manage session state between requests
 - [ ] Return clean JSON for frontend
 
@@ -284,9 +287,7 @@ This roadmap consolidates all required steps to:
 
 - [ ] Dockerize the full project
 - [ ] Deploy to Render / Railway / Fly.io
-- [ ] Prepare public demo (GitHub page, video, etc.)
-
----
+- [ ] [WIP] Prepare public demo (GitHub page, video, etc.)
 
 </details>
 

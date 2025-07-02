@@ -8,12 +8,16 @@ from app.models.uno.constants import (
 )
 from app.models.uno.deck import create_deck, reshuffle_discard_pile
 from app.models.uno.rules import is_playable, calculate_score
+
 from app.models.agents.rules_agent import RuleBasedAgent
+# from app.models.agents.random_agent import RandomAgent
+# from app.models.agents.ppo_agent import PPOAgent
 
 class Game:
-    def __init__(self, num_players: int = 2, seed: Optional[int] = None, agents=None):
+    def __init__(self, num_players: int = 2, seed: Optional[int] = None, agent_type: str = "rulesbased", agents=None):
         self.num_players = num_players
         self.seed = seed
+        self.agent_type = agent_type
         self.deck = create_deck(seed)
         self.hands: List[List[str]] = [[] for _ in range(num_players)]
         self.discard_pile: List[str] = []
@@ -25,12 +29,20 @@ class Game:
         self.skip_current_player = False
         self.consecutive_passes = 0
         self.turn = 0
-        self.current_color = None  # ✅ NOUVEAU : couleur active séparée
+        self.current_color = None
+        
         if agents is not None:
             self.agents = agents
         else:
-            # Par défaut, tous les joueurs sont des RuleBasedAgent
-            self.agents = [RuleBasedAgent() for _ in range(num_players)]
+            # Joueur 0 = humain (None), les autres selon agent_type
+            self.agents = [None]  # Joueur 0 (humain)
+            for _ in range(1, num_players):
+                if agent_type == "random":
+                    self.agents.append(RandomAgent())
+                # elif agent_type == "ppo":
+                #     self.agents.append(PPOAgent())
+                else:
+                    self.agents.append(RuleBasedAgent())
 
 
     def start(self):
@@ -210,3 +222,9 @@ class Game:
             if len(hand) == 0:
                 return i
         return None
+
+    def set_current_color(self, color: str):
+        if color in COLORS:
+            self.current_color = color
+            return True
+        return False

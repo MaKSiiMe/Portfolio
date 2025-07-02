@@ -6,38 +6,48 @@ from app.models.uno.rules import is_playable
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
-# Stocke les parties en cours avec leurs game_id
 games = {}
 
+def api_response(success, data=None, error=None, code=200):
+    if data is None:
+        data = {}
+    return jsonify({
+        "success": success,
+        "data": data,
+        "error": error
+    }), code
 
 @bp.route("/start_game", methods=["POST"])
 def start_game():
     data = request.get_json()
     num_players = data.get("num_players", 2)
     seed = data.get("seed")
+    agent_type = data.get("agent_type", "rulesbased") # <--- Valeur par défaut
 
-    game = Game(num_players=num_players, seed=seed)
+    game = Game(num_players=num_players, seed=seed, agent_type=agent_type)
     game.start()
 
     game_id = str(uuid.uuid4())
     games[game_id] = game
 
-    return jsonify({
-        "game_id": game_id,
-        "message": "Game started",
-        "discard_pile": game.discard_pile[-1],
-        "hands": [len(hand) for hand in game.hands]
-    })
-
+    return api_response(
+        True,
+        data={
+            "game_id": game_id,
+            "agent_type": agent_type,
+            "message": f"Game started vs {agent_type} agent",
+            "discard_pile": game.discard_pile[-1],
+            "hands": [len(hand) for hand in game.hands],
+            "state": game.get_state()
+        }
+    )
 
 @bp.route("/game_state/<game_id>", methods=["GET"])
 def game_state(game_id):
     game = games.get(game_id)
     if not game:
-        return jsonify({"error": "Invalid game_id"}), 404
-
-    return jsonify(game.get_state())
-
+        return api_response(False, error="Invalid game_id", code=404)
+    return api_response(True, data={"state": game.get_state()})
 
 @bp.route("/play_turn", methods=["POST"])
 def play_turn():
@@ -47,38 +57,40 @@ def play_turn():
 
     game = games.get(game_id)
     if not game:
-        return jsonify({"error": "Invalid game_id"}), 404
+        return api_response(False, error="Invalid game_id", code=404)
 
     winner = game.play_turn(human_input=human_input)
-
     response = {
         "state": game.get_state(),
         "winner": winner,
         "scores": game.calculate_scores() if winner is not None else None
     }
-    return jsonify(response)
-
+    return api_response(True, data=response)
 
 @bp.route("/is_playable", methods=["POST"])
 def check_is_playable():
     data = request.get_json()
     card = data.get("card")
     top_card = data.get("top_card")
+    current_color = data.get("current_color")
 
-    if not card or not top_card:
-        return jsonify({"error": "Both 'card' and 'top_card' are required"}), 400
+    if not card or not top_card or not current_color:
+        return api_response(
+            False, 
+            error="Fields 'card', 'top_card' and 'current_color' are required", 
+            code=400
+        )
 
-    return jsonify({"playable": is_playable(card, top_card)})
-
+    playable = is_playable(card, top_card, current_color)
+    return api_response(True, data={"playable": playable})
 
 @bp.route("/delete_game/<game_id>", methods=["DELETE"])
 def delete_game(game_id):
     if game_id in games:
         del games[game_id]
-        return jsonify({"message": f"Game {game_id} deleted."})
+        return api_response(True, data={"message": f"Game {game_id} deleted."})
     else:
-        return jsonify({"error": "Invalid game_id"}), 404
-
+        return api_response(False, error="Invalid game_id", code=404)
 
 @bp.route("/draw_cards", methods=["POST"])
 def draw_cards():
@@ -89,15 +101,13 @@ def draw_cards():
 
     game = games.get(game_id)
     if not game:
-        return jsonify({"error": "Invalid game_id"}), 404
+        return api_response(False, error="Invalid game_id", code=404)
 
     if not isinstance(player_idx, int) or player_idx < 0 or player_idx >= game.num_players:
-        return jsonify({"error": "Invalid player index"}), 400
+        return api_response(False, error="Invalid player index", code=400)
 
     game.draw_cards(player_idx, count)
-
-    return jsonify({"state": game.get_state()})
-
+    return api_response(True, data={"state": game.get_state()})
 
 @bp.route("/play_card", methods=["POST"])
 def play_card():
@@ -108,22 +118,58 @@ def play_card():
 
     game = games.get(game_id)
     if not game:
-        return jsonify({"error": "Invalid game_id"}), 404
+        return api_response(False, error="Invalid game_id", code=404)
 
     if not isinstance(player_idx, int) or player_idx < 0 or player_idx >= game.num_players:
-        return jsonify({"error": "Invalid player index"}), 400
+        return api_response(False, error="Invalid player index", code=400)
 
-    # Cherche et joue la carte
     hand = game.hands[player_idx]
     if card not in hand:
-        return jsonify({"error": "Card not in player hand"}), 400
+        return api_response(False, error="Card not in player hand", code=400)
 
     if not is_playable(card, game.discard_pile[-1]):
-        return jsonify({"error": "Card is not playable"}), 400
+        return api_response(False, error="Card is not playable", code=400)
 
     hand.remove(card)
     game.discard_pile.append(card)
+    # Effets spéciaux à externaliser dans Game si besoin
 
-    # Gérer les effets spéciaux ici si nécessaire (tu peux externaliser ça dans une méthode dans `Game` si besoin)
+    return api_response(True, data={"state": game.get_state()})
 
-    return jsonify({"state": game.get_state()})
+@bp.route("/debug_agent/<game_id>", methods=["GET"])
+def debug_agent(game_id):
+    game = games.get(game_id)
+    if not game:
+        return api_response(False, error="Invalid game_id", code=404)
+    agent_types = [type(a).__name__ if a is not None else "Human" for a in game.agents]
+    return api_response(
+        True,
+        data={
+            "agent_types": agent_types,
+            "selected_agent_type": getattr(game, "agent_type", None)
+        }
+    )
+
+@bp.route("/choose_color", methods=["POST"])
+def choose_color():
+    data = request.get_json()
+    game_id = data.get("game_id")
+    color = data.get("color")
+
+    game = games.get(game_id)
+    if not game:
+        return api_response(False, error="Invalid game_id", code=404)
+
+    if color not in ["Red", "Yellow", "Blue", "Green"]:
+        return api_response(False, error="Invalid color", code=400)
+
+    game.set_current_color(color)
+    return api_response(True, data={"current_color": color})
+
+@bp.route("/get_scores/<game_id>", methods=["GET"])
+def get_scores(game_id):
+    game = games.get(game_id)
+    if not game:
+        return api_response(False, error="Invalid game_id", code=404)
+    scores = game.calculate_scores()
+    return api_response(True, data={"scores": scores})

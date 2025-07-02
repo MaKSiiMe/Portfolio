@@ -1,0 +1,139 @@
+{
+  "info": {
+    "_postman_id": "e998c6be-6d2b-47b8-abc8-uno-api",
+    "name": "UNO Game API (local)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Start Game",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"num_players\": 2,\n  \"agent_type\": \"rulesbased\"\n}"
+        },
+        "url": { "raw": "http://127.0.0.1:5000/api/start_game", "protocol": "http", "host": ["127.0.0.1"], "port": "5000", "path": ["api","start_game"] }
+      }
+    },
+    {
+      "name": "Game State",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://127.0.0.1:5000/api/game_state/{{game_id}}",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "5000",
+          "path": ["api","game_state","{{game_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Play Card",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"game_id\": \"{{game_id}}\",\n  \"player_idx\": 0,\n  \"card\": \"Red 5\"\n}"
+        },
+        "url": { "raw": "http://127.0.0.1:5000/api/play_card", "protocol": "http", "host": ["127.0.0.1"], "port": "5000", "path": ["api","play_card"] }
+      }
+    },
+    {
+      "name": "Draw Cards",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"game_id\": \"{{game_id}}\",\n  \"player_idx\": 0,\n  \"count\": 1\n}"
+        },
+        "url": { "raw": "http://127.0.0.1:5000/api/draw_cards", "protocol": "http", "host": ["127.0.0.1"], "port": "5000", "path": ["api","draw_cards"] }
+      }
+    },
+    {
+      "name": "Play Turn",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"game_id\": \"{{game_id}}\",\n  \"human_input\": null\n}"
+        },
+        "url": { "raw": "http://127.0.0.1:5000/api/play_turn", "protocol": "http", "host": ["127.0.0.1"], "port": "5000", "path": ["api","play_turn"] }
+      }
+    },
+    {
+      "name": "Is Playable",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"card\": \"Red 5\",\n  \"top_card\": \"Yellow +2\"\n}"
+        },
+        "url": { "raw": "http://127.0.0.1:5000/api/is_playable", "protocol": "http", "host": ["127.0.0.1"], "port": "5000", "path": ["api","is_playable"] }
+      }
+    },
+    {
+      "name": "Choose Color",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"game_id\": \"{{game_id}}\",\n  \"color\": \"Red\"\n}"
+        },
+        "url": { "raw": "http://127.0.0.1:5000/api/choose_color", "protocol": "http", "host": ["127.0.0.1"], "port": "5000", "path": ["api","choose_color"] }
+      }
+    },
+    {
+      "name": "Get Scores",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://127.0.0.1:5000/api/get_scores/{{game_id}}",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "5000",
+          "path": ["api","get_scores","{{game_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Delete Game",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "http://127.0.0.1:5000/api/delete_game/{{game_id}}",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "5000",
+          "path": ["api","delete_game","{{game_id}}"]
+        }
+      }
+    },
+    {
+      "name": "Debug Agent",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://127.0.0.1:5000/api/debug_agent/{{game_id}}",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "5000",
+          "path": ["api","debug_agent","{{game_id}}"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "game_id",
+      "value": ""
+    }
+  ]
+}

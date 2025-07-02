@@ -6,17 +6,19 @@ UNO Gymnasium Environment
 This module implements a custom Gymnasium environment for the UNO card game.
 """
 
+import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
 from gymnasium.utils import seeding
-import numpy as np
 from typing import Optional, Tuple, Dict
 
+from app.models.uno.constants import COLORS
 from app.models.uno.deck import create_deck
-from app.models.uno.game import Game
-from app.models.uno.utils import encode_hand, encode_state, decode_card, normalize_top_card
+
 from app.models.uno.encodings import CARD2IDX, ALL_CARDS
+from app.models.uno.game import Game
 from app.models.uno.rules import is_playable
+from app.models.uno.utils import encode_hand, encode_state, decode_card, normalize_top_card
 
 NUM_CARDS = len(ALL_CARDS)
 MAX_HAND_SIZE = 20
@@ -50,6 +52,8 @@ class UnoEnv(gym.Env):
         self.np_random, _ = seeding.np_random(self._seed)
 
         self.game = Game(num_players=2, seed=self._seed)
+        print(f"[DEBUG] Initialisation du Game avec agent_type = {self.game.agent_type}")
+        print(f"[DEBUG] Agents utilisés : {self.game.agents}")
         self.game.start()
 
         obs = self._get_obs_player(self.game.current_player)
@@ -157,3 +161,21 @@ class UnoEnv(gym.Env):
 
     def render(self):
         self.game.print_board()
+
+    def set_current_color(self, color: str):
+        if color in COLORS:
+            self.current_color = color
+            return True
+        return False
+
+    def set_current_color(self, color: str) -> bool:
+        """
+        Change the current color of the game (e.g., after playing a Wild card).
+        Returns True if the color was accepted and set.
+        """
+        if hasattr(self.game, "set_current_color"):
+            return self.game.set_current_color(color)
+        if color in ["Red", "Yellow", "Blue", "Green"]:
+            self.game.current_color = color
+            return True
+        return False

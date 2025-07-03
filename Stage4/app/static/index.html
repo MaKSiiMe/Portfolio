@@ -9,23 +9,34 @@
 <body>
 
   <h1>UNO - Version Deluxe</h1>
-  <button id="start-btn">Nouvelle Partie</button>
-  <button id="draw-btn">Piocher</button>
-  <button onclick="renderAllUnoCards()">Toutes les cartes</button>
+  <div class="top-buttons">
+    <button id="start-btn">Nouvelle Partie</button>
+    <button id="draw-btn">Piocher</button>
+    <button onclick="renderAllUnoCards()">Toutes les cartes</button>
+  </div>
 
+  <!-- Plateau de jeu UNO -->
   <div class="board">
+
+    <!-- Zone du BOT en haut -->
+    <div class="bot-zone">
+      <div class="bot-avatar">🤖 Bot Uno</div>
+      <div id="bot-hand" class="hand-container bot-hand"></div>
+    </div>
+
+    <!-- Zone centrale avec la pioche et la défausse -->
     <div class="center-zone">
-      <div id="draw-pile-stack" class="draw-stack">
-  <!-- les dos de cartes UNO seront empilés dynamiquement ici -->   
-      </div>
+      <div id="draw-pile-stack" class="draw-stack"></div>
       <div class="discard-stack">
         <div id="top-card" class="card">?</div>
       </div>
     </div>
+
+    <!-- MAIN DU JOUEUR EN BAS -->
+    <div id="hand" class="hand-container"></div>
   </div>
 
-  <div id="hand" class="hand-container"></div>
-
+  <!-- Choix de couleur pour les cartes noires -->
   <div id="color-choice" class="color-choice" style="display: none;">
     <div class="color-btn color-red" data-color="red"></div>
     <div class="color-btn color-yellow" data-color="yellow"></div>

@@ -206,3 +206,23 @@ button:hover {
   animation: pileRegenerate 0.6s ease-out;
 }
 
+#bot-hand {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 40px;
+  transform: rotate(180deg); /* effet UNO comme si c'était face au joueur */
+}
+
+.card-back {
+  width: 60px;
+  height: 90px;
+  margin: 0 5px;
+  background-color: black;
+  color: white;
+  font-size: 2rem;
+  text-align: center;
+  line-height: 90px;
+  border-radius: 10px;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+}

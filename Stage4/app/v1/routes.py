@@ -96,6 +96,10 @@ def draw_cards():
 
     game.draw_cards(player_idx, count)
 
+    # ✅ Après que le joueur pioche, faire avancer le tour et jouer le bot
+    game.advance_turn()
+    game.play_bot_turn()
+
     return jsonify({"state": game.get_state()})
 
 
@@ -146,5 +150,18 @@ def play_card():
             game.skip_next = True
         else:
             game.direction *= -1
+    # Avance le tour et joue le bot
+    game.advance_turn()
+    game.play_bot_turn()
 
     return jsonify({"state": game.get_state()})
+
+@bp.route("/bot_play", methods=["POST"])
+def bot_play():
+    game_id = request.args.get("game_id")
+    game = games.get(game_id)
+    if not game:
+        return jsonify({"error": "Invalid game_id"}), 404
+
+    game.play_bot_turn()
+    return jsonify(game.get_state())

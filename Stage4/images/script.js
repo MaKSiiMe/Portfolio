@@ -50,43 +50,35 @@ function renderHand(cards) {
     });
 }
 
-let selectedCardIndex = null;
-
-function playSelectedCard() {
-    if (selectedCardIndex === null) {
-        alert("Sélectionne une carte d'abord !");
-        return;
-    }
-    const card = document.querySelectorAll(".card")[selectedCardIndex];
-    alert(`Tu joues : ${card.textContent}`);
-    // TODO: envoyer au backend
-    selectedCardIndex = null;
-    card.style.border = "2px solid white"; // désélection
-}
-
-function drawCard() {
-    alert("Tu as pioché une carte !");
-    // TODO: appeler l’API pour piocher et mettre à jour la main
-}
-
-function passTurn() {
-    alert("Tu passes ton tour.");
-    // TODO: appeler l’API
-}
-
-function renderHand(cards) {
-    const handDiv = document.getElementById("hand");
+function updateHand(hand) {
+    const handDiv = document.getElementById('player-hand');
     handDiv.innerHTML = '';
-    cards.forEach((card, index) => {
-        const div = document.createElement("div");
-        div.className = `card ${card.color}`;
-        div.textContent = card.value;
-        div.onclick = () => {
-            document.querySelectorAll(".card").forEach(c => c.style.border = "2px solid white");
-            div.style.border = "2px solid gold";
-            selectedCardIndex = index;
-        };
-        handDiv.appendChild(div);
+    hand.forEach(card => {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = `card ${card.color}`;
+        cardDiv.innerText = card.value;
+        cardDiv.addEventListener('click', () => playCard(card));
+        handDiv.appendChild(cardDiv);
     });
 }
 
+function updateTopCard(card) {
+    const pileDiv = document.getElementById('pile');
+    pileDiv.innerHTML = '';
+    const cardDiv = document.createElement('div');
+    cardDiv.className = `card ${card.color}`;
+    cardDiv.innerText = card.value;
+    pileDiv.appendChild(cardDiv);
+}
+
+async function drawCard() {
+    const response = await fetch('/api/draw_card', { method: 'POST' });
+    const data = await response.json();
+
+    if (data.card) {
+        console.log(`Carte piochée : ${data.card.color} ${data.card.value}`);
+    }
+
+    updateHand(data.hand);
+    updateTopCard(data.top_card);
+}

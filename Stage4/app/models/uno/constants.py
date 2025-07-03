@@ -5,16 +5,22 @@ This module defines constants for a card game. It includes colors, values,
 special cards, the number of cards per player.
 """
 
-from typing import List
+COLORS = ["red", "green", "blue", "yellow"]
+VALUES = [str(n) for n in range(10)] + [str(n) for n in range(1, 10)] + ["+2", "+2", "reverse", "reverse", "skip", "skip"]
+SPECIAL_CARDS = ["+4", "wild", "+4", "wild"]
 
-COLORS: List[str] = ['Red', 'Green', 'Blue', 'Yellow']
-VALUES: List[int] = list(range(1, 10))
-SPECIAL_CARDS: List[str] = ['+2', 'Reverse', 'Skip']
-WILD_CARDS: List[str] = ['Wild', 'Wild +4']
+# Construction de toutes les cartes colorées
+COLOR_CARDS = [{"color": color, "value": value} for color in COLORS for value in VALUES]
 
-CARDS_PER_PLAYER: int = 7
-MAX_PLAYERS: int = 10
-PLAYER_NAMES = [f"Joueur {i}" for i in range(MAX_PLAYERS)]
+# Construction des cartes noires
+WILD_CARDS = [{"color": "black", "value": val} for val in SPECIAL_CARDS]
 
-NUM_CARDS: int = len(ALL_CARDS)
-MAX_HAND_SIZE: int = 20
+# Toutes les cartes du jeu
+ALL_CARDS = COLOR_CARDS + WILD_CARDS
+
+# Nombre total de cartes
+NUM_CARDS = len(ALL_CARDS)
+
+# 💥 LA LIGNE QUI MANQUAIT
+CARDS_PER_PLAYER = 7
+

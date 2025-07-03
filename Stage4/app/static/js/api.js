@@ -27,3 +27,10 @@ export function playCardAPI(gameId, playerIdx, card) {
     body: JSON.stringify({ game_id: gameId, player_idx: playerIdx, card })
   }).then(res => res.json());
 }
+
+// ✅ Ajoute cette fonction pour jouer le tour du bot
+export function botPlayAPI(gameId) {
+  return fetch(`${API_BASE}/bot_play?game_id=${gameId}`, {
+    method: "POST"
+  }).then(res => res.json());
+}

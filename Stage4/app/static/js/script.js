@@ -1,145 +1,124 @@
-import { isPlayable, drawCard } from './api.js';
+import { startGame, getGameState, playTurnAPI, drawCardsAPI, playCardAPI, chooseColorAPI } from './api.js';
 
-let hand = ["Red 5", "Green +2", "Wild +4", "Yellow Skip", "Blue 9"];
-let topCard = "Red Reverse";
-let currentColor = "Red";
-let skipNext = false;
-let drawPenalty = 0;
+let gameId = null;
+let playerIdx = 0;
+let currentColor = null;
 
-function renderHand() {
-  const handDiv = document.getElementById("hand");
-  handDiv.innerHTML = "";
-  hand.forEach((card, index) => {
+function parseCard(cardStr) {
+    if (!cardStr) return null;
+    const parts = cardStr.split(' ');
+    if (parts.length === 2) return { color: parts[0], value: parts[1] };
+    if (parts.length === 3) return { color: parts[0], value: parts[1] + ' ' + parts[2] };
+    return { color: 'black', value: cardStr };
+}
+
+function renderHand(cards) {
+    const handDiv = document.getElementById("hand");
+    handDiv.innerHTML = '';
+    cards.forEach((cardStr, idx) => {
+        const card = parseCard(cardStr);
+        const div = document.createElement("div");
+        div.className = `card ${card.color.toLowerCase()}`;
+        div.textContent = card.value;
+        div.onclick = () => tryPlayCard(idx);
+        handDiv.appendChild(div);
+    });
+}
+
+function renderTopCard(cardStr) {
+    const zone = document.getElementById("top-card");
+    zone.innerHTML = '';
+    if (!cardStr) return;
+    const card = parseCard(cardStr);
     const div = document.createElement("div");
-    div.className = `card ${getColorClass(card)}`;
-    div.innerText = card;
-    div.onclick = () => tryPlayCard(card, index, div);
-    handDiv.appendChild(div);
-  });
+    div.className = `card ${card.color.toLowerCase()}`;
+    div.textContent = card.value;
+    zone.appendChild(div);
 }
 
-function renderTopCard() {
-  const topDiv = document.getElementById("topCard");
-  topDiv.className = `card ${getColorClass(topCard)}`;
-  topDiv.innerText = topCard;
+function renderBotHand(cards) {
+    const botDiv = document.getElementById("bot-hand");
+    botDiv.innerHTML = '';
+    cards.forEach(() => {
+        const div = document.createElement("div");
+        div.className = "card-back";
+        div.textContent = "🂠";
+        botDiv.appendChild(div);
+    });
 }
 
-function getColorClass(card) {
-  const color = card.split(" ")[0];
-  if (["Red", "Green", "Blue", "Yellow"].includes(color)) return color;
-  return "Wild";
-}
+// Démarre une partie
+document.getElementById("start-btn").addEventListener("click", async () => {
+    const result = await startGame();
+    console.log("startGame result:", result);
+    if (result.error) return alert(result.error);
+    if (!result.game_id) {
+        alert("Erreur: game_id manquant dans la réponse !");
+        return;
+    }
+    gameId = result.game_id;
+    playerIdx = 0;
+    updateGameState();
+});
 
-async function tryPlayCard(card, index, cardElement) {
-  const status = document.getElementById("status");
-  const { playable } = await isPlayable(card, topCard, currentColor);
+// Pioche une carte
+document.getElementById("draw-btn").addEventListener("click", async () => {
+    if (!gameId) return alert("Commencez une partie d'abord !");
+    const result = await drawCardsAPI(gameId, playerIdx, 1);
+    console.log("drawCardsAPI result:", result);
+    if (result.error) return alert(result.error);
+    updateGameState();
+});
 
-  if (!playable) {
-    status.innerText = `❌ "${card}" non jouable.`;
-    cardElement.style.opacity = 0.5;
-    setTimeout(() => cardElement.style.opacity = 1, 500);
-    return;
-  }
+async function tryPlayCard(cardIdx) {
+    const stateRes = await getGameState(gameId);
+    console.log("getGameState (tryPlayCard):", stateRes);
+    if (stateRes.error) return alert(stateRes.error);
+    const state = stateRes;
+    const hand = state.hands[playerIdx];
+    const cardStr = hand[cardIdx];
+    const card = parseCard(cardStr);
 
-  if (card.includes("+2")) drawPenalty += 2;
-  if (card.includes("Wild +4")) drawPenalty += 4;
-  if (card.includes("Skip")) skipNext = true;
-
-  topCard = card;
-  currentColor = getColorClass(card);
-  hand.splice(index, 1);
-  status.innerText = `✅ "${card}" joué${drawPenalty ? ` (+${drawPenalty})` : ''}${skipNext ? ' - tour sauté' : ''}.`;
-
-  renderHand();
-  renderTopCard();
-}
-
-async function handleDrawCard() {
-  const { card } = await drawCard();
-  hand.push(card);
-  document.getElementById("status").innerText = `🃏 Carte piochée : ${card}`;
-  renderHand();
-}
-
-document.getElementById("drawBtn").addEventListener("click", handleDrawCard);
-
-renderHand();
-renderTopCard();
-
-// Simple UNO web demo: start game, play turn, show state
-
-document.addEventListener('DOMContentLoaded', () => {
-    const startBtn = document.getElementById('startBtn');
-    const playTurnBtn = document.getElementById('playTurnBtn');
-    const gameStateEl = document.getElementById('gameState');
-
-    let gameId = null;
-
-    async function updateGameState() {
-        if (!gameId) {
-            gameStateEl.textContent = "No game in progress.";
-            return;
-        }
-        const res = await fetch(`/api/game_state/${gameId}`);
-        if (!res.ok) {
-            gameStateEl.textContent = "Game not found or error.";
-            playTurnBtn.disabled = true;
-            return;
-        }
-        const data = await res.json();
-        gameStateEl.textContent = JSON.stringify(data, null, 2);
+    if (card.value.startsWith("Wild")) {
+        document.getElementById("color-choice").style.display = 'flex';
+        window.pendingWild = { cardIdx, cardStr };
+        return;
     }
 
-    startBtn.addEventListener('click', async () => {
-        startBtn.disabled = true;
-        playTurnBtn.disabled = true;
-        gameStateEl.textContent = "Starting game...";
-        try {
-            const res = await fetch('/api/start_game', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ num_players: 2 })
-            });
-            const data = await res.json();
-            if (data.game_id) {
-                gameId = data.game_id;
-                playTurnBtn.disabled = false;
-                await updateGameState();
-            } else {
-                gameStateEl.textContent = "Failed to start game.";
-                startBtn.disabled = false;
-            }
-        } catch (e) {
-            gameStateEl.textContent = "Error starting game.";
-            startBtn.disabled = false;
-        }
-    });
+    const playRes = await playCardAPI(gameId, playerIdx, cardStr);
+    console.log("playCardAPI result:", playRes);
+    if (playRes.error) return alert(playRes.error);
+    updateGameState();
+}
 
-    playTurnBtn.addEventListener('click', async () => {
-        if (!gameId) return;
-        playTurnBtn.disabled = true;
-        try {
-            const res = await fetch('/api/play_turn', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ game_id: gameId })
-            });
-            const data = await res.json();
-            await updateGameState();
-            // If game is over, disable play button
-            if (data.winner !== null && data.winner !== undefined) {
-                playTurnBtn.disabled = true;
-                startBtn.disabled = false;
-            } else {
-                playTurnBtn.disabled = false;
-            }
-        } catch (e) {
-            gameStateEl.textContent = "Error playing turn.";
-            playTurnBtn.disabled = false;
-        }
+document.querySelectorAll(".color-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+        if (!window.pendingWild) return;
+        const { cardIdx, cardStr } = window.pendingWild;
+        const chosenColor = btn.dataset.color.charAt(0).toUpperCase() + btn.dataset.color.slice(1);
+        const playRes = await playCardAPI(gameId, playerIdx, cardStr);
+        console.log("playCardAPI (wild) result:", playRes);
+        if (playRes.error) return alert(playRes.error);
+        // Ici, pas de chooseColorAPI car ton backend ne gère pas ce endpoint dans cette version
+        document.getElementById("color-choice").style.display = 'none';
+        window.pendingWild = null;
+        updateGameState();
     });
+});
 
-    // Initial state
-    playTurnBtn.disabled = true;
-    gameStateEl.textContent = "No game in progress.";
+async function updateGameState() {
+    if (!gameId) return;
+    const result = await getGameState(gameId);
+    console.log("getGameState result:", result);
+    if (result.error) return alert(result.error);
+    const state = result;
+    currentColor = state.current_color;
+    renderHand(state.hands[playerIdx]);
+    renderTopCard(state.discard_pile[state.discard_pile.length - 1]);
+    renderBotHand(state.hands[1]);
+    // Pas de gestion du gagnant ici car pas dans l'état retourné
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+    updateGameState();
 });

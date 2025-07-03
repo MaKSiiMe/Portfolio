@@ -24,9 +24,14 @@ def start_game():
     seed = data.get("seed")
     agent_type = data.get("agent_type", "rulesbased") # <--- Valeur par défaut
 
+    if not isinstance(num_players, int) or num_players < 2 or num_players > 10:
+        return api_response(False, error="num_players must be an integer between 2 and 10", code=400)
+
+    if agent_type not in ["rulesbased", "random", "ppo"]:
+        return api_response(False, error=f"Unknown agent_type: {agent_type}", code=400)
+
     game = Game(num_players=num_players, seed=seed, agent_type=agent_type)
     game.start()
-
     game_id = str(uuid.uuid4())
     games[game_id] = game
 
@@ -59,6 +64,16 @@ def play_turn():
     if not game:
         return api_response(False, error="Invalid game_id", code=404)
 
+    if human_input is not None:
+        try:
+            human_input = int(human_input)
+        except Exception:
+            return api_response(False, error="human_input must be an integer or null", code=400)
+
+        hand = game.hands[game.current_player]
+        if human_input < 0 or human_input >= len(hand):
+            return api_response(False, error="human_input out of bounds", code=400)
+
     winner = game.play_turn(human_input=human_input)
     response = {
         "state": game.get_state(),
@@ -66,6 +81,7 @@ def play_turn():
         "scores": game.calculate_scores() if winner is not None else None
     }
     return api_response(True, data=response)
+
 
 @bp.route("/is_playable", methods=["POST"])
 def check_is_playable():

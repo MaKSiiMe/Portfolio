@@ -104,15 +104,22 @@ class Game:
                 self.hands[player_idx].append(self.deck.pop())
 
     def play_turn(self, human_input: Optional[int] = None) -> Optional[int]:
+        """
+        Joue un tour complet pour le joueur courant.
+        - Si human_input (index de carte) est fourni, tente de jouer cette carte.
+        - Sinon, l'agent décide ou l'algo choisit automatiquement.
+        - Gère effets spéciaux, victoire, pioche auto, etc.
+        Retourne l'index du gagnant si victoire, sinon None.
+        """
         player = self.current_player
         hand = self.hands[player]
         top_card = self.discard_pile[-1]
 
-        if not self.hands[self.current_player]:
-            return self.current_player  # Already won
+        # Si déjà gagné, ne rien faire
+        if not hand:
+            return player
 
-
-        # Appliquer les effets accumulés
+        # Effets spéciaux accumulés à appliquer AVANT le tour
         if self.draw_four_next:
             self.draw_cards(player, 4)
             self.draw_four_next = 0
@@ -130,66 +137,72 @@ class Game:
             self.advance_turn()
             return None
 
-        # Cartes jouables
-        playable = [card for card in hand if is_playable(card, top_card, self.current_color)]
-        
-        logging.debug(f"[DEBUG] Playable cards for player {self.current_player}: {playable}")
+        # Liste des cartes jouables (index et cartes)
+        playable = [(i, card) for i, card in enumerate(hand) if is_playable(card, top_card, self.current_color)]
+        logging.debug(f"[DEBUG] Playable cards for player {player}: {[c for _, c in playable]}")
 
+        # Cas : le joueur peut jouer une carte
         if playable:
             if human_input is not None:
-                # On suppose que human_input vient d'env.step() et correspond à une carte
-                card_str = hand[human_input]
-                if card_str not in playable:
-                    raise ValueError("Card is not playable.")
-                chosen_card = card_str
-
-            else:
-                if self.agents and self.agents[player]:
-                    agent = self.agents[player]
-                    idx = agent.choose_action(self.get_state(), player)
-
-                    if idx is None or idx == len(ALL_CARDS):  # DRAW
-                        self.draw_cards(player, 1)
-                        self.advance_turn()
-                        return None
-
-                    card_str = ALL_CARDS[idx]
-                    if card_str not in hand or not is_playable(card_str, top_card, self.current_color):
-                        self.draw_cards(player, 1)
-                        self.advance_turn()
-                        return None
-
-                    chosen_card = card_str
-                else:
-                    # Aucun agent => tirer une carte
+                # Input humain : vérifie que l'index correspond à une carte jouable
+                if not isinstance(human_input, int) or human_input < 0 or human_input >= len(hand):
                     self.draw_cards(player, 1)
                     self.advance_turn()
                     return None
+                card_str = hand[human_input]
+                if (human_input, card_str) not in playable:
+                    self.draw_cards(player, 1)
+                    self.advance_turn()
+                    return None
+                chosen_idx = human_input
+                is_human = True
+            else:
+                # Agent IA ou auto : choisit la première carte jouable
+                if self.agents and self.agents[player]:
+                    agent = self.agents[player]
+                    idx = agent.choose_action(self.get_state(), player)
+                    if idx is None or idx < 0 or idx >= len(hand) or (idx, hand[idx]) not in playable:
+                        self.draw_cards(player, 1)
+                        self.advance_turn()
+                        return None
+                    chosen_idx = idx
+                    is_human = False
+                else:
+                    chosen_idx = playable[0][0]
+                    is_human = False
 
-            # Appliquer les effets de carte
-            self.hands[player].remove(chosen_card)
+            # Joue la carte
+            chosen_card = hand[chosen_idx]
+            del hand[chosen_idx]
             self.discard_pile.append(chosen_card)
 
+            # Effets spéciaux
             if "Skip" in chosen_card:
                 self.skip_next = True
             elif "Reverse" in chosen_card:
                 self.direction *= -1 if self.num_players > 2 else 1
                 if self.num_players == 2:
                     self.skip_next = True
-            elif "Wild +4" in chosen_card:
-                self.draw_four_next += 1
-                self.current_color = self.choose_random_color(self.hands[player])
-            elif "Wild" in chosen_card:
-                self.current_color = self.choose_random_color(self.hands[player])
+            elif "Wild +4" in chosen_card or "Wild" in chosen_card:
+                if not is_human:
+                    # Si IA : choisis une couleur automatiquement
+                    from app.models.uno.constants import COLORS
+                    colors_in_hand = [card.split()[0] for card in self.hands[player] if card.split()[0] in COLORS]
+                    if colors_in_hand:
+                        self.current_color = random.choice(colors_in_hand)
+                    else:
+                        self.current_color = random.choice(COLORS)
+                # Si humain : NE CHANGE PAS current_color ici, attend l'appel à /choose_color
             else:
                 self.current_color = chosen_card.split()[0]
 
         else:
+            # Aucune carte jouable : pioche automatiquement
             self.draw_cards(player, 1)
             self.consecutive_passes += 1
 
-        # Vérifier victoire
-        if len(self.hands[player]) == 0:
+        # Vérifie la victoire
+        if not self.hands[player]:
             return player
 
         self.advance_turn()

@@ -37,7 +37,11 @@ def create_deck(seed: Optional[int] = None) -> List[str]:
     for card in WILD_CARDS:
         deck.extend([card] * 4)
 
-    random.seed(seed if seed is not None else time.time())
+        if seed is not None:
+            random.seed(seed)
+        else:
+            random.seed()
+
     random.shuffle(deck)
     return deck
 

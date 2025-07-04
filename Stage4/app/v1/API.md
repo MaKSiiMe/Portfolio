@@ -1,20 +1,22 @@
 # 🎮 UNO Game API Documentation
 
-This API allows you to manage UNO games via simple HTTP requests (JSON).  
+This API allows you to manage UNO games via simple HTTP requests (JSON).
 All responses are in JSON format.
 
 ---
 
 ## Table of Contents
 
-- [Start a New Game](#start-a-new-game)
-- [Get Current Game State](#get-current-game-state)
-- [Play a Card](#play-a-card)
-- [Draw Cards](#draw-cards)
-- [Delete a Game](#delete-a-game)
-- [Check Card Playability](#check-card-playability)
-- [Error Handling](#error-handling)
-- [Tips](#tips)
+* [Start a New Game](#start-a-new-game)
+* [Get Current Game State](#get-current-game-state)
+* [Play a Turn](#play-a-turn)
+* [Draw Cards](#draw-cards)
+* [Choose Color](#choose-color)
+* [Get Scores](#get-scores)
+* [Delete a Game](#delete-a-game)
+* [Check Card Playability](#check-card-playability)
+* [Error Handling](#error-handling)
+* [Tips](#tips)
 
 ---
 
@@ -23,14 +25,17 @@ All responses are in JSON format.
 **POST** `/api/start_game`
 
 **Request body:**
+
 ```json
 {
   "num_players": 2,
-  "agent_type": "rulesbased" // or "random", "ppo" (optional, default: "rulesbased")
+  "seed": 42,                // Optional, default: random
+  "agent_type": "rulesbased" // Optional, default: "rulesbased". Choices: "rulesbased", "random", "ppo"
 }
 ```
 
 **Response (success):**
+
 ```json
 {
   "success": true,
@@ -53,6 +58,7 @@ All responses are in JSON format.
 **GET** `/api/game_state/<game_id>`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -76,36 +82,59 @@ All responses are in JSON format.
 
 ---
 
-## Play a Card
+## Play a Turn
 
-**POST** `/api/play_card`
+**POST** `/api/play_turn`
 
 **Request body:**
+
 ```json
 {
   "game_id": "abcd-1234-...",
-  "player_idx": 0,
-  "card": "Red 5"
+  "human_input": 0      // Optional: index of the card in the current player's hand, or null if AI/autoplay (default)
 }
 ```
 
+**Examples:**
+
+* Human plays the 1st card in their hand:
+
+  ```json
+  { "game_id": "abcd-1234-...", "human_input": 0 }
+  ```
+* Let the agent/AI choose automatically:
+
+  ```json
+  { "game_id": "abcd-1234-..." }
+  ```
+
+  or
+
+  ```json
+  { "game_id": "abcd-1234-...", "human_input": null }
+  ```
+
 **Response (success):**
+
 ```json
 {
   "success": true,
   "data": {
-    "state": { ... } // updated game state
+    "state": { ... },           // updated game state
+    "winner": null,             // index of winner if game over, else null
+    "scores": null              // final scores if game over, else null
   },
   "error": null
 }
 ```
 
 **Response (error):**
+
 ```json
 {
   "success": false,
   "data": {},
-  "error": "Card is not playable"
+  "error": "human_input out of bounds"
 }
 ```
 
@@ -116,22 +145,98 @@ All responses are in JSON format.
 **POST** `/api/draw_cards`
 
 **Request body:**
+
 ```json
 {
   "game_id": "abcd-1234-...",
   "player_idx": 0,
-  "count": 1
+  "count": 1         // Optional, default: 1
 }
 ```
 
-**Response:**
+**Response (success):**
+
 ```json
 {
   "success": true,
   "data": {
-    "state": { ... } // updated game state
+    "state": { ... },           // updated game state
+    "warning": "No more cards left to draw." // (optional, only if deck and discard are empty)
   },
   "error": null
+}
+```
+
+**Response (error):**
+
+```json
+{
+  "success": false,
+  "data": {},
+  "error": "Game is already over"
+}
+```
+
+---
+
+## Choose Color
+
+**POST** `/api/choose_color`
+
+**Request body:**
+
+```json
+{
+  "game_id": "abcd-1234-...",
+  "color": "Red"     // Must be one of: "Red", "Blue", "Green", "Yellow"
+}
+```
+
+**Response (success):**
+
+```json
+{
+  "success": true,
+  "data": { "current_color": "Red" },
+  "error": null
+}
+```
+
+**Response (error):**
+
+```json
+{
+  "success": false,
+  "data": {},
+  "error": "Invalid color: Purple"
+}
+```
+
+---
+
+## Get Scores
+
+**GET** `/api/get_scores/<game_id>`
+
+**Response (success):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "scores": [86, 107]
+  },
+  "error": null
+}
+```
+
+**Response (error):**
+
+```json
+{
+  "success": false,
+  "data": {},
+  "error": "Invalid game_id"
 }
 ```
 
@@ -141,7 +246,8 @@ All responses are in JSON format.
 
 **DELETE** `/api/delete_game/<game_id>`
 
-**Response:**
+**Response (success):**
+
 ```json
 {
   "success": true,
@@ -152,6 +258,16 @@ All responses are in JSON format.
 }
 ```
 
+**Response (error):**
+
+```json
+{
+  "success": false,
+  "data": {},
+  "error": "Invalid game_id"
+}
+```
+
 ---
 
 ## Check Card Playability
@@ -159,6 +275,7 @@ All responses are in JSON format.
 **POST** `/api/is_playable`
 
 **Request body:**
+
 ```json
 {
   "card": "Red 5",
@@ -167,16 +284,23 @@ All responses are in JSON format.
 }
 ```
 
-**Response:**
+**Response (success):**
+
 ```json
 {
-{
-    "data": {
-        "playable": true
-    },
-    "error": null,
-    "success": true
+  "success": true,
+  "data": { "playable": true },
+  "error": null
 }
+```
+
+**Response (error):**
+
+```json
+{
+  "success": false,
+  "data": {},
+  "error": "Field 'current_color' must be a non-empty string"
 }
 ```
 
@@ -184,7 +308,10 @@ All responses are in JSON format.
 
 ## Error Handling
 
+All errors are returned with `success: false`, an explicit `error` message, and `data: {}`.
+
 **Example error response:**
+
 ```json
 {
   "success": false,
@@ -197,6 +324,9 @@ All responses are in JSON format.
 
 ## Tips
 
-- All requests and responses use JSON format.
-- You can use `fetch`, `axios`, `requests` (Python), etc. to interact with the API.
-- Full game states are returned in the `state` key of responses.
+* All requests and responses use JSON format.
+* You can use `fetch`, `axios`, `requests` (Python), etc. to interact with the API.
+* The full game state is returned in the `state` key of responses.
+* Always check the `success` field before processing the data.
+
+---

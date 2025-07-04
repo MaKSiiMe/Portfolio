@@ -89,7 +89,7 @@ class Game:
             "winner": self.get_winner(),
         }
 
-    def draw_cards(self, player_idx: int, count: int):
+    def draw_cards(self, player_idx: int, count: int) -> int:
         """
         Draw cards for a player.
 
@@ -97,11 +97,14 @@ class Game:
             player_idx (int): Player index.
             count (int): Number of cards to draw.
         """
+        drawn = 0
         for _ in range(count):
             if not self.deck:
                 reshuffle_discard_pile(self.deck, self.discard_pile)
             if self.deck:
                 self.hands[player_idx].append(self.deck.pop())
+                drawn += 1
+        return drawn
 
     def play_turn(self, human_input: Optional[int] = None) -> Optional[int]:
         """
@@ -144,16 +147,12 @@ class Game:
         # Cas : le joueur peut jouer une carte
         if playable:
             if human_input is not None:
-                # Input humain : vérifie que l'index correspond à une carte jouable
+                # Vérifie que l'index est dans la main
                 if not isinstance(human_input, int) or human_input < 0 or human_input >= len(hand):
-                    self.draw_cards(player, 1)
-                    self.advance_turn()
-                    return None
+                    raise ValueError("Card index out of bounds.")
                 card_str = hand[human_input]
                 if (human_input, card_str) not in playable:
-                    self.draw_cards(player, 1)
-                    self.advance_turn()
-                    return None
+                    raise ValueError("Card is not playable.")
                 chosen_idx = human_input
                 is_human = True
             else:

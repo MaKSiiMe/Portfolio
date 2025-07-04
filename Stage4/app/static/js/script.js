@@ -1,220 +1,49 @@
-import { startGame, playCardAPI, drawCardAPI, getGameState } from './api.js';
+import { startGame, getGameState, playTurnAPI, drawCardsAPI, chooseColorAPI } from './api.js';
 
 let gameId = null;
 let playerIdx = 0;
-let playerHand = [];
-let topCard = null;
-let pendingColorChoice = null;
+let currentColor = null;
 
-document.getElementById("start-btn").addEventListener("click", async () => {
-    const data = await startGame();
-    gameId = data.game_id;
-    playerIdx = 0;
-    const state = await getGameState(gameId);
-    playerHand = state.hands[playerIdx];
-    topCard = state.discard_pile.at(-1);
-    renderHand(playerHand);
-    renderTopCard();
-    renderBotHand(state.hands[1]); // Affiche la main du bot
-});
+function cardToString(card) {
+    if (typeof card === "string") return card;
+    if (card && card.color && card.value) return `${card.color} ${card.value}`;
+    return "";
+}
 
-document.getElementById("draw-btn").addEventListener("click", async () => {
-    if (!gameId) return alert("Commencez une partie d'abord !");
-    const result = await drawCardAPI(gameId, playerIdx);
-    console.log("Résultat drawCardAPI :", result);
-
-    playerHand = result.state.hands[playerIdx];
-    topCard = result.state.discard_pile.at(-1);
-    renderTopCard();
-
-    const newCard = playerHand.at(-1);
-    console.log("Carte piochée :", newCard);
-
-    if (newCard && newCard.color && newCard.value) {
-        animateCardFlyingToHand(newCard);
-
-        const pile = document.getElementById("draw-pile-stack");
-        if (pile.children.length > 0) {
-            pile.removeChild(pile.lastElementChild);
-        }
-
-        if (pile.children.length === 0) {
-            renderDrawPileStack();
-        }
-    } else {
-        console.warn("Carte invalide :", newCard);
-        alert("Aucune carte valide n'a été piochée !");
-        renderHand(playerHand);
+function parseCard(cardStr) {
+    if (!cardStr) return null;
+    if (typeof cardStr !== "string") {
+        if (cardStr.color && cardStr.value) return cardStr;
+        return { color: "black", value: "?" };
     }
-
-    await updateAfterBotTurn(); // ✅ AJOUT ICI
-});
+    const parts = cardStr.split(' ');
+    if (parts.length === 2) return { color: parts[0], value: parts[1] };
+    if (parts.length === 3) return { color: parts[0], value: parts[1] + ' ' + parts[2] };
+    return { color: 'black', value: cardStr };
+}
 
 function renderHand(cards) {
     const handDiv = document.getElementById("hand");
     handDiv.innerHTML = '';
-
-    const hiddenCard = document.createElement("div");
-    hiddenCard.className = "card-back";
-    hiddenCard.textContent = "🂠";
-    handDiv.appendChild(hiddenCard);
-
-    cards.forEach(card => {
+    cards.forEach((cardStr, idx) => {
+        const card = parseCard(cardStr);
         const div = document.createElement("div");
-        div.className = `card ${card.color}`;
+        div.className = `card ${card.color.toLowerCase()}`;
         div.textContent = card.value;
-        div.onclick = () => tryPlayCard(card);
+        div.onclick = () => tryPlayCard(idx);
         handDiv.appendChild(div);
     });
 }
 
-function renderTopCard() {
+function renderTopCard(cardStr) {
     const zone = document.getElementById("top-card");
     zone.innerHTML = '';
-    if (!topCard) return;
+    if (!cardStr) return;
+    const card = parseCard(cardStr);
     const div = document.createElement("div");
-    div.className = `card ${topCard.color}`;
-    div.textContent = topCard.value;
-    zone.appendChild(div);
-}
-
-function animateCardDraw(card) {
-    const handDiv = document.getElementById("hand");
-    const div = document.createElement("div");
-    div.className = `card ${card.color} fadeIn`;
+    div.className = `card ${card.color.toLowerCase()}`;
     div.textContent = card.value;
-    handDiv.appendChild(div);
-    setTimeout(() => renderHand(playerHand), 500);
-}
-
-async function tryPlayCard(card) {
-    if (!gameId) return;
-
-    if (card.color === 'black') {
-        pendingColorChoice = card;
-        document.getElementById("color-choice").style.display = 'flex';
-        return;
-    }
-
-    await sendPlay(card.color, card.value);
-}
-
-async function sendPlay(color, value) {
-    const cardStr = `${color} ${value}`;
-    const result = await playCardAPI(gameId, playerIdx, cardStr);
-    if (result.error) return alert(result.error);
-    playerHand = result.state.hands[playerIdx];
-    topCard = result.state.discard_pile.at(-1);
-    renderHand(playerHand);
-    renderTopCard();
-
-    await updateAfterBotTurn(); 
-}
-
-document.querySelectorAll(".color-btn").forEach(btn => {
-    btn.addEventListener("click", async () => {
-        if (!pendingColorChoice) return;
-        const newColor = btn.dataset.color;
-        await sendPlay(newColor, pendingColorChoice.value);
-        pendingColorChoice = null;
-        document.getElementById("color-choice").style.display = 'none';
-    });
-});
-
-async function updateAfterBotTurn() {
-    const result = await getGameState(gameId);
-
-    if (result.winner !== null) {
-        alert(result.winner === playerIdx ? "🎉 Vous avez gagné !" : "🤖 Le bot a gagné !");
-    }
-
-    playerHand = result.hands[playerIdx];
-    topCard = result.discard_pile.at(-1);
-    renderHand(playerHand);
-    renderTopCard();
-
-    const botHand = result.hands[1]; // Index du bot
-    renderBotHand(botHand);
-}
-
-window.renderAllUnoCards = function() {
-    const fullDeck = generateFullDeck();
-    renderHand(fullDeck);
-};
-
-function generateFullDeck() {
-    const colors = ['red', 'green', 'blue', 'yellow'];
-    const deck = [];
-    colors.forEach(color => {
-        deck.push({ value: '0', color });
-        for (let i = 1; i <= 9; i++) {
-            deck.push({ value: String(i), color });
-            deck.push({ value: String(i), color });
-        }
-        ['+2', '↺', '⏩'].forEach(symbol => {
-            deck.push({ value: symbol, color });
-            deck.push({ value: symbol, color });
-        });
-    });
-    for (let i = 0; i < 4; i++) {
-        deck.push({ value: '+4', color: 'black' });
-        deck.push({ value: '🎨', color: 'black' });
-    }
-    return deck;
-}
-
-function renderDrawPileStack() {
-    const pile = document.getElementById("draw-pile-stack");
-    pile.innerHTML = "";
-
-    for (let i = 0; i < 15; i++) {
-        const card = document.createElement("div");
-        card.className = "card-back stacked";
-        const angle = (Math.random() * 6 - 3).toFixed(1);
-        const offsetX = Math.random() * 4 - 2;
-        const offsetY = i * 1.5;
-        card.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${angle}deg)`;
-        card.style.zIndex = i;
-        pile.appendChild(card);
-    }
-
-    pile.classList.remove("pile-reborn");
-    void pile.offsetWidth;
-    pile.classList.add("pile-reborn");
-}
-
-function animateCardFlyingToHand(card) {
-    const drawPile = document.getElementById("draw-pile-stack");
-    const hand = document.getElementById("hand");
-
-    const flyingCard = document.createElement("div");
-    flyingCard.className = `card ${card.color}`;
-    flyingCard.textContent = card.value;
-
-    const rectStart = drawPile.getBoundingClientRect();
-    const rectEnd = hand.getBoundingClientRect();
-
-    flyingCard.style.position = 'absolute';
-    flyingCard.style.left = rectStart.left + "px";
-    flyingCard.style.top = rectStart.top + "px";
-    flyingCard.style.zIndex = 9999;
-    flyingCard.style.transition = 'all 0.6s ease-out';
-    flyingCard.style.transform = 'scale(1.2)';
-    flyingCard.style.pointerEvents = 'none';
-
-    document.body.appendChild(flyingCard);
-
-    setTimeout(() => {
-        flyingCard.style.left = rectEnd.left + 60 + "px";
-        flyingCard.style.top = rectEnd.top - 20 + "px";
-        flyingCard.style.transform = 'scale(0.9)';
-        flyingCard.style.opacity = '0.2';
-    }, 10);
-
-    setTimeout(() => {
-        document.body.removeChild(flyingCard);
-        renderHand(playerHand);
-    }, 700);
+    zone.appendChild(div);
 }
 
 function renderBotHand(cards) {
@@ -228,6 +57,98 @@ function renderBotHand(cards) {
     });
 }
 
+document.getElementById("start-btn").addEventListener("click", async () => {
+    const result = await startGame("rulesbased");
+    if (!result.success) return alert(result.error);
+    if (!result.data || !result.data.game_id) {
+        alert("Erreur: game_id manquant dans la réponse !");
+        return;
+    }
+    gameId = result.data.game_id;
+    playerIdx = 0;
+    await updateGameState();
+    await playBotIfNeeded();
+});
+
+document.getElementById("draw-btn").addEventListener("click", async () => {
+    if (!gameId) return alert("Commencez une partie d'abord !");
+    const result = await drawCardsAPI(gameId, playerIdx, 1);
+    if (!result.success) return alert(result.error);
+    await updateGameState();
+    await playBotIfNeeded();
+});
+
+async function tryPlayCard(cardIdx) {
+    const stateRes = await getGameState(gameId);
+    if (!stateRes.success) return alert(stateRes.error);
+    const state = stateRes.data.state;
+    const hand = state.hands[playerIdx];
+    const cardStr = hand[cardIdx];
+    const parsed = parseCard(cardStr);
+
+    // Si c'est une Wild, demande la couleur AVANT de jouer
+    if (parsed.value.startsWith("Wild")) {
+        document.getElementById("color-choice").style.display = 'flex';
+        window.pendingWild = { cardIdx };
+        return;
+    }
+
+    // Joue la carte normale avec playTurnAPI (index dans la main)
+    const playRes = await playTurnAPI(gameId, cardIdx);
+    if (!playRes.success) return alert(playRes.error);
+    await updateGameState();
+    await playBotIfNeeded();
+}
+
+// Handler couleur Wild
+document.querySelectorAll(".color-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+        if (!window.pendingWild) return;
+        const { cardIdx } = window.pendingWild;
+        const chosenColor = btn.dataset.color.charAt(0).toUpperCase() + btn.dataset.color.slice(1);
+
+        // 1. Joue la carte Wild (playTurnAPI)
+        const playRes = await playTurnAPI(gameId, cardIdx);
+        if (!playRes.success) return alert(playRes.error);
+
+        // 2. Change la couleur côté backend
+        const colorRes = await chooseColorAPI(gameId, chosenColor);
+        if (!colorRes.success) return alert(colorRes.error);
+
+        document.getElementById("color-choice").style.display = 'none';
+        window.pendingWild = null;
+        await updateGameState();
+        await playBotIfNeeded();
+    });
+});
+
+async function updateGameState() {
+    if (!gameId) return;
+    const result = await getGameState(gameId);
+    if (!result.success) return alert(result.error);
+    const state = result.data.state;
+    currentColor = state.current_color;
+    renderHand(state.hands[playerIdx]);
+    renderTopCard(state.discard_pile[state.discard_pile.length - 1]);
+    renderBotHand(state.hands[1]);
+    if (state.winner !== undefined && state.winner !== null) {
+        setTimeout(() => {
+            alert(state.winner === playerIdx ? "🎉 Vous avez gagné !" : "🤖 Le bot a gagné !");
+        }, 100);
+    }
+}
+
+// Fonction pour faire jouer le bot tant que c'est à lui
+async function playBotIfNeeded() {
+    let stateRes = await getGameState(gameId);
+    while (stateRes.success && stateRes.data.state.current_player !== playerIdx && stateRes.data.state.winner === null) {
+        const botRes = await playTurnAPI(gameId, null);
+        if (!botRes.success) return alert(botRes.error);
+        await updateGameState();
+        stateRes = await getGameState(gameId);
+    }
+}
+
 window.addEventListener("DOMContentLoaded", () => {
-    renderDrawPileStack();
+    updateGameState();
 });

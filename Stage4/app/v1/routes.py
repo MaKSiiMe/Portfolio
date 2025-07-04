@@ -96,10 +96,6 @@ def draw_cards():
 
     game.draw_cards(player_idx, count)
 
-    # ✅ Après que le joueur pioche, faire avancer le tour et jouer le bot
-    game.advance_turn()
-    game.play_bot_turn()
-
     return jsonify({"state": game.get_state()})
 
 
@@ -109,7 +105,6 @@ def play_card():
     game_id = data.get("game_id")
     player_idx = data.get("player_idx")
     card = data.get("card")
-    chosen_color = data.get("chosen_color")  # <-- On récupère la couleur choisie
 
     game = games.get(game_id)
     if not game:
@@ -127,41 +122,8 @@ def play_card():
         return jsonify({"error": "Card is not playable"}), 400
 
     hand.remove(card)
-
-    # Si c’est une carte Wild ou Wild +4, appliquer la couleur choisie
-    if "Wild" in card:
-        if not chosen_color:
-            return jsonify({"error": "Missing chosen_color for Wild card"}), 400
-        card = f"{chosen_color} {card.split(' ', 1)[1]}"  # Exemple : "black Wild +4" -> "blue Wild +4"
-
-        # Gérer les effets spéciaux ici
-        if "+4" in card:
-            game.draw_four_next += 1
-
     game.discard_pile.append(card)
 
-    # Effets supplémentaires
-    if "+2" in card:
-        game.draw_two_next += 1
-    elif "Skip" in card:
-        game.skip_next = True
-    elif "Reverse" in card:
-        if game.num_players == 2:
-            game.skip_next = True
-        else:
-            game.direction *= -1
-    # Avance le tour et joue le bot
-    game.advance_turn()
-    game.play_bot_turn()
+    # Gérer les effets spéciaux ici si nécessaire (tu peux externaliser ça dans une méthode dans `Game` si besoin)
 
     return jsonify({"state": game.get_state()})
-
-@bp.route("/bot_play", methods=["POST"])
-def bot_play():
-    game_id = request.args.get("game_id")
-    game = games.get(game_id)
-    if not game:
-        return jsonify({"error": "Invalid game_id"}), 404
-
-    game.play_bot_turn()
-    return jsonify(game.get_state())

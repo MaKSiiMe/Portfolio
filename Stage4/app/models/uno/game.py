@@ -1,6 +1,6 @@
+from typing import List, Optional
 import random
 import time
-from typing import List, Optional
 
 from app.models.uno.constants import (
     COLORS, VALUES, SPECIAL_CARDS, WILD_CARDS, CARDS_PER_PLAYER
@@ -14,6 +14,13 @@ class Game:
     """
 
     def __init__(self, num_players: int = 2, seed: Optional[int] = None):
+        """
+        Initialize a new UNO game.
+
+        Args:
+            num_players (int): Number of players.
+            seed (Optional[int]): Seed for random card generation.
+        """
         self.num_players = num_players
         self.seed = seed
         self.deck = create_deck(seed)
@@ -29,12 +36,18 @@ class Game:
         self.turn = 0
 
     def start(self):
+        """
+        Starts the game by dealing cards to players and placing the first card in the discard pile.
+        """
         for i in range(self.num_players):
             self.hands[i] = [self.deck.pop() for _ in range(CARDS_PER_PLAYER)]
         self.discard_pile.append(self.deck.pop())
         self.handle_first_card()
 
     def handle_first_card(self):
+        """
+        Handles the first card in the discard pile if it is a special card.
+        """
         if self.discard_pile[-1].startswith("Wild"):
             new_color = random.choice(COLORS)
             if "+4" in self.discard_pile[-1]:
@@ -44,28 +57,30 @@ class Game:
                 self.discard_pile[-1] = f"{new_color} Wild"
 
     def get_state(self) -> dict:
-        winner = None
-        for idx, hand in enumerate(self.hands):
-            if len(hand) == 0:
-                winner = idx
-                break
-    
-        print(f"[get_state] Joueur actuel : {self.current_player}")
-        print(f"[get_state] Mains : {[len(h) for h in self.hands]}")
-        print(f"[get_state] Gagnant : {winner}")
-    
+        """
+        Returns the current state of the game.
+
+        Returns:
+            dict: Current game state with information about players, deck, discard pile, hands, current player, direction, and turn.
+        """
         return {
             "num_players": self.num_players,
             "deck_size": len(self.deck),
-            "discard_pile": [parse_card(card) for card in self.discard_pile],
-            "hands": [[parse_card(card) for card in hand] for hand in self.hands],
+            "discard_pile": self.discard_pile,
+            "hands": self.hands,
             "current_player": self.current_player,
             "direction": self.direction,
-            "turn": self.turn,
-            "winner": winner
-    }
+            "turn": self.turn
+        }
 
     def draw_cards(self, player_idx: int, count: int):
+        """
+        Draw cards for a player.
+
+        Args:
+            player_idx (int): Player index.
+            count (int): Number of cards to draw.
+        """
         for _ in range(count):
             if not self.deck:
                 reshuffle_discard_pile(self.deck, self.discard_pile)
@@ -73,23 +88,31 @@ class Game:
                 self.hands[player_idx].append(self.deck.pop())
 
     def play_turn(self, human_input: Optional[int] = None) -> Optional[int]:
+        """
+        Play a player's turn.
+
+        Args:
+            human_input (Optional[int]): Index of the card chosen by the human player.
+
+        Returns:
+            Optional[int]: Index of the winner if the game is over, otherwise None.
+
+        Raises:
+            ValueError: If the chosen card index is invalid.
+        """
         hand = self.hands[self.current_player]
         top_card = self.discard_pile[-1]
-
         if self.draw_four_next:
             self.draw_cards(self.current_player, 4)
             self.draw_four_next = 0
             self.skip_current_player = True
-
         if self.draw_two_next:
             self.draw_cards(self.current_player, 2 * self.draw_two_next)
             self.draw_two_next = 0
             self.skip_current_player = True
-
         if self.skip_next:
             self.skip_next = False
             self.skip_current_player = True
-
         if self.skip_current_player:
             self.skip_current_player = False
             self.consecutive_passes = 0
@@ -97,7 +120,6 @@ class Game:
             return None
 
         playable = [card for card in hand if is_playable(card, top_card)]
-
         if playable:
             if human_input is not None:
                 if 0 <= human_input < len(playable):
@@ -106,11 +128,9 @@ class Game:
                     raise ValueError("Invalid choice.")
             else:
                 chosen_card = playable[0]
-
             hand.remove(chosen_card)
             self.discard_pile.append(chosen_card)
             self.consecutive_passes = 0
-
             if "+2" in chosen_card:
                 self.draw_two_next += 1
             elif "Skip" in chosen_card:
@@ -138,77 +158,18 @@ class Game:
         return None
 
     def advance_turn(self):
+        """
+        Move to the next turn.
+        """
         self.current_player = (self.current_player + self.direction) % self.num_players
         self.turn += 1
 
     def calculate_scores(self) -> List[int]:
-        return [calculate_score(self.hands, winner_idx=i) for i in range(self.num_players)]
-
-    def serialize(self):
-        return self.get_state()
-
-    def play_bot_turn(self):
         """
-        Fait automatiquement jouer le bot (joueur 1) tant que ce n'est pas le tour du joueur humain (0).
+        Calculate the scores for all players.
+
+        Returns:
+            List[int]: List of player scores.
         """
-        bot_idx = self.current_player
-
-        print(f"[Bot] C'est au tour du bot (joueur {bot_idx})")
-        bot_hand = self.hands[bot_idx]
-        top_card = self.discard_pile[-1]
-        print(f"[Bot] Carte au sommet : {top_card}")
-        print(f"[Bot] Main du bot avant : {bot_hand}")
-
-        playable = [card for card in bot_hand if is_playable(card, top_card)]
-
-        if not playable:
-            print("[Bot] Aucune carte jouable. Il pioche.")
-            self.draw_cards(bot_idx, 1)
-            playable = [card for card in self.hands[bot_idx] if is_playable(card, top_card)]
-        if not playable:
-            print("[Bot] Toujours aucune carte jouable après pioche. Fin du tour.")
-            self.advance_turn()
-            return
-
-        chosen = playable[0]
-        self.hands[bot_idx].remove(chosen)
-
-        # Choix de couleur pour Joker
-        if "Wild" in chosen:
-            colors = ['red', 'green', 'blue', 'yellow']
-            chosen_color = random.choice(colors)
-            value = chosen.split(' ', 1)[1]
-            chosen = f"{chosen_color} {value}"
-            print(f"[Bot] Joue une carte Wild. Nouvelle couleur : {chosen_color}")
-
-            if "+4" in chosen:
-                self.draw_four_next += 1
-
-        self.discard_pile.append(chosen)
-        print(f"[Bot] Joue : {chosen}")
-
-        # Effets
-        if "+2" in chosen:
-            self.draw_two_next += 1
-        elif "Skip" in chosen:
-            self.skip_next = True
-        elif "Reverse" in chosen:
-            if self.num_players == 2:
-                self.skip_next = True
-            else:
-                self.direction *= -1
-
-        print(f"[Bot] Main du bot après : {self.hands[bot_idx]}")
-        print("---")
-
-        self.advance_turn()
-    
-
-def parse_card(card):
-    if isinstance(card, dict):
-        return card
-    elif isinstance(card, str):
-        parts = card.split(" ", 1)
-        return {"color": parts[0], "value": parts[1]}
-    else:
-        raise ValueError("Card format not recognized")
+        scores = [calculate_score(self.hands, winner_idx=i) for i in range(self.num_players)]
+        return scores

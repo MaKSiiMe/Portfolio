@@ -37,10 +37,13 @@ def create_deck(seed: Optional[int] = None) -> List[str]:
     for card in WILD_CARDS:
         deck.extend([card] * 4)
 
-    random.seed(seed if seed is not None else time.time())
+        if seed is not None:
+            random.seed(seed)
+        else:
+            random.seed()
+
     random.shuffle(deck)
     return deck
-
 
 def reshuffle_discard_pile(deck: List[str], discard_pile: List[str]) -> None:
     """
@@ -61,6 +64,8 @@ def reshuffle_discard_pile(deck: List[str], discard_pile: List[str]) -> None:
     deck.extend(discard_pile)
     discard_pile.clear()
     discard_pile.append(top_card)
+    """
     print(
         "\nThe draw pile was empty: the discard pile has been shuffled to form a new draw pile."
     )
+    """

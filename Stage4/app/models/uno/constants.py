@@ -9,18 +9,16 @@ COLORS = ["red", "green", "blue", "yellow"]
 VALUES = [str(n) for n in range(10)] + [str(n) for n in range(1, 10)] + ["+2", "+2", "reverse", "reverse", "skip", "skip"]
 SPECIAL_CARDS = ["+4", "wild", "+4", "wild"]
 
-# Construction de toutes les cartes colorées
-COLOR_CARDS = [{"color": color, "value": value} for color in COLORS for value in VALUES]
+# Construction de toutes les cartes colorées (en string)
+COLOR_CARDS = [f"{color} {value}" for color in COLORS for value in VALUES]
 
-# Construction des cartes noires
-WILD_CARDS = [{"color": "black", "value": val} for val in SPECIAL_CARDS]
+# Construction des cartes noires (en string)
+WILD_CARDS = [f"black {val}" for val in SPECIAL_CARDS]
 
 # Toutes les cartes du jeu
 ALL_CARDS = COLOR_CARDS + WILD_CARDS
 
 # Nombre total de cartes
 NUM_CARDS = len(ALL_CARDS)
-
-# 💥 LA LIGNE QUI MANQUAIT
 CARDS_PER_PLAYER = 7
 

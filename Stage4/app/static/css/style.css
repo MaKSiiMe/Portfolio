@@ -1,228 +1,303 @@
+/* RESET BASIQUE */
+* {
+    margin: 0; padding: 0; box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    user-select: none;
+}
+
 body {
-  background-color: #2e7d32; /* vert foncé type tapis de jeu */
-  font-family: 'Arial', sans-serif;
-  color: white;
-  text-align: center;
-  margin: 0;
-  padding: 0;
+    background: linear-gradient(135deg, #2c3e50, #3498db);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    color: #eee;
 }
 
 h1 {
-  margin: 20px 0;
-  font-size: 2em;
+    margin-bottom: 12px;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
 }
 
+#game {
+    background: #1e2a38;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    padding: 25px 35px;
+    width: 540px;
+    max-width: 90vw;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+}
+
+/* BOUTONS */
 button {
-  padding: 10px 20px;
-  margin: 10px;
-  font-size: 1em;
-  background-color: #f1c40f;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: transform 0.2s ease;
+    background: #3498db;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgb(52 152 219 / 0.6);
+    transition: background-color 0.3s ease;
+    user-select: none;
 }
 
-button:hover {
-  transform: scale(1.05);
-  background-color: #f39c12;
+button:hover:not(:disabled) {
+    background: #2980b9;
+}
+
+button:disabled {
+    background: #555;
+    cursor: not-allowed;
+}
+
+/* MAIN BOARD LAYOUT */
+#top-card {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
+    position: relative;
+    height: 140px;
 }
 
 .card {
-  width: 80px;
-  height: 120px;
-  margin: 8px;
-  border-radius: 12px;
-  text-align: center;
-  font-weight: bold;
-  font-size: 24px;
-  line-height: 120px;
-  color: white;
-  background-color: grey;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.4);
-  transition: transform 0.2s ease;
+    width: 100px;
+    height: 140px;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 32px;
+    font-weight: 700;
+    color: white;
+    user-select: none;
+    cursor: pointer;
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+    transition: transform 0.3s ease;
 }
 
 .card:hover {
-  transform: scale(1.08);
-  cursor: pointer;
+    transform: scale(1.05);
+}
+
+/* COULEURS CARTES */
+.red { background-color: #e74c3c; }
+.blue { background-color: #2980b9; }
+.green { background-color: #27ae60; }
+.yellow { background-color: #f1c40f; color: #222; }
+
+.black {
+    background: linear-gradient(135deg, #222, #444);
+    color: #f1c40f;
+    font-size: 28px;
+    text-shadow: 0 0 5px #f1c40f;
+}
+
+/* HAND PLAYER */
+#hand {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    border-top: 1px solid #3a4a62;
+    border-bottom: 1px solid #3a4a62;
+    margin-bottom: 10px;
+}
+
+#hand::-webkit-scrollbar {
+    height: 8px;
+}
+
+#hand::-webkit-scrollbar-thumb {
+    background-color: #3498dbaa;
+    border-radius: 4px;
+}
+
+/* CARTES AJOUTÉES AVEC ANIMATION */
+.card.drawn {
+    animation: popIn 0.3s ease forwards;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* BOT HAND (dos cartes) */
+#bot-hand {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
 }
 
 .card-back {
-  width: 90px;
-  height: 130px;
-  border-radius: 12px;
-  background-color: black;
-  color: white;
-  font-size: 2em;
-  text-align: center;
-  line-height: 130px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-}
-
-.hand-container {
-  display: flex;
-  flex-wrap: wrap;
-  flex-wrap: nowrap;
-  gap: 12px;
-  padding: 20px;
-  position: fixed;
-  bottom: 20px;
-  width: 100%;
-}
-
-#top-card {
-    width: 90px;
-  height: 130px;
-  border-radius: 12px;
-  background-color: grey;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 24px;
-  font-weight: bold;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-}
-
-.game-zone {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 50px;
-  margin-top: 20px;
-}
-
-.fadeIn {
-  animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-/* Couleurs UNO */
-.red { background-color: #e74c3c; }
-.green { background-color: #27ae60; }
-.blue { background-color: #2980b9; }
-.yellow { background-color: #f1c40f; color: black; }
-.black { background-color: #2c3e50; }
-
-.color-choice {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.color-btn {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  border: 3px solid white;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.color-btn:hover {
-  transform: scale(1.2);
-}
-
-.color-red { background-color: #e74c3c; }
-.color-green { background-color: #27ae60; }
-.color-blue { background-color: #2980b9; }
-.color-yellow { background-color: #f1c40f; }
-
-@keyframes drawCard {
-  0% { transform: translateY(0) scale(1); opacity: 0; }
-  100% { transform: translateY(-20px) scale(1.1); opacity: 1; }
-}
-
-.card.drawn {
-  animation: drawCard 0.5s ease-out;
-}
-
-.board {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 300px;
-  margin-top: 40px;
-  position: relative;
-}
-
-.center-zone {
-  display: flex;
-  align-items: center;
-  gap: 60px;
-}
-
-.draw-stack, .discard-stack {
-  width: 90px;
-  height: 130px;
-  position: relative;
-}
-
-#draw-pile-stack {
-  position: relative;
-  width: 90px;
-  height: 130px;
+    width: 80px;
+    height: 120px;
+    background: linear-gradient(135deg, #555, #222);
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.8);
+    color: #ccc;
+    font-size: 48px;
+    line-height: 120px;
+    text-align: center;
+    user-select: none;
+    cursor: default;
+    text-shadow: 1px 1px 4px #000;
 }
 
 .card-back.stacked {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 90px;
-  height: 130px;
-  border-radius: 12px;
-  background: linear-gradient(to bottom, #000000, #333); /* dégradé noir */
-  border: 2px solid #888; /* contour gris clair */
-  color: white;
-  font-size: 2em;
-  text-align: center;
-  line-height: 130px;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.5);
-  pointer-events: none;
-  opacity: 0.9;
+    position: relative;
 }
 
-@keyframes pileRegenerate {
-  0% {
-    transform: scale(0.6) translateY(20px);
-    opacity: 0;
-  }
-  60% {
-    transform: scale(1.1) translateY(-5px);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1) translateY(0);
-  }
+/* PILE DE PIOCHE */
+#draw-pile-stack {
+    position: relative;
+    width: 80px;
+    height: 120px;
+    margin: 0 auto 25px auto;
+    cursor: pointer;
+    user-select: none;
 }
 
-.pile-reborn {
-  animation: pileRegenerate 0.6s ease-out;
+#draw-pile-stack .card-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: transform 0.2s ease;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.5);
 }
 
-#bot-hand {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-  margin-bottom: 40px;
-  transform: rotate(180deg); /* effet UNO comme si c'était face au joueur */
+#draw-pile-stack .card-back.stacked:nth-child(1) { transform: translate(0, 0); z-index: 5; }
+#draw-pile-stack .card-back.stacked:nth-child(2) { transform: translate(-3px, -3px); z-index: 4; }
+#draw-pile-stack .card-back.stacked:nth-child(3) { transform: translate(-6px, -6px); z-index: 3; }
+#draw-pile-stack .card-back.stacked:nth-child(4) { transform: translate(-9px, -9px); z-index: 2; }
+#draw-pile-stack .card-back.stacked:nth-child(5) { transform: translate(-12px, -12px); z-index: 1; }
+
+/* POPUP CHOIX COULEUR */
+#color-choice {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 320px;
+    transform: translate(-50%, -50%);
+    background: #222d44;
+    border-radius: 18px;
+    box-shadow: 0 0 24px rgba(241, 196, 15, 0.8);
+    padding: 20px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    z-index: 20000;
+    color: #eee;
+    font-weight: 700;
+    user-select: none;
 }
 
-.card-back {
-  width: 60px;
-  height: 90px;
-  margin: 0 5px;
-  background-color: black;
-  color: white;
-  font-size: 2rem;
-  text-align: center;
-  line-height: 90px;
-  border-radius: 10px;
-  box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+#color-choice p {
+    margin-bottom: 12px;
+    font-size: 20px;
+}
+
+.color-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid #eee;
+    margin: 0 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.7);
+    transition: transform 0.25s ease;
+}
+
+.color-btn:hover {
+    transform: scale(1.2);
+    border-color: #f1c40f;
+}
+
+.color-btn[data-color="red"] { background: #e74c3c; }
+.color-btn[data-color="blue"] { background: #2980b9; }
+.color-btn[data-color="green"] { background: #27ae60; }
+.color-btn[data-color="yellow"] { background: #f1c40f; }
+
+/* ANIMATIONS DOUCES */
+.fadeIn {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* CARTE ANIMÉE PIQUE */
+.card.fly-to-hand {
+    position: fixed;
+    width: 80px;
+    height: 120px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    font-weight: bold;
+    font-size: 28px;
+    line-height: 120px;
+    color: white;
+    text-align: center;
+    z-index: 10000;
+    pointer-events: none;
+    transition: transform 0.6s ease, opacity 0.6s ease;
+}
+
+/* POPUP GAGNANT SIMPLE (si tu veux l'améliorer) */
+#win-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #2c3e50dd;
+    color: white;
+    padding: 30px 40px;
+    border-radius: 20px;
+    font-size: 28px;
+    font-weight: 700;
+    display: none;
+    z-index: 30000;
+    box-shadow: 0 0 30px #f1c40f;
+}
+
+/* SCROLL POUR MAIN DU JOUEUR */
+#hand {
+    scrollbar-width: thin;
+    scrollbar-color: #3498dbaa transparent;
+}
+
+.popup-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #f1c40f;
+    color: #222;
+    font-weight: bold;
+    font-size: 24px;
+    padding: 16px 32px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    z-index: 9999;
+    animation: fadeinout 2s ease-in-out;
+}
+
+@keyframes fadeinout {
+    0% { opacity: 0; transform: scale(0.9) translate(-50%, -50%); }
+    10% { opacity: 1; transform: scale(1.05) translate(-50%, -50%); }
+    90% { opacity: 1; transform: scale(1.05) translate(-50%, -50%); }
+    100% { opacity: 0; transform: scale(0.9) translate(-50%, -50%); }
 }

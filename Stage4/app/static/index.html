@@ -6,37 +6,43 @@
   <title>UNO Deluxe</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
+<div id="win-popup"></div>
+
 <body>
 
   <h1>UNO - Version Deluxe</h1>
+
   <div class="top-buttons">
     <button id="start-btn">Nouvelle Partie</button>
-    <button id="draw-btn">Piocher</button>
+    <button id="draw-btn" style="display: none;">Piocher</button>
     <button onclick="renderAllUnoCards()">Toutes les cartes</button>
   </div>
 
   <!-- Plateau de jeu UNO -->
   <div class="board">
 
-    <!-- Zone du BOT en haut -->
+    <!-- Zone du BOT -->
     <div class="bot-zone">
       <div class="bot-avatar">🤖 Bot Uno</div>
       <div id="bot-hand" class="hand-container bot-hand"></div>
     </div>
 
-    <!-- Zone centrale avec la pioche et la défausse -->
+    <!-- Zone centrale -->
     <div class="center-zone">
-      <div id="draw-pile-stack" class="draw-stack"></div>
+      <!-- Pile de pioche visible -->
+      <div id="draw-pile-stack" class="draw-stack" title="Cliquez pour piocher"></div>
+
+      <!-- Pile de défausse -->
       <div class="discard-stack">
         <div id="top-card" class="card">?</div>
       </div>
     </div>
 
-    <!-- MAIN DU JOUEUR EN BAS -->
-    <div id="hand" class="hand-container"></div>
+    <!-- Main du joueur -->
+    <div id="hand" class="hand-container player-hand"></div>
   </div>
 
-  <!-- Choix de couleur pour les cartes noires -->
+  <!-- Choix de couleur -->
   <div id="color-choice" class="color-choice" style="display: none;">
     <div class="color-btn color-red" data-color="red"></div>
     <div class="color-btn color-yellow" data-color="yellow"></div>
@@ -48,3 +54,4 @@
   <script type="module" src="js/api.js"></script>
 </body>
 </html>
+

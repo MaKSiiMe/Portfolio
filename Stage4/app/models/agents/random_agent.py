@@ -1,5 +1,3 @@
-import numpy as np
-
 def choose_action(env, obs):
     """
     Chooses a random action from the environment's action space.

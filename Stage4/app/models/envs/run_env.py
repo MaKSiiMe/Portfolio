@@ -4,12 +4,6 @@ run_env.py
 Run different agents (random, rule-based, RL, human) in the UnoEnv environment.
 """
 
-import sys
-import os
-import argparse
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
-
 from app.models.envs.uno_env import UnoEnv
 from app.models.uno.utils import decode_hand
 from app.models.uno.encodings import IDX2CARD
@@ -65,6 +59,12 @@ def parse_args():
     parser.add_argument("-a", "--agent", choices=AGENTS.keys(), default="rules", help="Agent to use.")
     parser.add_argument("-e", "--episodes", type=int, default=3, help="Number of episodes.")
     parser.add_argument("-s", "--steps", type=int, default=50, help="Max steps per episode.")
+    parser.add_argument("-q", "--quiet", action="store_true", help="Suppress detailed output.")
+    return parser.parse_args()
+
+if __name__ == "__main__":
+    args = parse_args()
+    run_agent(agent_name=args.agent, episodes=args.episodes, max_steps=args.steps, verbose=not args.quiet)
     parser.add_argument("-q", "--quiet", action="store_true", help="Suppress detailed output.")
     return parser.parse_args()
 

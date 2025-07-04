@@ -5,6 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const playTurnBtn = document.getElementById('playTurnBtn');
     const gameStateEl = document.getElementById('gameState');
 
+    // Optionnel : afficher tout le JSON pour debug
+    let debugMode = false;
+    let lastAPIData = null;
+
     let gameId = null;
 
     async function updateGameState() {
@@ -12,14 +16,43 @@ document.addEventListener('DOMContentLoaded', () => {
             gameStateEl.textContent = "No game in progress.";
             return;
         }
-        const res = await fetch(`/api/game_state/${gameId}`);
-        if (!res.ok) {
-            gameStateEl.textContent = "Game not found or error.";
-            playTurnBtn.disabled = true;
-            return;
+        try {
+            const res = await fetch(`/api/game_state/${gameId}`);
+            if (!res.ok) {
+                gameStateEl.textContent = "Game not found or error.";
+                playTurnBtn.disabled = true;
+                return;
+            }
+            const data = await res.json();
+            lastAPIData = data;
+
+            if (!data.success) {
+                gameStateEl.textContent = "Erreur API : " + (data.error || "Unknown error");
+                playTurnBtn.disabled = true;
+                startBtn.disabled = false;
+                return;
+            }
+
+            const state = data.data && data.data.state;
+            if (debugMode || !state) {
+                gameStateEl.textContent = JSON.stringify(data, null, 2);
+            } else {
+                // Affichage lisible
+                let txt = "";
+                txt += `Tour #${state.turn}\n`;
+                txt += `Joueur courant : ${state.current_player}\n`;
+                txt += `Carte dessus : ${state.discard_pile[state.discard_pile.length-1]}\n`;
+                txt += `Main joueur 0 : ${state.hands[0].join(", ")}\n`;
+                txt += `Main joueur 1 : ${state.hands[1].join(", ")}\n`;
+                txt += `Cartes restantes : ${state.cards_left.join(" / ")}\n`;
+                if (state.winner !== null && state.winner !== undefined) {
+                    txt += `🎉 Partie terminée ! Gagnant : Joueur ${state.winner} 🎉\n`;
+                }
+                gameStateEl.textContent = txt;
+            }
+        } catch (e) {
+            gameStateEl.textContent = "Erreur réseau.";
         }
-        const data = await res.json();
-        gameStateEl.textContent = JSON.stringify(data, null, 2);
     }
 
     startBtn.addEventListener('click', async () => {
@@ -33,12 +66,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ num_players: 2 })
             });
             const data = await res.json();
-            if (data.game_id) {
-                gameId = data.game_id;
+            // game_id est dans data.data.game_id
+            const gameIdFromAPI = data.data && data.data.game_id;
+            if (data.success && gameIdFromAPI) {
+                gameId = gameIdFromAPI;
                 playTurnBtn.disabled = false;
                 await updateGameState();
             } else {
-                gameStateEl.textContent = "Failed to start game.";
+                gameStateEl.textContent = "Failed to start game. " + (data.error || "");
                 startBtn.disabled = false;
             }
         } catch (e) {
@@ -57,9 +92,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ game_id: gameId })
             });
             const data = await res.json();
+            if (!data.success) {
+                gameStateEl.textContent = "Erreur API : " + (data.error || "Unknown error");
+                playTurnBtn.disabled = true;
+                startBtn.disabled = false;
+                return;
+            }
+            // winner est dans data.data.winner
+            const winner = data.data && data.data.winner;
             await updateGameState();
-            // If game is over, disable play button
-            if (data.winner !== null && data.winner !== undefined) {
+            if (winner !== null && winner !== undefined) {
                 playTurnBtn.disabled = true;
                 startBtn.disabled = false;
             } else {
@@ -68,6 +110,18 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) {
             gameStateEl.textContent = "Error playing turn.";
             playTurnBtn.disabled = false;
+        }
+    });
+
+    // (Optionnel) Ajoute un raccourci clavier pour basculer en debug mode
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'd' && e.ctrlKey) {
+            debugMode = !debugMode;
+            if (debugMode && lastAPIData) {
+                gameStateEl.textContent = JSON.stringify(lastAPIData, null, 2);
+            } else {
+                updateGameState();
+            }
         }
     });
 

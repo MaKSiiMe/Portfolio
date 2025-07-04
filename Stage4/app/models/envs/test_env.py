@@ -5,16 +5,9 @@ Test the UnoEnv environment using random actions.
 Compatible with new vector-based observation (via encode_state).
 """
 
-import sys
-import os
-import argparse
-import numpy as np
-
-# Add project root to sys.path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
-
 from app.models.envs.uno_env import UnoEnv
 from app.models.uno.encodings import IDX2CARD
+import numpy as np
 
 def decode_vector(obs: np.ndarray):
     hand_vector = obs[:108]
@@ -57,6 +50,13 @@ def random_agent_test(episodes: int = 3, max_steps: int = 50, verbose: bool = Tr
 def parse_args():
     parser = argparse.ArgumentParser(description="Run vector-based test for UnoEnv.")
     parser.add_argument("-e", "--episodes", type=int, default=3, help="Number of episodes to run.")
+    parser.add_argument("-s", "--steps", type=int, default=50, help="Maximum number of steps per episode.")
+    parser.add_argument("-q", "--quiet", action="store_true", help="Suppress detailed output.")
+    return parser.parse_args()
+
+if __name__ == "__main__":
+    args = parse_args()
+    random_agent_test(episodes=args.episodes, max_steps=args.steps, verbose=not args.quiet)
     parser.add_argument("-s", "--steps", type=int, default=50, help="Maximum number of steps per episode.")
     parser.add_argument("-q", "--quiet", action="store_true", help="Suppress detailed output.")
     return parser.parse_args()

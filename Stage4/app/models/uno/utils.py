@@ -2,7 +2,7 @@
 
 from typing import Dict, List
 from .constants import COLORS, VALUES, SPECIAL_CARDS, WILD_CARDS
-from .encodings import ALL_CARDS, CARD2IDX, IDX2CARD
+from .encodings import CARD2IDX
 
 
 # Encodage/décodage des cartes

@@ -11,7 +11,6 @@ Functions:
 """
 
 import random
-import time
 from typing import List, Optional
 from .constants import COLORS, VALUES, SPECIAL_CARDS, WILD_CARDS
 

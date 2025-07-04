@@ -1,7 +1,5 @@
 from typing import List, Optional
 import random
-import time
-import logging
 
 from app.models.uno.constants import (
     COLORS, VALUES, SPECIAL_CARDS, WILD_CARDS, CARDS_PER_PLAYER

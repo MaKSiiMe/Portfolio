@@ -10,7 +10,7 @@ import numpy as np
 import gymnasium as gym
 from gymnasium import spaces
 from gymnasium.utils import seeding
-from typing import Optional, Tuple, Dict
+from typing import Optional, Dict, Tuple
 
 from app.models.uno.constants import COLORS
 from app.models.uno.deck import create_deck
@@ -18,7 +18,7 @@ from app.models.uno.deck import create_deck
 from app.models.uno.encodings import CARD2IDX, ALL_CARDS
 from app.models.uno.game import Game
 from app.models.uno.rules import is_playable
-from app.models.uno.utils import encode_hand, encode_state, decode_card, normalize_top_card
+from app.models.uno.utils import encode_hand, encode_state
 
 NUM_CARDS = len(ALL_CARDS)
 MAX_HAND_SIZE = 20

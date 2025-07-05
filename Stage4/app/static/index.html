@@ -7,16 +7,21 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h1>UNO - Test Interface</h1>
-
-    <button id="startBtn">Démarrer une Partie</button>
+    <h1>UNO Test API</h1>
+    <div style="margin-bottom: 1rem;">
+        <button id="startBtn">Démarrer une Partie</button>
+        <button id="stateBtn" disabled>Afficher État</button>
+        <button id="playTurnBtn" disabled>Jouer un Tour</button>
+        <button id="drawBtn" disabled>Piocher</button>
+        <button id="chooseColorBtn" disabled>Choisir Couleur</button>
+        <button id="scoresBtn" disabled>Afficher Scores</button>
+        <button id="deleteBtn" disabled>Supprimer Partie</button>
+        <button id="isPlayableBtn" disabled>Tester Jouabilité</button>
+        <button id="debugBtn">Afficher JSON (debug)</button>
+    </div>
 
     <h2>État de la partie</h2>
     <pre id="gameState">Aucune partie en cours.</pre>
-
-    <button id="playTurnBtn" disabled>Jouer un tour (Bot)</button>
-    <button id="debugBtn">Afficher JSON (debug)</button>
-
 
     <script src="js/script.js"></script>
 </body>

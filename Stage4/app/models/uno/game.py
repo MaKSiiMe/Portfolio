@@ -140,7 +140,6 @@ class Game:
 
         # Liste des cartes jouables (index et cartes)
         playable = [(i, card) for i, card in enumerate(hand) if is_playable(card, top_card, self.current_color)]
-        logging.debug(f"[DEBUG] Playable cards for player {player}: {[c for _, c in playable]}")
 
         # Cas : le joueur peut jouer une carte
         if playable:

@@ -1,303 +1,303 @@
-/* RESET BASIQUE */
-* {
-    margin: 0; padding: 0; box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    user-select: none;
-}
-
+/* === Fond global === */
 body {
-    background: linear-gradient(135deg, #2c3e50, #3498db);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    color: #eee;
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: linear-gradient(to bottom, #0155b7, #003d8f);
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-h1 {
-    margin-bottom: 12px;
-    text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+/* === Plateau de jeu === */
+#game-board {
+  width: 100%;
+  max-width: 1400px;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
-#game {
-    background: #1e2a38;
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-    padding: 25px 35px;
-    width: 540px;
-    max-width: 90vw;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    position: relative;
+/* === Titre === */
+.title {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  text-shadow: 2px 2px 4px #000;
 }
 
-/* BOUTONS */
-button {
-    background: #3498db;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 14px;
-    font-size: 16px;
-    font-weight: 600;
-    color: white;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgb(52 152 219 / 0.6);
-    transition: background-color 0.3s ease;
-    user-select: none;
+/* === Lignes joueur/bot === */
+.player-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
 }
 
-button:hover:not(:disabled) {
-    background: #2980b9;
+.player-row.top {
+  margin-top: 10px;
 }
 
-button:disabled {
-    background: #555;
-    cursor: not-allowed;
+.player-row.bottom {
+  margin-top: 40px;
 }
 
-/* MAIN BOARD LAYOUT */
-#top-card {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 12px;
-    position: relative;
-    height: 140px;
+/* === Main du joueur/bot === */
+.hand-container {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.card {
-    width: 100px;
-    height: 140px;
-    border-radius: 14px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 32px;
-    font-weight: 700;
-    color: white;
-    user-select: none;
-    cursor: pointer;
-    text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
-    transition: transform 0.3s ease;
+.bot-avatar {
+  font-size: 1.2rem;
+  color: #add8ff;
+  margin-bottom: 8px;
+  user-select: none;
 }
 
-.card:hover {
-    transform: scale(1.05);
+/* === Cartes === */
+.card, .card-back {
+  width: 80px;
+  height: 120px;
+  border-radius: 14px;
+  border: 3px solid #fff;
+  position: relative;
+  font-size: 34px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.4);
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+  user-select: none;
+  cursor: pointer;
+  background-clip: padding-box;
 }
 
-/* COULEURS CARTES */
-.red { background-color: #e74c3c; }
-.blue { background-color: #2980b9; }
-.green { background-color: #27ae60; }
-.yellow { background-color: #f1c40f; color: #222; }
-
-.black {
-    background: linear-gradient(135deg, #222, #444);
-    color: #f1c40f;
-    font-size: 28px;
-    text-shadow: 0 0 5px #f1c40f;
+.card:hover:not(.disabled) {
+  transform: scale(1.05);
 }
 
-/* HAND PLAYER */
-#hand {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: 10px;
-    border-top: 1px solid #3a4a62;
-    border-bottom: 1px solid #3a4a62;
-    margin-bottom: 10px;
+/* === Losange central blanc === */
+.card::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 75%;
+  height: 75%;
+  background: white;
+  transform: translate(-50%, -50%) rotate(45deg);
+  z-index: 0;
+  border-radius: 10px;
+  pointer-events: none;
 }
 
-#hand::-webkit-scrollbar {
-    height: 8px;
+/* === Texte sur les cartes === */
+.card span {
+  position: relative;
+  z-index: 1;
+  color: black;
+  font-size: 30px;
+  text-align: center;
+  line-height: 1.2;
+  padding: 0 5px;
+  word-break: break-word;
+  user-select: none;
 }
 
-#hand::-webkit-scrollbar-thumb {
-    background-color: #3498dbaa;
-    border-radius: 4px;
+.card.black span {
+  color: white;
 }
 
-/* CARTES AJOUTÉES AVEC ANIMATION */
-.card.drawn {
-    animation: popIn 0.3s ease forwards;
+.card span, .card-value {
+  position: relative;
+  z-index: 1;
+  color: black;
+  font-size: 30px;
+  text-align: center;
+  line-height: 1.2;
+  padding: 0 5px;
+  word-break: break-word;
+  user-select: none;
+  /* Pour forcer le texte à être au-dessus du losange blanc */
+  mix-blend-mode: normal;
 }
 
-@keyframes popIn {
-    0% { transform: scale(0) rotate(-10deg); opacity: 0; }
-    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+.card.black span, .card.black .card-value {
+  color: white;
 }
 
-/* BOT HAND (dos cartes) */
-#bot-hand {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 16px;
-}
+/* === Couleurs des cartes === */
+.card.red    { background: #d32f2f; }
+.card.green  { background: #28a745; }
+.card.blue   { background: #007bff; }
+.card.yellow { background: #fbc02d; }
+.card.black  { background: #000000; }
 
+/* === Dos des cartes === */
 .card-back {
-    width: 80px;
-    height: 120px;
-    background: linear-gradient(135deg, #555, #222);
-    border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.8);
-    color: #ccc;
-    font-size: 48px;
-    line-height: 120px;
-    text-align: center;
-    user-select: none;
-    cursor: default;
-    text-shadow: 1px 1px 4px #000;
+  background: repeating-linear-gradient(
+    45deg,
+    #111,
+    #111 5px,
+    #222 5px,
+    #222 10px
+  );
+  color: cyan;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
 }
 
-.card-back.stacked {
-    position: relative;
+/* === Zone centrale === */
+.middle-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
 }
 
-/* PILE DE PIOCHE */
-#draw-pile-stack {
-    position: relative;
-    width: 80px;
-    height: 120px;
-    margin: 0 auto 25px auto;
-    cursor: pointer;
-    user-select: none;
+/* === Aire de jeu centrale (pioche + défausse) === */
+.center-area {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 40px;
+  margin: 20px 0;
+  position: relative;
+  width: 100%;
 }
 
-#draw-pile-stack .card-back {
-    position: absolute;
-    top: 0;
-    left: 0;
-    transition: transform 0.2s ease;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+/* === Pile de pioche === */
+.draw-stack {
+  width: 80px;
+  height: 120px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-#draw-pile-stack .card-back.stacked:nth-child(1) { transform: translate(0, 0); z-index: 5; }
-#draw-pile-stack .card-back.stacked:nth-child(2) { transform: translate(-3px, -3px); z-index: 4; }
-#draw-pile-stack .card-back.stacked:nth-child(3) { transform: translate(-6px, -6px); z-index: 3; }
-#draw-pile-stack .card-back.stacked:nth-child(4) { transform: translate(-9px, -9px); z-index: 2; }
-#draw-pile-stack .card-back.stacked:nth-child(5) { transform: translate(-12px, -12px); z-index: 1; }
-
-/* POPUP CHOIX COULEUR */
-#color-choice {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    width: 320px;
-    transform: translate(-50%, -50%);
-    background: #222d44;
-    border-radius: 18px;
-    box-shadow: 0 0 24px rgba(241, 196, 15, 0.8);
-    padding: 20px;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    z-index: 20000;
-    color: #eee;
-    font-weight: 700;
-    user-select: none;
+.draw-stack .card-back.stacked {
+  position: absolute;
+  left: 0;
+  top: 0;
+  /* Pour un effet de pile mais bien centrée, tu peux ajuster ici */
+  /* transform: translate(0, 0); */
 }
 
-#color-choice p {
-    margin-bottom: 12px;
-    font-size: 20px;
+/* === Carte de défausse === */
+.discard-stack {
+  width: 80px;
+  height: 120px;
+  border-radius: 14px;
+  box-shadow: 0 0 15px rgba(255,255,255,0.7);
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* === Boutons === */
+.top-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+button {
+  padding: 10px 18px;
+  background-color: #ffc107;
+  color: #000;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.4);
+  transition: transform 0.2s ease, background-color 0.3s ease;
+  user-select: none;
+}
+
+button:hover {
+  transform: scale(1.05);
+  background-color: #ffca2c;
+}
+
+/* === Choix de couleur pour les cartes Wild === */
+.color-choice {
+  position: absolute;
+  bottom: 140px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 15px;
+  z-index: 999;
 }
 
 .color-btn {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    border: 3px solid #eee;
-    margin: 0 10px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.7);
-    transition: transform 0.25s ease;
+  width: 50px;
+  height: 50px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+  transition: transform 0.2s ease;
 }
 
 .color-btn:hover {
-    transform: scale(1.2);
-    border-color: #f1c40f;
+  transform: scale(1.1);
 }
 
-.color-btn[data-color="red"] { background: #e74c3c; }
-.color-btn[data-color="blue"] { background: #2980b9; }
-.color-btn[data-color="green"] { background: #27ae60; }
-.color-btn[data-color="yellow"] { background: #f1c40f; }
+.color-red    { background-color: #d32f2f; }
+.color-yellow { background-color: #fbc02d; }
+.color-green  { background-color: #28a745; }
+.color-blue   { background-color: #007bff; }
 
-/* ANIMATIONS DOUCES */
-.fadeIn {
-    animation: fadeIn 0.5s ease forwards;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-8px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* CARTE ANIMÉE PIQUE */
-.card.fly-to-hand {
-    position: fixed;
-    width: 80px;
-    height: 120px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.6);
-    font-weight: bold;
-    font-size: 28px;
-    line-height: 120px;
-    color: white;
-    text-align: center;
-    z-index: 10000;
-    pointer-events: none;
-    transition: transform 0.6s ease, opacity 0.6s ease;
-}
-
-/* POPUP GAGNANT SIMPLE (si tu veux l'améliorer) */
+/* === Pop-up victoire === */
 #win-popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #2c3e50dd;
-    color: white;
-    padding: 30px 40px;
-    border-radius: 20px;
-    font-size: 28px;
-    font-weight: 700;
-    display: none;
-    z-index: 30000;
-    box-shadow: 0 0 30px #f1c40f;
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  color: black;
+  padding: 20px 40px;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  display: none;
+  z-index: 999;
+  font-size: 1.8rem;
+  text-align: center;
+  user-select: none;
 }
 
-/* SCROLL POUR MAIN DU JOUEUR */
-#hand {
-    scrollbar-width: thin;
-    scrollbar-color: #3498dbaa transparent;
+/* === Animation de pioche === */
+@keyframes draw-fly {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx, 0), var(--ty, 0)) scale(1.1) rotate(15deg);
+    opacity: 0;
+  }
 }
 
-.popup-message {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #f1c40f;
-    color: #222;
-    font-weight: bold;
-    font-size: 24px;
-    padding: 16px 32px;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.3);
-    z-index: 9999;
-    animation: fadeinout 2s ease-in-out;
-}
-
-@keyframes fadeinout {
-    0% { opacity: 0; transform: scale(0.9) translate(-50%, -50%); }
-    10% { opacity: 1; transform: scale(1.05) translate(-50%, -50%); }
-    90% { opacity: 1; transform: scale(1.05) translate(-50%, -50%); }
-    100% { opacity: 0; transform: scale(0.9) translate(-50%, -50%); }
+.draw-animation {
+  position: fixed;
+  z-index: 1000;
+  animation: draw-fly 0.6s ease-out forwards;
+  pointer-events: none;
+  user-select: none;
 }

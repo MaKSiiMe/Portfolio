@@ -34,15 +34,9 @@ class Game:
         if agents is not None:
             self.agents = agents
         else:
-            # Joueur 0 = humain (None), les autres selon agent_type
-            self.agents = [None]  # Joueur 0 (humain)
+            self.agents = [None]
             for _ in range(1, num_players):
-                if agent_type == "random":
-                    self.agents.append(RandomAgent())
-                # elif agent_type == "ppo":
-                #     self.agents.append(PPOAgent())
-                else:
-                    self.agents.append(RuleBasedAgent())
+                self.agents.append(RuleBasedAgent())
 
     def start(self):
         for i in range(self.num_players):
@@ -55,12 +49,9 @@ class Game:
             if "+4" in first_card:
                 self.draw_four_next = 1
         else:
-            self.current_color = first_card.split()[0]  # Couleur du premier card
+            self.current_color = first_card.split()[0]
 
     def handle_first_card(self):
-        """
-        Handles the first card in the discard pile if it is a special card.
-        """
         if self.discard_pile[-1].startswith("Wild"):
             new_color = random.choice(COLORS)
             if "+4" in self.discard_pile[-1]:
@@ -70,12 +61,6 @@ class Game:
                 self.discard_pile[-1] = f"{new_color} Wild"
 
     def get_state(self) -> dict:
-        """
-        Returns the current state of the game.
-
-        Returns:
-            dict: Current game state with information about players, deck, discard pile, hands, current player, direction, and turn.
-        """
         return {
             "num_players": self.num_players,
             "deck_size": len(self.deck),
@@ -90,13 +75,6 @@ class Game:
         }
 
     def draw_cards(self, player_idx: int, count: int) -> int:
-        """
-        Draw cards for a player.
-
-        Args:
-            player_idx (int): Player index.
-            count (int): Number of cards to draw.
-        """
         drawn = 0
         for _ in range(count):
             if not self.deck:
@@ -107,24 +85,16 @@ class Game:
         return drawn
 
     def play_turn(self, human_input: Optional[int] = None) -> Optional[int]:
-        """
-        Joue un tour complet pour le joueur courant.
-        - Si human_input (index de carte) est fourni, tente de jouer cette carte.
-        - Sinon, l'agent décide ou l'algo choisit automatiquement.
-        - Gère effets spéciaux, victoire, pioche auto, etc.
-        Retourne l'index du gagnant si victoire, sinon None.
-        """
         player = self.current_player
         hand = self.hands[player]
         top_card = self.discard_pile[-1]
 
-        # Si déjà gagné, ne rien faire
         if not hand:
             return player
 
         # Effets spéciaux accumulés à appliquer AVANT le tour
         if self.draw_four_next:
-            self.draw_cards(player, 4)
+            self.draw_cards(player, 4 * self.draw_four_next)
             self.draw_four_next = 0
             self.skip_current_player = True
         if self.draw_two_next:
@@ -144,10 +114,8 @@ class Game:
         playable = [(i, card) for i, card in enumerate(hand) if is_playable(card, top_card, self.current_color)]
         logging.debug(f"[DEBUG] Playable cards for player {player}: {[c for _, c in playable]}")
 
-        # Cas : le joueur peut jouer une carte
         if playable:
             if human_input is not None:
-                # Vérifie que l'index est dans la main
                 if not isinstance(human_input, int) or human_input < 0 or human_input >= len(hand):
                     raise ValueError("Card index out of bounds.")
                 card_str = hand[human_input]
@@ -156,7 +124,6 @@ class Game:
                 chosen_idx = human_input
                 is_human = True
             else:
-                # Agent IA ou auto : choisit la première carte jouable
                 if self.agents and self.agents[player]:
                     agent = self.agents[player]
                     idx = agent.choose_action(self.get_state(), player)
@@ -170,32 +137,38 @@ class Game:
                     chosen_idx = playable[0][0]
                     is_human = False
 
-            # Joue la carte
             chosen_card = hand[chosen_idx]
             del hand[chosen_idx]
             self.discard_pile.append(chosen_card)
 
-            # Effets spéciaux
-            if "Skip" in chosen_card:
+            # Effets spéciaux UNO
+            card_lower = chosen_card.lower()
+            if "skip" in card_lower:
                 self.skip_next = True
-            elif "Reverse" in chosen_card:
-                self.direction *= -1 if self.num_players > 2 else 1
+            elif "reverse" in card_lower:
                 if self.num_players == 2:
                     self.skip_next = True
-                    
-            elif "+2" in chosen_card:
+                else:
+                    self.direction *= -1
+            elif "+2" in card_lower:
                 self.draw_two_next += 1
-            elif "Wild +4" in chosen_card or "Wild" in chosen_card:
+            elif "+4" in card_lower:
                 self.draw_four_next += 1
                 if not is_human:
-                    # Si IA : choisis une couleur automatiquement
-                    from app.models.uno.constants import COLORS
                     colors_in_hand = [card.split()[0] for card in self.hands[player] if card.split()[0] in COLORS]
                     if colors_in_hand:
                         self.current_color = random.choice(colors_in_hand)
                     else:
                         self.current_color = random.choice(COLORS)
-                # Si humain : NE CHANGE PAS current_color ici, attend l'appel à /choose_color
+            elif "wild" in card_lower:
+                if not is_human:
+                    # Si IA : choisis une couleur automatiquement
+                    colors_in_hand = [card.split()[0] for card in self.hands[player] if card.split()[0] in COLORS]
+                    if colors_in_hand:
+                        self.current_color = random.choice(colors_in_hand)
+                    else:
+                        self.current_color = random.choice(COLORS)
+                        # Si humain : NE CHANGE PAS current_color ici, attend l'appel à /choose_color
             else:
                 self.current_color = chosen_card.split()[0]
 
@@ -203,8 +176,8 @@ class Game:
             # Aucune carte jouable : pioche automatiquement
             self.draw_cards(player, 1)
             self.consecutive_passes += 1
-
-        # Vérifie la victoire
+        
+         # Vérifie la victoire
         if not self.hands[player]:
             return player
 

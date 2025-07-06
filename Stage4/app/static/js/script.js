@@ -19,7 +19,11 @@ function renderHand(cards) {
         const card = parseCard(cardStr);
         const div = document.createElement("div");
         div.className = `card ${card.color.toLowerCase()}`;
-        div.textContent = card.value;
+        const valueSpan = document.createElement('span');
+        valueSpan.className = 'card-value';
+        valueSpan.innerText = card.value;
+        div.appendChild(valueSpan);
+
         div.onclick = () => tryPlayCard(idx);
         div.classList.add("drawn");
         setTimeout(() => div.classList.remove("drawn"), 500);
@@ -34,9 +38,26 @@ function renderTopCard(cardStr) {
     const card = parseCard(cardStr);
     const div = document.createElement("div");
     div.className = `card ${card.color.toLowerCase()}`;
-    div.textContent = card.value;
+    const valueSpan = document.createElement('span');
+    valueSpan.className = 'card-value';
+    valueSpan.innerText = card.value;
+    div.appendChild(valueSpan);
+
     zone.appendChild(div);
     div.classList.add("fadeIn");
+}
+
+function renderCard(card) {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.classList.add(card.color);
+
+    const valueSpan = document.createElement('span');
+    valueSpan.className = 'card-value';
+    valueSpan.innerText = card.value;
+    div.appendChild(valueSpan);
+
+    return div;
 }
 
 function renderBotHand(cards) {
@@ -65,34 +86,15 @@ document.getElementById("start-btn").addEventListener("click", async () => {
 
 document.getElementById("draw-btn").addEventListener("click", async () => {
     if (!gameId) return alert("Commencez une partie d'abord !");
+    // Animation AVANT la pioche réelle
+    animateDrawCard(document.getElementById("hand"));
     const result = await drawCardsAPI(gameId, playerIdx, 1);
     if (!result.success) return alert(result.error);
 
     if (result.data.cards && result.data.cards.length > 0) {
-        const newCardStr = result.data.cards[0];
-        const pileDiv = document.getElementById("draw-pile-stack");
-        const tempCard = document.createElement("div");
-        const parsed = parseCard(newCardStr);
-        tempCard.className = `card ${parsed.color.toLowerCase()} fly-to-hand`;
-        tempCard.textContent = parsed.value;
-
-        const rectFrom = pileDiv.getBoundingClientRect();
-        tempCard.style.left = `${rectFrom.left}px`;
-        tempCard.style.top = `${rectFrom.top}px`;
-        document.body.appendChild(tempCard);
-
-        const handDiv = document.getElementById("hand");
-        const rectTo = handDiv.getBoundingClientRect();
-
-        requestAnimationFrame(() => {
-            tempCard.style.transform = `translate(${rectTo.left - rectFrom.left}px, ${rectTo.top - rectFrom.top}px) scale(0.6)`;
-            tempCard.style.opacity = "0";
-        });
-
-        setTimeout(() => {
-            tempCard.remove();
-            updateGameState();
-            playBotIfNeeded();
+        setTimeout(async () => {
+            await updateGameState();
+            await playBotIfNeeded();
         }, 650);
     } else {
         await updateGameState();
@@ -121,16 +123,13 @@ async function tryPlayCard(cardIdx) {
     showEffectMessageIfNeeded(cardStr);
     await handleCardEffectIfNeeded(cardStr);
 
-    // Après coup, on vérifie à qui c'est le tour selon backend
     const stateRes2 = await getGameState(gameId);
     if (!stateRes2.success) return alert(stateRes2.error);
     const currentPlayer = stateRes2.data.state.current_player;
 
     if (currentPlayer !== playerIdx) {
-        // C'est au bot de jouer (potentiellement saut de tour pour humain)
         await playBotIfNeeded();
     }
-    // Sinon c'est encore à toi, on attend que tu joues
 }
 
 document.querySelectorAll(".color-btn").forEach(btn => {
@@ -192,15 +191,26 @@ async function playBotIfNeeded() {
 
     const state = stateRes.data.state;
     if (state.current_player !== playerIdx && state.winner === null) {
-        // Tour du bot - on joue UNE seule fois
         const oldTopCard = state.discard_pile.at(-1);
+        const oldBotHand = state.hands[1] || [];
+        const oldCount = oldBotHand.length;
+
         const botRes = await playTurnAPI(gameId, null);
         if (!botRes.success) return alert(botRes.error);
 
+        const newStateRes = await getGameState(gameId);
+        if (!newStateRes.success) return alert(newStateRes.error);
+        const newState = newStateRes.data.state;
+        const newBotHand = newState.hands[1] || [];
+        const newCount = newBotHand.length;
+
+        if (newCount > oldCount) {
+            animateDrawCardBot(document.getElementById("bot-hand"));
+        }
+
         await updateGameState();
 
-        const newState = await getGameState(gameId);
-        const newTopCard = newState?.data?.state?.discard_pile?.at(-1);
+        const newTopCard = newState.discard_pile.at(-1);
         if (newTopCard && newTopCard !== oldTopCard) {
             showEffectMessageIfNeeded(newTopCard);
             await handleCardEffectIfNeeded(newTopCard);
@@ -208,24 +218,68 @@ async function playBotIfNeeded() {
     }
 }
 
+// Pile de pioche visuelle et animation
 function renderDrawPile(remainingCards = 10) {
     const pileDiv = document.getElementById("draw-pile-stack");
     pileDiv.innerHTML = '';
 
-    for (let i = 0; i < remainingCards; i++) {
+    // On affiche jusqu'à 5 dos de cartes empilés pour l'effet visuel
+    const maxVisible = Math.min(remainingCards, 5);
+    for (let i = 0; i < maxVisible; i++) {
         const back = document.createElement("div");
         back.className = "card-back stacked";
-        back.style.top = `-${i * 2}px`;
-        back.style.left = `-${i * 2}px`;
+        back.style.top = `-${i * 3}px`;
+        back.style.left = `-${i * 3}px`;
+        back.style.zIndex = i;
         pileDiv.appendChild(back);
     }
 
     pileDiv.title = "Cliquez pour piocher";
     pileDiv.onclick = () => {
         if (document.getElementById("draw-btn").style.display !== "none") {
+            animateDrawCard(document.getElementById("hand"));
             document.getElementById("draw-btn").click();
         }
     };
+}
+
+// Animation de la carte qui vole de la pile à la main du joueur
+function animateDrawCard(targetElement) {
+    const drawPile = document.getElementById("draw-pile-stack");
+    // Prend la dernière carte visible de la pile
+    const pileCards = drawPile.querySelectorAll(".card-back.stacked");
+    if (pileCards.length === 0) return;
+    const card = pileCards[pileCards.length - 1].cloneNode(true);
+    card.classList.add("draw-animation");
+    card.style.zIndex = 1000;
+
+    const pileRect = drawPile.getBoundingClientRect();
+    const handRect = targetElement.getBoundingClientRect();
+    const tx = handRect.left - pileRect.left;
+    const ty = handRect.top - pileRect.top;
+    card.style.left = pileRect.left + "px";
+    card.style.top = pileRect.top + "px";
+    card.style.position = "fixed";
+    card.style.setProperty("--tx", `${tx}px`);
+    card.style.setProperty("--ty", `${ty}px`);
+    document.body.appendChild(card);
+    setTimeout(() => { card.remove(); }, 700);
+}
+
+function animateDrawCardBot(targetElement) {
+    const drawPile = document.getElementById("draw-pile-stack");
+    const card = document.createElement("div");
+    card.className = "card-back draw-animation";
+    const pileRect = drawPile.getBoundingClientRect();
+    const handRect = targetElement.getBoundingClientRect();
+    const tx = handRect.left - pileRect.left;
+    const ty = handRect.top - pileRect.top;
+    card.style.left = pileRect.left + "px";
+    card.style.top = pileRect.top + "px";
+    card.style.setProperty("--tx", `${tx}px`);
+    card.style.setProperty("--ty", `${ty}px`);
+    document.body.appendChild(card);
+    setTimeout(() => { card.remove(); }, 700);
 }
 
 function showEffectMessageIfNeeded(cardStr) {
@@ -233,7 +287,6 @@ function showEffectMessageIfNeeded(cardStr) {
     if (!card) return;
 
     let message = '';
-
     if (card.value === '+2') message = "🤖 Le bot va piocher 2 cartes !";
     else if (card.value === '+4') message = "🤖 Le bot va piocher 4 cartes !";
     else if (card.value.toLowerCase() === 'skip') message = "⏭️ Tour du bot sauté !";
@@ -258,7 +311,6 @@ async function handleCardEffectIfNeeded(cardStr) {
     if (!card) return;
 
     let cardsToDraw = 0;
-
     if (card.value === '+2') cardsToDraw = 2;
     else if (card.value === '+4') cardsToDraw = 4;
 
@@ -266,12 +318,9 @@ async function handleCardEffectIfNeeded(cardStr) {
         const stateRes = await getGameState(gameId);
         if (!stateRes.success) return;
         const state = stateRes.data.state;
-
         const targetPlayer = state.current_player;
-
         const drawRes = await drawCardsAPI(gameId, targetPlayer, cardsToDraw);
         if (!drawRes.success) return alert(drawRes.error);
-
         await updateGameState();
     }
 }

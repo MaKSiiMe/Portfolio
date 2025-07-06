@@ -1,45 +1,49 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>UNO Deluxe</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css" />
 </head>
-<div id="win-popup"></div>
 
 <body>
+  <div id="win-popup"></div>
 
-  <h1>UNO - Version Deluxe</h1>
+  <div id="game-board">
 
-  <div class="top-buttons">
-    <button id="start-btn">Nouvelle Partie</button>
-    <button id="draw-btn" style="display: none;">Piocher</button>
-    <button onclick="renderAllUnoCards()">Toutes les cartes</button>
-  </div>
-
-  <!-- Plateau de jeu UNO -->
-  <div class="board">
-
-    <!-- Zone du BOT -->
-    <div class="bot-zone">
+    <!-- Zone BOT (haut de l'écran) -->
+    <div class="player-row top">
       <div class="bot-avatar">🤖 Bot Uno</div>
       <div id="bot-hand" class="hand-container bot-hand"></div>
     </div>
 
-    <!-- Zone centrale -->
-    <div class="center-zone">
-      <!-- Pile de pioche visible -->
-      <div id="draw-pile-stack" class="draw-stack" title="Cliquez pour piocher"></div>
+    <!-- Zone centrale (pioche, défausse, boutons) -->
+    <div class="middle-zone">
+      <h1 class="title">UNO - Version Deluxe</h1>
 
-      <!-- Pile de défausse -->
-      <div class="discard-stack">
-        <div id="top-card" class="card">?</div>
+      <div class="center-area">
+        <!-- Pile de pioche -->
+        <div id="draw-pile-stack" class="draw-stack" title="Cliquez pour piocher"></div>
+
+        <!-- Carte du dessus -->
+        <div class="discard-stack">
+          <div id="top-card" class="card">?</div>
+        </div>
+      </div>
+
+      <!-- Boutons de jeu -->
+      <div class="top-buttons">
+        <button id="start-btn">Nouvelle Partie</button>
+        <button id="draw-btn" style="display: none;">Piocher</button>
+        <button onclick="renderAllUnoCards()">Toutes les cartes</button>
       </div>
     </div>
 
     <!-- Main du joueur -->
-    <div id="hand" class="hand-container player-hand"></div>
+    <div class="player-row bottom">
+      <div id="hand" class="hand-container player-hand"></div>
+    </div>
   </div>
 
   <!-- Choix de couleur -->

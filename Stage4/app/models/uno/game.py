@@ -64,6 +64,7 @@ class Game:
         return {
             "num_players": self.num_players,
             "deck_size": len(self.deck),
+            "draw_pile_count": len(self.deck),
             "discard_pile": self.discard_pile,
             "hands": self.hands,
             "current_player": self.current_player,

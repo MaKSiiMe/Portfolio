@@ -131,8 +131,10 @@ body {
   mix-blend-mode: normal;
 }
 
-.card.black span, .card.black .card-value {
-  color: white;
+.card.black span,
+.card.black .card-value {
+  color: black !important;
+  text-shadow: 1px 1px 4px #000;
 }
 
 /* === Couleurs des cartes === */

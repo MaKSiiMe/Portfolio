@@ -182,6 +182,10 @@ async function updateGameState() {
             alert(state.winner === playerIdx ? "🎉 Vous avez gagné !" : "🤖 Le bot a gagné !");
         }, 100);
         drawBtn.style.display = "none";
+        return;
+    }
+    if (state.current_player !== playerIdx) {
+        await playBotIfNeeded();
     }
 }
 

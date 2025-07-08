@@ -3,6 +3,14 @@ from app.models.uno.encodings import CARD2IDX
 from app.models.uno.utils import encode_card, TOTAL_CARDS
 
 class RuleBasedAgent:
+    def __call__(self, env, obs):
+        player_idx = env.game.current_player
+        game_state = env.game.get_state()
+        action = self.choose_action(game_state, player_idx)
+        if env.verbose:
+            print(f"[RuleBasedAction] player {player_idx} -> action {action}")
+        return action
+
     def choose_action(self, game_state, player_idx):
         """
         Choisit la première carte jouable, sinon pioche.

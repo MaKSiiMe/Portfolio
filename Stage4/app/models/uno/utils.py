@@ -1,159 +1,53 @@
-# utils.py
-
-from typing import Dict, List
-from .constants import COLORS, VALUES, SPECIAL_CARDS, WILD_CARDS
-from .encodings import CARD2IDX
-
-
-# Encodage/décodage des cartes
-CARD_ENCODING: Dict[str, int] = {}
-CARD_DECODING: Dict[int, str] = {}
-
-_card_id = 0
-
-# Cartes "0" (une seule par couleur)
-for color in COLORS:
-    card = f"{color} 0"
-    CARD_ENCODING[card] = _card_id
-    CARD_DECODING[_card_id] = card
-    _card_id += 1
-
-# Cartes numérotées 1-9 (deux par couleur)
-for color in COLORS:
-    for value in VALUES:
-        card = f"{color} {value}"
-        for _ in range(2):
-            CARD_ENCODING[card] = _card_id
-            CARD_DECODING[_card_id] = card
-            _card_id += 1
-
-# Cartes spéciales couleur (deux par couleur)
-for color in COLORS:
-    for special in SPECIAL_CARDS:
-        card = f"{color} {special}"
-        for _ in range(2):
-            CARD_ENCODING[card] = _card_id
-            CARD_DECODING[_card_id] = card
-            _card_id += 1
-
-# Cartes Wild (4 exemplaires)
-for wild in WILD_CARDS:
-    for _ in range(4):
-        CARD_ENCODING[wild] = _card_id
-        CARD_DECODING[_card_id] = wild
-        _card_id += 1
-
-TOTAL_CARDS = _card_id  # = 108
-
 import numpy as np
 
+# Simulate the updated constants and encodings
+COLORS = ['Red', 'Green', 'Blue', 'Yellow']
+VALUES = list(range(1, 10))
+SPECIAL_CARDS = ['+2', 'Reverse', 'Skip']
+WILD_CARDS = [f"Wild {color}" for color in COLORS] + [f"Wild +4 {color}" for color in COLORS]
+ALL_CARDS = [f"{color} {number}" for color in COLORS for number in range(0, 10)] + \
+            [f"{color} {special}" for color in COLORS for special in SPECIAL_CARDS] + \
+            WILD_CARDS
+CARD2IDX = {card: idx for idx, card in enumerate(ALL_CARDS)}
+IDX2CARD = {idx: card for card, idx in CARD2IDX.items()}
+TOTAL_CARDS = len(ALL_CARDS)
+
+# Define the functions
+def normalize_card(card: str) -> str:
+    if 'Wild' in card:
+        parts = card.split()
+        if parts[0] in COLORS:
+            return " ".join(parts)
+    return card
+
 def encode_card(card_str: str) -> int:
-    """Convertit une carte en entier unique"""
-    return CARD_ENCODING[card_str]
+    return CARD2IDX[normalize_card(card_str)]
 
 def decode_card(card_id: int) -> str:
-    """Convertit un entier en carte"""
-    if card not in CARD2IDX:
-        raise KeyError(f"Card '{card}' not in CARD2IDX")
-    return CARD_DECODING[card_id]
+    if card_id not in IDX2CARD:
+        raise KeyError(f"Card ID '{card_id}' not found in IDX2CARD")
+    return IDX2CARD[card_id]
 
-def encode_hand(hand: List[str]) -> np.ndarray:
-    """
-    Encode une main de cartes en vecteur de fréquences (longueur = TOTAL_CARDS)
-
-    Args:
-        hand (List[str]): Liste des cartes
-
-    Returns:
-        np.ndarray: Vecteur de fréquences (float32)
-    """
+def encode_hand(hand: list) -> np.ndarray:
     vec = np.zeros(len(CARD2IDX), dtype=np.float32)
     for card in hand:
         norm_card = normalize_card(card)
-        vec[CARD2IDX[norm_card]] += 1
+        if norm_card in CARD2IDX:
+            vec[CARD2IDX[norm_card]] += 1
     return vec
 
-def decode_hand(encoded_hand: List[int]) -> List[str]:
-    """
-    Convertit une liste d'entiers en noms de cartes (str), ignore les -1.
-
-    Args:
-        encoded_hand (List[int]): Entiers
-
-    Returns:
-        List[str]: Cartes correspondantes
-    """
-    return [decode_card(cid) for cid in encoded_hand if cid != -1]
-
-def encode_state(game_state: dict, player_idx: int) -> np.ndarray:
-    """
-    Encode l'état du jeu pour un joueur donné.
-
-    Args:
-        game_state (dict): état brut du jeu (format retourné par Game.get_state())
-        player_idx (int): index du joueur courant
-
-    Returns:
-        np.ndarray: vecteur représentant l'état
-    """
-    from .utils import encode_card, encode_hand, TOTAL_CARDS
-
-    # Main du joueur
-    hand = game_state["hands"][player_idx]
-    hand_vec = encode_hand(hand)  # (108,)
-
-    # Correction : déduire la top_card depuis discard_pile si non présente
-    if "top_card" in game_state:
-        top_card = game_state["top_card"]
-    elif "discard_pile" in game_state and game_state["discard_pile"]:
-        top_card = game_state["discard_pile"][-1]
-    else:
-        top_card = None
-
-    top_card_vec = np.zeros(TOTAL_CARDS, dtype=np.float32)
-    if top_card is not None:
-        try:
-            top_card_id = encode_card(top_card)
-            top_card_vec[top_card_id] = 1.0  # One-hot
-        except Exception:
-            pass
-
-    # Nombre de cartes restantes pour chaque joueur
-    num_players = len(game_state["hands"])
-    opponents_sizes = [
-        len(game_state["hands"][i]) if i != player_idx else 0
-        for i in range(num_players)
-    ]
-    opponents_vec = np.array(opponents_sizes, dtype=np.float32)
-
-    # Concaténation finale
-    state_vector = np.concatenate([hand_vec, top_card_vec, opponents_vec])
-
-    return state_vector
+def decode_hand(encoded_hand: list) -> list:
+    return [decode_card(idx) for idx, count in enumerate(encoded_hand) if count > 0]
 
 def decode_action(index: int) -> str:
-    """
-    Convertit un index d'action en nom de carte, ou 'DRAW' si c'est l'action piocher.
-
-    Args:
-        index (int): index d'action
-
-    Returns:
-        str: carte jouée ou 'DRAW'
-    """
     if index == TOTAL_CARDS:
         return "DRAW"
     return decode_card(index)
 
-def normalize_card(card: str) -> str:
-    if 'Wild' in card:
-        parts = card.split()
-        if parts[0] in {"Red", "Green", "Blue", "Yellow"}:
-            return " ".join(parts[1:])
-    return card
+# Create sample hand and test encoding/decoding
+sample_hand = ["Red 3", "Green +2", "Wild +4 Blue"]
+encoded = encode_hand(sample_hand)
+decoded = decode_hand(encoded)
 
-def normalize_top_card(card: str) -> str:
-    parts = card.split()
-    if parts[0] in {"Red", "Green", "Blue", "Yellow"} and "Wild" in card:
-        return " ".join(parts[1:])
-    return card
+encoded, decoded, decode_action(TOTAL_CARDS), decode_action(5)  # example decode
+

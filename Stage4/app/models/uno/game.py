@@ -179,7 +179,11 @@ class Game:
                 self.direction *= -1 if self.num_players > 2 else 1
                 if self.num_players == 2:
                     self.skip_next = True
-            elif "Wild +4" in chosen_card or "Wild" in chosen_card:
+            elif "Draw Two" in chosen_card:
+                self.draw_two_next += 1
+            elif "Wild +4" in chosen_card:
+                self.draw_four_next += 1
+            elif "Wild" in chosen_card:
                 if not is_human:
                     # Si IA : choisis une couleur automatiquement
                     from app.models.uno.constants import COLORS

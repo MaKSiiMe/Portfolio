@@ -311,22 +311,7 @@ function showTemporaryPopup(text) {
 }
 
 async function handleCardEffectIfNeeded(cardStr) {
-    const card = parseCard(cardStr);
-    if (!card) return;
-
-    let cardsToDraw = 0;
-    if (card.value === '+2') cardsToDraw = 2;
-    else if (card.value === '+4') cardsToDraw = 4;
-
-    if (cardsToDraw > 0) {
-        const stateRes = await getGameState(gameId);
-        if (!stateRes.success) return;
-        const state = stateRes.data.state;
-        const targetPlayer = state.current_player;
-        const drawRes = await drawCardsAPI(gameId, targetPlayer, cardsToDraw);
-        if (!drawRes.success) return alert(drawRes.error);
-        await updateGameState();
-    }
+return;
 }
 
 window.addEventListener("DOMContentLoaded", () => {

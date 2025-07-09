@@ -4,6 +4,7 @@ let gameId = null;
 let playerIdx = 0;
 let currentColor = null;
 
+// On filtre les Wild dans la main (ne les rend pas jouables ni visibles)
 function parseCard(cardStr) {
     if (!cardStr) return null;
     const parts = cardStr.split(' ');
@@ -12,11 +13,18 @@ function parseCard(cardStr) {
     return { color: 'black', value: cardStr };
 }
 
+function isWild(card) {
+    // On considère toute carte contenant "Wild" (joker) comme Wild
+    return card.value.toLowerCase().includes("wild");
+}
+
 function renderHand(cards) {
     const handDiv = document.getElementById("hand");
     handDiv.innerHTML = '';
     cards.forEach((cardStr, idx) => {
         const card = parseCard(cardStr);
+        if (isWild(card)) return; // NE PAS AFFICHER les Wild
+
         const div = document.createElement("div");
         div.className = `card ${card.color.toLowerCase()}`;
         const valueSpan = document.createElement('span');
@@ -36,6 +44,8 @@ function renderTopCard(cardStr) {
     zone.innerHTML = '';
     if (!cardStr) return;
     const card = parseCard(cardStr);
+    if (isWild(card)) return; // NE PAS AFFICHER les Wild en haut de la pile
+
     const div = document.createElement("div");
     div.className = `card ${card.color.toLowerCase()}`;
     const valueSpan = document.createElement('span');
@@ -48,6 +58,7 @@ function renderTopCard(cardStr) {
 }
 
 function renderCard(card) {
+    if (isWild(card)) return null;
     const div = document.createElement('div');
     div.className = 'card';
     div.classList.add(card.color);
@@ -86,18 +97,18 @@ document.getElementById("start-btn").addEventListener("click", async () => {
 
 document.getElementById("draw-btn").addEventListener("click", async () => {
     if (!gameId) return alert("Commencez une partie d'abord !");
-    // Animation AVANT la pioche réelle
     animateDrawCard(document.getElementById("hand"));
-    const result = await drawCardsAPI(gameId, playerIdx, 1);
+    // Utilise playTurnAPI avec null comme input pour gérer la pioche et le passage de tour
+    const result = await playTurnAPI(gameId, null);
     if (!result.success) return alert(result.error);
 
-    if (result.data.cards && result.data.cards.length > 0) {
-        setTimeout(async () => {
-            await updateGameState();
-            await playBotIfNeeded();
-        }, 650);
-    } else {
-        await updateGameState();
+    await updateGameState();
+
+    // Vérifie si c'est au bot de jouer maintenant
+    const stateRes = await getGameState(gameId);
+    if (!stateRes.success) return alert(stateRes.error);
+    const state = stateRes.data.state;
+    if (state.current_player !== playerIdx && state.winner === null) {
         await playBotIfNeeded();
     }
 });
@@ -110,14 +121,20 @@ async function tryPlayCard(cardIdx) {
     const cardStr = hand[cardIdx];
     const parsed = parseCard(cardStr);
 
-    if (parsed.value.startsWith("Wild")) {
-        document.getElementById("color-choice").style.display = 'flex';
-        window.pendingWild = { cardIdx };
+    if (isWild(parsed)) {
+        alert("Les cartes Wild ne sont pas autorisées dans cette partie.");
         return;
     }
 
     const playRes = await playTurnAPI(gameId, cardIdx);
-    if (!playRes.success) return alert(playRes.error);
+    if (!playRes.success) {
+        // Si la carte n'est pas jouable, affiche un message et ne fais rien d'autre
+        if (playRes.error && playRes.error.includes("not playable")) {
+            showTemporaryPopup("❌ Cette carte n'est pas jouable !");
+            return;
+        }
+        return alert(playRes.error);
+    }
 
     await updateGameState();
     showEffectMessageIfNeeded(cardStr);
@@ -132,34 +149,10 @@ async function tryPlayCard(cardIdx) {
     }
 }
 
+// On désactive aussi les boutons de choix de couleur (Wild)
 document.querySelectorAll(".color-btn").forEach(btn => {
-    btn.addEventListener("click", async () => {
-        if (!window.pendingWild) return;
-        const { cardIdx } = window.pendingWild;
-        const chosenColor = btn.dataset.color.charAt(0).toUpperCase() + btn.dataset.color.slice(1);
-
-        const playRes = await playTurnAPI(gameId, cardIdx);
-        if (!playRes.success) return alert(playRes.error);
-
-        const colorRes = await chooseColorAPI(gameId, chosenColor);
-        if (!colorRes.success) return alert(colorRes.error);
-
-        document.getElementById("color-choice").style.display = 'none';
-        window.pendingWild = null;
-
-        const stateRes = await getGameState(gameId);
-        const state = stateRes.data.state;
-        const playedCard = state.discard_pile.at(-1);
-
-        await updateGameState();
-        showEffectMessageIfNeeded(playedCard);
-        await handleCardEffectIfNeeded(playedCard);
-
-        const currentPlayer = state.current_player;
-        if (currentPlayer !== playerIdx) {
-            await playBotIfNeeded();
-        }
-    });
+    btn.style.display = "none";
+    btn.onclick = null;
 });
 
 async function updateGameState() {
@@ -189,7 +182,7 @@ async function updateGameState() {
     }
 }
 
-// CORRECTION PRINCIPALE : boucle tant que ce n'est pas à toi de jouer
+// Ajoute un délai d'au moins 1 seconde entre chaque action du bot
 async function playBotIfNeeded() {
     while (true) {
         const stateRes = await getGameState(gameId);
@@ -197,23 +190,20 @@ async function playBotIfNeeded() {
 
         const state = stateRes.data.state;
         if (state.current_player === playerIdx || state.winner !== null) {
-            break; // C'est à toi de jouer ou la partie est finie
+            break;
         }
 
         const botRes = await playTurnAPI(gameId, null);
         if (!botRes.success) return alert(botRes.error);
 
         await updateGameState();
-        await new Promise(res => setTimeout(res, 500)); // Pause pour voir l'action du bot
+        await new Promise(res => setTimeout(res, 6000)); // Pause de 6 seconde tranquillo de quoi
     }
 }
 
-// Pile de pioche visuelle et animation
 function renderDrawPile(remainingCards = 10) {
     const pileDiv = document.getElementById("draw-pile-stack");
     pileDiv.innerHTML = '';
-
-    // On affiche jusqu'à 5 dos de cartes empilés pour l'effet visuel
     const maxVisible = Math.min(remainingCards, 5);
     for (let i = 0; i < maxVisible; i++) {
         const back = document.createElement("div");
@@ -233,10 +223,8 @@ function renderDrawPile(remainingCards = 10) {
     };
 }
 
-// Animation de la carte qui vole de la pile à la main du joueur
 function animateDrawCard(targetElement) {
     const drawPile = document.getElementById("draw-pile-stack");
-    // Prend la dernière carte visible de la pile
     const pileCards = drawPile.querySelectorAll(".card-back.stacked");
     if (pileCards.length === 0) return;
     const card = pileCards[pileCards.length - 1].cloneNode(true);
@@ -274,14 +262,13 @@ function animateDrawCardBot(targetElement) {
 
 function showEffectMessageIfNeeded(cardStr) {
     const card = parseCard(cardStr);
-    if (!card) return;
+    if (!card || isWild(card)) return;
 
     let message = '';
     if (card.value === '+2') message = "🤖 Le bot va piocher 2 cartes !";
     else if (card.value === '+4') message = "🤖 Le bot va piocher 4 cartes !";
     else if (card.value.toLowerCase() === 'skip') message = "⏭️ Tour du bot sauté !";
     else if (card.value.toLowerCase() === 'reverse') message = "🔄 Sens du jeu inversé !";
-    else if (card.value.toLowerCase().includes('wild')) message = "🎨 Changement de couleur !";
 
     if (message) {
         showTemporaryPopup(message);
@@ -296,7 +283,6 @@ function showTemporaryPopup(text) {
     setTimeout(() => popup.remove(), 2000);
 }
 
-// Effets spéciaux déjà gérés côté backend
 async function handleCardEffectIfNeeded(cardStr) {
     return;
 }

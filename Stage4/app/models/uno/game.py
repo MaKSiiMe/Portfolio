@@ -8,8 +8,8 @@ from app.models.uno.deck import create_deck, reshuffle_discard_pile
 from app.models.uno.rules import is_playable, calculate_score
 
 from app.models.agents.rules_agent import RuleBasedAgent
-# from app.models.agents.random_agent import RandomAgent
-# from app.models.agents.ppo_agent import PPOAgent
+from app.models.agents.random_agent import RandomAgent
+from app.models.agents.ppo_agent import PPOAgent
 
 class Game:
     def __init__(self, num_players: int = 2, seed: Optional[int] = None, agent_type: str = "rulesbased", agents=None):
@@ -148,7 +148,7 @@ class Game:
                 if not isinstance(human_input, int) or human_input < 0 or human_input >= len(hand):
                     raise ValueError("Card index out of bounds.")
                 card_str = hand[human_input]
-                if (human_input, card_str) not in playable:
+                if not is_playable(card_str, top_card, self.current_color):
                     raise ValueError("Card is not playable.")
                 chosen_idx = human_input
                 is_human = True

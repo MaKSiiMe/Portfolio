@@ -69,16 +69,17 @@ class UnoEnv(gym.Env):
         top_card = self.game.discard_pile[-1]
         current_color = self.game.current_color
 
-        playable_cards = [
-            (i, card) for i, card in enumerate(hand)
-            if is_playable(card, top_card, current_color)
-        ]
+        # Check playable cards
+        playable_cards = [(i, card) for i, card in enumerate(hand) if is_playable(card, top_card, current_color)]
         has_playable = len(playable_cards) > 0
 
         if action == NUM_CARDS:
-            reward += -1.0 if has_playable else -0.1
-            self.game.draw_cards(player, 1)
-            self.game.advance_turn()
+            if has_playable:
+                reward += -5.0  # Illegal draw
+            else:
+                self.game.draw_cards(player, 1)
+                self.game.advance_turn()
+                reward += -0.1  # Mild penalty for legal draw
 
         elif 0 <= action < NUM_CARDS:
             card_to_play = decode_card(action)
@@ -103,7 +104,7 @@ class UnoEnv(gym.Env):
             wild_index = action - (NUM_CARDS + 1)
             if wild_index < len(WILD_ACTIONS):
                 color = list(WILD_ACTIONS.keys())[wild_index].split()[-1]
-                matching_card = next((card for card in hand if f"Wild" in card and color in card), None)
+                matching_card = next((card for card in hand if "Wild" in card and color in card), None)
                 if matching_card and is_playable(matching_card, top_card, current_color):
                     idx = hand.index(matching_card)
                     self.set_current_color(color)
@@ -122,14 +123,10 @@ class UnoEnv(gym.Env):
         reward += (hand_size_before - hand_size_after) * 0.1
 
         if len(self.game.hands[1 - player]) == 1:
-            reward += -1.0
+            reward += -1.0  # Danger: opponent at UNO
 
         winner = self.game.get_winner()
-        done = (
-            winner is not None or
-            any(len(h) == 0 for h in self.game.hands) or
-            self.step_count >= self.max_steps
-        )
+        done = winner is not None or any(len(h) == 0 for h in self.game.hands) or self.step_count >= self.max_steps
         truncated = self.step_count >= self.max_steps
         self.done = done
 
@@ -141,6 +138,7 @@ class UnoEnv(gym.Env):
             else:
                 reward += -5.0
 
+        # Opponent turn loop
         while not self.done and self.game.current_player != player:
             if self.opponent_agent_fn is not None:
                 opponent = self.game.current_player
@@ -170,11 +168,7 @@ class UnoEnv(gym.Env):
                 self.game.advance_turn()
 
             winner = self.game.get_winner()
-            self.done = (
-                winner is not None or
-                any(len(h) == 0 for h in self.game.hands) or
-                self.step_count >= self.max_steps
-            )
+            self.done = winner is not None or any(len(h) == 0 for h in self.game.hands) or self.step_count >= self.max_steps
             truncated = self.step_count >= self.max_steps
 
         obs = self._get_obs_player(player)
@@ -184,20 +178,17 @@ class UnoEnv(gym.Env):
         player_hand = self.game.hands[player]
         top_card = self.game.discard_pile[-1]
 
-        # Indice de la top_card (normalisé si besoin)
         try:
             top_card_idx = CARD2IDX[top_card]
         except KeyError:
             raise ValueError(f"Top card '{top_card}' not found in CARD2IDX")
 
-        # One-hot encoding de la couleur active
         current_color = self.game.current_color
         color_idx = COLORS.index(current_color) if current_color in COLORS else -1
         one_hot_color = np.zeros(4, dtype=np.int8)
         if 0 <= color_idx < 4:
             one_hot_color[color_idx] = 1
 
-        # Effets de pioche actifs (max 4 pour caper l'impact)
         draw_effect = self.game.draw_two_next * 2 + self.game.draw_four_next * 4
         draw_effect = min(draw_effect, 4)
 
@@ -208,7 +199,7 @@ class UnoEnv(gym.Env):
             "current_color": one_hot_color,
             "draw_effect_active": draw_effect,
             "opponent_at_uno": int(len(self.game.hands[1 - player]) == 1),
-            "turns_without_play": min(self.step_count, 9),  # tronqué à 9 max pour rester dans l’espace défini
+            "turns_without_play": min(self.step_count, 9),
         }
 
     def render(self):
@@ -221,7 +212,3 @@ class UnoEnv(gym.Env):
             self.game.current_color = color
             return True
         return False
-
-    def ppo_agent_fn(env, state):
-        action, _ = model.predict(state, deterministic=True)
-        return int(action)

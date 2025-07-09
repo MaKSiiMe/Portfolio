@@ -36,3 +36,8 @@ class RandomAgent:
             return encode_card(selected_card)
         else:
             return TOTAL_CARDS  # Draw
+
+random_agent_instance = RandomAgent()
+
+def random_agent_fn(env, state):
+        return random_agent_instance(env, state)

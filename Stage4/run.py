@@ -10,11 +10,11 @@ import sys
 from typing import List, Optional
 
 from app.models.uno.game import Game
-from app.models.uno.display import print_board, print_hand  # <-- ici
+from app.models.uno.display import print_board, print_hand
 from app.models.agents.human_agent import ask_playable_choice, ask_draw
 
-NUM_PLAYERS = 3
-HUMAN_PLAYER_IDX = -1  # Index du joueur humain (0 pour le premier joueur)
+NUM_PLAYERS = 1
+HUMAN_PLAYER_IDX = 0  # Index du joueur humain (0 pour le premier joueur)
 TARGET_SCORE = 500
 
 def main(seed: Optional[int] = None) -> None:

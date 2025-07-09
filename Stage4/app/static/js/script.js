@@ -189,36 +189,22 @@ async function updateGameState() {
     }
 }
 
+// CORRECTION PRINCIPALE : boucle tant que ce n'est pas à toi de jouer
 async function playBotIfNeeded() {
-    const stateRes = await getGameState(gameId);
-    if (!stateRes.success) return alert(stateRes.error);
+    while (true) {
+        const stateRes = await getGameState(gameId);
+        if (!stateRes.success) return alert(stateRes.error);
 
-    const state = stateRes.data.state;
-    if (state.current_player !== playerIdx && state.winner === null) {
-        const oldTopCard = state.discard_pile.at(-1);
-        const oldBotHand = state.hands[1] || [];
-        const oldCount = oldBotHand.length;
+        const state = stateRes.data.state;
+        if (state.current_player === playerIdx || state.winner !== null) {
+            break; // C'est à toi de jouer ou la partie est finie
+        }
 
         const botRes = await playTurnAPI(gameId, null);
         if (!botRes.success) return alert(botRes.error);
 
-        const newStateRes = await getGameState(gameId);
-        if (!newStateRes.success) return alert(newStateRes.error);
-        const newState = newStateRes.data.state;
-        const newBotHand = newState.hands[1] || [];
-        const newCount = newBotHand.length;
-
-        if (newCount > oldCount) {
-            animateDrawCardBot(document.getElementById("bot-hand"));
-        }
-
         await updateGameState();
-
-        const newTopCard = newState.discard_pile.at(-1);
-        if (newTopCard && newTopCard !== oldTopCard) {
-            showEffectMessageIfNeeded(newTopCard);
-            await handleCardEffectIfNeeded(newTopCard);
-        }
+        await new Promise(res => setTimeout(res, 500)); // Pause pour voir l'action du bot
     }
 }
 
@@ -310,8 +296,9 @@ function showTemporaryPopup(text) {
     setTimeout(() => popup.remove(), 2000);
 }
 
+// Effets spéciaux déjà gérés côté backend
 async function handleCardEffectIfNeeded(cardStr) {
-return;
+    return;
 }
 
 window.addEventListener("DOMContentLoaded", () => {

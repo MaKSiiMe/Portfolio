@@ -93,7 +93,7 @@ class Game:
         if not hand:
             return player
 
-        # Effets spéciaux accumulés à appliquer AVANT le tour
+        # Effets spéciaux à appliquer AVANT le tour
         if self.draw_four_next:
             self.draw_cards(player, 4 * self.draw_four_next)
             self.draw_four_next = 0
@@ -146,13 +146,16 @@ class Game:
             card_lower = chosen_card.lower()
             if "skip" in card_lower:
                 self.skip_next = True
+                self.current_color = chosen_card.split()[0]  # CORRECTION
             elif "reverse" in card_lower:
                 if self.num_players == 2:
                     self.skip_next = True
                 else:
                     self.direction *= -1
+                self.current_color = chosen_card.split()[0]  # CORRECTION
             elif "+2" in card_lower:
                 self.draw_two_next += 1
+                self.current_color = chosen_card.split()[0]  # CORRECTION
             elif "+4" in card_lower:
                 self.draw_four_next += 1
                 if not is_human:
@@ -161,24 +164,24 @@ class Game:
                         self.current_color = random.choice(colors_in_hand)
                     else:
                         self.current_color = random.choice(COLORS)
+                # Si humain : NE CHANGE PAS current_color ici, attend l'appel à /choose_color
             elif "wild" in card_lower:
                 if not is_human:
-                    # Si IA : choisis une couleur automatiquement
                     colors_in_hand = [card.split()[0] for card in self.hands[player] if card.split()[0] in COLORS]
                     if colors_in_hand:
                         self.current_color = random.choice(colors_in_hand)
                     else:
                         self.current_color = random.choice(COLORS)
-                        # Si humain : NE CHANGE PAS current_color ici, attend l'appel à /choose_color
+                # Si humain : NE CHANGE PAS current_color ici, attend l'appel à /choose_color
             else:
-                self.current_color = chosen_card.split()[0]
+                self.current_color = chosen_card.split()[0]  # couleur normale
 
         else:
             # Aucune carte jouable : pioche automatiquement
             self.draw_cards(player, 1)
             self.consecutive_passes += 1
-        
-         # Vérifie la victoire
+
+        # Vérifie la victoire
         if not self.hands[player]:
             return player
 
@@ -190,12 +193,6 @@ class Game:
         self.turn += 1
 
     def calculate_scores(self) -> List[int]:
-        """
-        Calculate the scores for all players.
-
-        Returns:
-            List[int]: List of player scores.
-        """
         scores = [calculate_score(self.hands, winner_idx=i) for i in range(self.num_players)]
         return scores
 

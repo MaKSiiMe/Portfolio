@@ -1,16 +1,13 @@
-import { startGame, getGameState, playTurnAPI, drawCardsAPI, chooseColorAPI } from './api.js';
+import { startGame, getGameState, playTurnAPI } from './api.js';
 
-// --------------------------------------------------
-// VARIABLES GLOBALES
-// --------------------------------------------------
-let gameId = null;          // id de la partie courante
-let playerIdx = 0;          // index du joueur humain dans hands[]
-let currentColor = null;    // couleur courante imposée (utile pour les Jokers)
-let botPlaying = false;     // verrou pour empêcher le bot de jouer plusieurs fois
+const BOT_DELAY_MS = 2000; // ralentit le bot
 
-//---------------------------------------------------
-// OUTILS CARTES
-//---------------------------------------------------
+let gameId = null;
+let playerIdx = 0;
+let currentColor = null;
+let botPlaying = false;
+let lastPlayerHandSize = null;
+
 function parseCard(cardStr) {
     if (!cardStr) return null;
     const parts = cardStr.split(' ');
@@ -23,25 +20,18 @@ function isWild(card) {
     return card.value.toLowerCase().includes('wild');
 }
 
-//---------------------------------------------------
-// RENDU DU JOUEUR HUMAIN
-//---------------------------------------------------
 function renderHand(cards) {
     const handDiv = document.getElementById('hand');
     handDiv.innerHTML = '';
-
     cards.forEach((cardStr, idx) => {
         const card = parseCard(cardStr);
-        if (isWild(card)) return; // on cache les Jokers dans cette variante
-
+        if (isWild(card)) return;
         const div = document.createElement('div');
         div.className = `card ${card.color.toLowerCase()}`;
-
         const valueSpan = document.createElement('span');
         valueSpan.className = 'card-value';
         valueSpan.innerText = card.value;
         div.appendChild(valueSpan);
-
         div.onclick = () => tryPlayCard(idx);
         div.classList.add('drawn');
         setTimeout(() => div.classList.remove('drawn'), 500);
@@ -49,32 +39,22 @@ function renderHand(cards) {
     });
 }
 
-//---------------------------------------------------
-// RENDU DE LA CARTE AU SOMMET DE LA PILE
-//---------------------------------------------------
 function renderTopCard(cardStr) {
     const zone = document.getElementById('top-card');
     zone.innerHTML = '';
     if (!cardStr) return;
-
     const card = parseCard(cardStr);
-    if (isWild(card)) return; // on cache les Jokers
-
+    if (isWild(card)) return;
     const div = document.createElement('div');
     div.className = `card ${card.color.toLowerCase()}`;
-
     const valueSpan = document.createElement('span');
     valueSpan.className = 'card-value';
     valueSpan.innerText = card.value;
     div.appendChild(valueSpan);
-
     zone.appendChild(div);
     div.classList.add('fadeIn');
 }
 
-//---------------------------------------------------
-// RENDU DE LA MAIN DU BOT (cartes face cachée)
-//---------------------------------------------------
 function renderBotHand(hands) {
     const botDiv = document.getElementById('bot-hand');
     botDiv.innerHTML = '';
@@ -88,48 +68,31 @@ function renderBotHand(hands) {
     }
 }
 
-//---------------------------------------------------
-// DEMARRER UNE PARTIE
-//---------------------------------------------------
 document.getElementById('start-btn').addEventListener('click', async () => {
     const result = await startGame('rulesbased');
     if (!result.success) return alert(result.error);
     if (!result.data?.game_id) return alert('Erreur: game_id manquant dans la réponse !');
-
     gameId = result.data.game_id;
     playerIdx = 0;
     document.getElementById('draw-btn').style.display = 'inline-block';
-
+    lastPlayerHandSize = null;
     await updateGameState();
     await playBotIfNeeded();
 });
 
-//---------------------------------------------------
-// PIOCHER UNE CARTE
-//---------------------------------------------------
 document.getElementById('draw-btn').addEventListener('click', async () => {
     if (!gameId) return alert("Commencez une partie d'abord !");
-
     animateDrawCard(document.getElementById('hand'));
-
-    // null = piocher + passer le tour (convention API)
     const result = await playTurnAPI(gameId, null);
     if (!result.success) return alert(result.error);
-
     await updateGameState();
-
-    // Si c'est maintenant au bot de jouer
     const stateRes = await getGameState(gameId);
     if (!stateRes.success) return alert(stateRes.error);
-
     if (shouldBotPlay(stateRes.data.state)) {
         await playBotIfNeeded();
     }
 });
 
-//---------------------------------------------------
-// JOUER UNE CARTE CLIQUEE
-//---------------------------------------------------
 async function tryPlayCard(cardIdx) {
     const stateRes = await getGameState(gameId);
     if (!stateRes.success) return alert(stateRes.error);
@@ -153,6 +116,10 @@ async function tryPlayCard(cardIdx) {
         return alert(playRes.error);
     }
 
+    if (parsed.value === '+2' || parsed.value === '+4') {
+        animateDrawCardBot(document.getElementById('bot-hand'));
+    }
+
     await updateGameState();
     showEffectMessageIfNeeded(cardStr);
     await handleCardEffectIfNeeded(cardStr);
@@ -165,17 +132,14 @@ async function tryPlayCard(cardIdx) {
     }
 }
 
-//---------------------------------------------------
-// UTILITAIRES BOT
-//---------------------------------------------------
 function shouldBotPlay(state) {
     return state.current_player !== playerIdx && state.winner === null;
 }
 
+// Boucle du bot + animation de pioche quand tu te prends un +2/+4
 async function playBotIfNeeded() {
-    if (botPlaying) return; // protège contre les appels imbriqués
+    if (botPlaying) return;
     botPlaying = true;
-
     try {
         while (true) {
             const stateRes = await getGameState(gameId);
@@ -183,37 +147,48 @@ async function playBotIfNeeded() {
                 alert(stateRes.error);
                 break;
             }
-
             const state = stateRes.data.state;
             if (!shouldBotPlay(state)) break;
 
-            const botRes = await playTurnAPI(gameId, null); // bot joue (API choisit pour lui)
+            // Taille AVANT le tour du bot
+            const preHandSize = (lastPlayerHandSize !== null ? lastPlayerHandSize : state.hands[playerIdx]?.length || 0);
+
+            const botRes = await playTurnAPI(gameId, null);
             if (!botRes.success) {
                 alert(botRes.error);
                 break;
             }
 
+            const postStateRes = await getGameState(gameId);
+            const postHandSize = postStateRes.data.state.hands[playerIdx]?.length || 0;
+
+            // Animation si le bot t'a fait piocher (ex: +2, +4)
+            const diff = postHandSize - preHandSize;
+            if (diff > 0) {
+                for (let i = 0; i < diff; i++) {
+                    animateDrawCard(document.getElementById('hand'));
+                }
+                // Petite pause pour voir clairement l'animation
+                await new Promise(res => setTimeout(res, 850));
+            }
+            lastPlayerHandSize = postHandSize;
+
             await updateGameState();
-            await new Promise(res => setTimeout(res, 1000)); // petite pause pour le réalisme
+            await new Promise(res => setTimeout(res, BOT_DELAY_MS));
         }
     } finally {
-        botPlaying = false; // déverrouille quoiqu'il arrive
+        botPlaying = false;
     }
 }
 
-//---------------------------------------------------
-// MISE A JOUR COMPLETE DE L'ETAT DU JEU + RENDU
-//---------------------------------------------------
 async function updateGameState() {
     if (!gameId) return;
-
     const result = await getGameState(gameId);
     if (!result.success) return alert(result.error);
 
     const state = result.data.state;
     currentColor = state.current_color;
 
-    // bouton piocher visible seulement si c'est le tour du joueur
     const drawBtn = document.getElementById('draw-btn');
     drawBtn.style.display = (state.current_player === playerIdx) ? 'inline-block' : 'none';
 
@@ -222,7 +197,6 @@ async function updateGameState() {
     renderBotHand(state.hands);
     renderDrawPile(state.draw_pile_count ?? 10);
 
-    // Victoire ?
     if (state.winner !== undefined && state.winner !== null) {
         setTimeout(() => {
             alert(state.winner === playerIdx ? '🎉 Vous avez gagné !' : '🤖 Le bot a gagné !');
@@ -231,20 +205,20 @@ async function updateGameState() {
         return;
     }
 
-    // Si le bot doit jouer et qu'il n'est pas déjà en cours
+    // MAJ pour l'animation du prochain tour bot
+    if (state.hands && state.hands[playerIdx]) {
+        lastPlayerHandSize = state.hands[playerIdx].length;
+    }
+
     if (shouldBotPlay(state)) {
         await playBotIfNeeded();
     }
 }
 
-//---------------------------------------------------
-// RENDU PILE DE PIOCHE ET ANIMATIONS
-//---------------------------------------------------
 function renderDrawPile(remainingCards = 10) {
     const pileDiv = document.getElementById('draw-pile-stack');
     pileDiv.innerHTML = '';
     const maxVisible = Math.min(remainingCards, 5);
-
     for (let i = 0; i < maxVisible; i++) {
         const back = document.createElement('div');
         back.className = 'card-back stacked';
@@ -253,7 +227,6 @@ function renderDrawPile(remainingCards = 10) {
         back.style.zIndex = i;
         pileDiv.appendChild(back);
     }
-
     pileDiv.title = 'Cliquez pour piocher';
     pileDiv.onclick = () => {
         if (document.getElementById('draw-btn').style.display !== 'none') {
@@ -267,11 +240,11 @@ function animateDrawCard(targetElement) {
     const drawPile = document.getElementById('draw-pile-stack');
     const pileCards = drawPile.querySelectorAll('.card-back.stacked');
     if (pileCards.length === 0) return;
-
-    const card = pileCards[pileCards.length - 1].cloneNode(true);
+    const lastPileCard = pileCards[pileCards.length - 1];
+    const card = lastPileCard.cloneNode(true);
+    lastPileCard.remove();
     card.classList.add('draw-animation');
     card.style.zIndex = 1000;
-
     const pileRect = drawPile.getBoundingClientRect();
     const handRect = targetElement.getBoundingClientRect();
 
@@ -288,10 +261,13 @@ function animateDrawCard(targetElement) {
     setTimeout(() => card.remove(), 700);
 }
 
-// (Optionnel) animation si tu veux animer la main du bot
 function animateDrawCardBot(targetElement) {
     const drawPile = document.getElementById('draw-pile-stack');
-    const card = document.createElement('div');
+    const pileCards = drawPile.querySelectorAll('.card-back.stacked');
+    if (pileCards.length === 0) return;
+    const lastPileCard = pileCards[pileCards.length - 1];
+    const card = lastPileCard.cloneNode(true);
+    lastPileCard.remove();
     card.className = 'card-back draw-animation';
 
     const pileRect = drawPile.getBoundingClientRect();
@@ -308,9 +284,6 @@ function animateDrawCardBot(targetElement) {
     setTimeout(() => card.remove(), 700);
 }
 
-//---------------------------------------------------
-// POPUPS & EFFETS SPECIAUX
-//---------------------------------------------------
 function showEffectMessageIfNeeded(cardStr) {
     const card = parseCard(cardStr);
     if (!card || isWild(card)) return;
@@ -333,13 +306,9 @@ function showTemporaryPopup(text) {
 }
 
 async function handleCardEffectIfNeeded(cardStr) {
-    // crochet pour logiques avancées (+2 chainés, etc.)
     return;
 }
 
-//---------------------------------------------------
-// INIT : CACHE LE BOUTON PIOCHER AU CHARGEMENT
-//---------------------------------------------------
 window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('draw-btn').style.display = 'none';
 });
